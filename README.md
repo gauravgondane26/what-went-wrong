@@ -16,18 +16,18 @@ A soccer defensive collapse analyzer. Pick a goal from StatsBomb open data, step
    - **Compactness** — how tightly grouped the defensive unit is
    - **Line height** — how deep the last line of defense is sitting
    - **Cover shadows** — which passing lanes are actively blocked
-6. **Find the collapse** — the single frame where the composite score dropped most sharply is highlighted as *the moment it went wrong*
+6. **Find the collapse** — the single frame where the composite score dropped most sharply is highlighted as _the moment it went wrong_
 7. **Pressure overlay** — a color-coded heatmap showing defensive coverage zones, fading as the shape breaks
 
 ---
 
 ## Stack
 
-| Layer | Tech |
-|-------|------|
-| Data | [StatsBomb open data](https://github.com/statsbomb/open-data) (free) |
-| Backend | Python 3.11 · FastAPI · httpx · numpy · Pydantic v2 |
-| Frontend | React 18 · TypeScript · D3.js v7 · Zustand · Vite |
+| Layer    | Tech                                                                 |
+| -------- | -------------------------------------------------------------------- |
+| Data     | [StatsBomb open data](https://github.com/statsbomb/open-data) (free) |
+| Backend  | Python 3.11 · FastAPI · httpx · numpy · Pydantic v2                  |
+| Frontend | React 18 · TypeScript · D3.js v7 · Zustand · Vite                    |
 
 ---
 
@@ -69,10 +69,10 @@ what-went-wrong/
 ```bash
 cd backend
 pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+uvicorn main:app --reload --port 8080
 ```
 
-Visit `http://localhost:8000/docs` for the interactive API docs.
+Visit `http://localhost:8080/docs` for the interactive API docs.
 
 #### Optional: use a local StatsBomb data clone
 
@@ -94,19 +94,19 @@ pytest tests/ -v
 
 ## API endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/health` | Health check |
-| GET | `/api/v1/competitions` | List 360-enabled competitions |
-| GET | `/api/v1/competitions/{cid}/seasons/{sid}/matches` | List matches with 360 data |
-| GET | `/api/v1/matches/{mid}/goals` | List goals in a match |
-| GET | `/api/v1/matches/{mid}/goals/{gid}/sequence` | Full frame-by-frame sequence |
+| Method | Endpoint                                           | Description                   |
+| ------ | -------------------------------------------------- | ----------------------------- |
+| GET    | `/api/v1/health`                                   | Health check                  |
+| GET    | `/api/v1/competitions`                             | List 360-enabled competitions |
+| GET    | `/api/v1/competitions/{cid}/seasons/{sid}/matches` | List matches with 360 data    |
+| GET    | `/api/v1/matches/{mid}/goals`                      | List goals in a match         |
+| GET    | `/api/v1/matches/{mid}/goals/{gid}/sequence`       | Full frame-by-frame sequence  |
 
 ---
 
 ## Why only 360-data matches?
 
-StatsBomb events record the position of the player *performing* an action — not all 22 players. The full defensive shape (all visible players per frame) requires **StatsBomb 360 data**, which is available for ~11 competitions in the free tier: EURO 2020, FIFA Women's World Cup 2019, and select club matches. Matches without 360 data are hidden from the browser.
+StatsBomb events record the position of the player _performing_ an action — not all 22 players. The full defensive shape (all visible players per frame) requires **StatsBomb 360 data**, which is available for ~11 competitions in the free tier: EURO 2020, FIFA Women's World Cup 2019, and select club matches. Matches without 360 data are hidden from the browser.
 
 ---
 
@@ -114,12 +114,12 @@ StatsBomb events record the position of the player *performing* an action — no
 
 All coordinates are normalized so the **defending team's goal is always at x = 0**.
 
-| Metric | Formula |
-|--------|---------|
-| Compactness | `1 − (bounding box area of defenders / 2400)` |
-| Line height | Average x of the 4 deepest defenders (lower = safer) |
+| Metric        | Formula                                                        |
+| ------------- | -------------------------------------------------------------- |
+| Compactness   | `1 − (bounding box area of defenders / 2400)`                  |
+| Line height   | Average x of the 4 deepest defenders (lower = safer)           |
 | Cover shadows | Fraction of attackers with a defender on the ball→attacker ray |
-| **Composite** | `0.4 × compactness + 0.3 × (1 − line/60) + 0.3 × shadows` |
+| **Composite** | `0.4 × compactness + 0.3 × (1 − line/60) + 0.3 × shadows`      |
 
 The **collapse frame** is the one with the largest single-step drop in composite score.
 
@@ -127,11 +127,11 @@ The **collapse frame** is the one with the largest single-step drop in composite
 
 ## Status
 
-| Component | Status |
-|-----------|--------|
-| Backend API | Done |
-| Data models (Pydantic) | Done |
-| Scoring pipeline | Done |
-| Collapse detection | Done |
-| Backend tests | Done |
-| React frontend | In progress |
+| Component              | Status      |
+| ---------------------- | ----------- |
+| Backend API            | Done        |
+| Data models (Pydantic) | Done        |
+| Scoring pipeline       | Done        |
+| Collapse detection     | Done        |
+| Backend tests          | Done        |
+| React frontend         | In progress |
