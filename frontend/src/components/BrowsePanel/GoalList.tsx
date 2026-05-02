@@ -36,7 +36,6 @@ export function GoalList() {
               <span className="browse-item-secondary">
                 vs {g.conceding_team_name}
                 {g.xg != null && ` · xG ${g.xg.toFixed(2)}`}
-                {` · ${g.sequence_length} events`}
               </span>
             </li>
           ))}

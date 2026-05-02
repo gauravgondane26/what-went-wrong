@@ -1,4 +1,4 @@
-import { useAnalysisStore } from '../../stores/analysisStore'
+import { useAnalysisStore, selectCurrentFrame } from '../../stores/analysisStore'
 import { ScoreBar } from './ScoreBar'
 import { Sparkline } from './Sparkline'
 
@@ -6,7 +6,8 @@ import { Sparkline } from './Sparkline'
 const MAX_LINE_HEIGHT = 60
 
 export function ScorePanel() {
-  const { sequence, currentFrameIndex, currentFrame } = useAnalysisStore()
+  const { sequence, currentFrameIndex } = useAnalysisStore()
+  const currentFrame = useAnalysisStore(selectCurrentFrame)
 
   if (!sequence || !currentFrame) return null
 
@@ -20,7 +21,7 @@ export function ScorePanel() {
     <div className={`score-panel ${isCollapse ? 'score-panel--collapse' : ''}`}>
       <h3 className="score-panel-heading">
         Defensive Shape
-        {isCollapse && <span className="collapse-badge">⚡ collapse point</span>}
+        {isCollapse && <span className="collapse-badge">collapse point</span>}
       </h3>
 
       {/* Composite score — prominent */}
