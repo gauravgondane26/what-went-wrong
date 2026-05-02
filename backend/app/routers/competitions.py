@@ -28,5 +28,5 @@ async def list_competitions(request: Request) -> list[CompetitionSummary]:
             country_name=c["country_name"],
         )
         for c in _competitions_cache
-        if c.get("match_available_360") is not None
+        if c.get("match_available_360")
     ]

@@ -72,13 +72,27 @@ async def load_events(client: httpx.AsyncClient, match_id: int) -> list[dict]:
 
 
 async def load_frames360(client: httpx.AsyncClient, match_id: int) -> dict[str, list]:
-    """Returns dict keyed by event_uuid → freeze_frame player list."""
+    """Returns dict keyed by event_uuid → freeze_frame player list.
+
+    Returns an empty dict if the 360 file doesn't exist for this match
+    (some matches report match_status_360='available' in the metadata but
+    have no corresponding file on GitHub).
+    """
     lock = cache.get_fetch_lock("frames360", str(match_id))
     async with lock:
         cached = cache.get_frames360(match_id)
         if cached is not None:
             return cached
-        data = await _load(client, f"three-sixty/{match_id}.json")
+
+        try:
+            data = await _load(client, f"three-sixty/{match_id}.json")
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code == 404:
+                # File missing — cache empty dict so we don't retry on every request
+                cache.set_frames360(match_id, {})
+                return {}
+            raise
+
         # Convert list → dict for O(1) lookup by event UUID
         frames_dict: dict[str, list] = {}
         for entry in data:

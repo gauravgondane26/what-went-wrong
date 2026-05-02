@@ -118,15 +118,18 @@ def normalize_frame(
     Returns:
         (ball_x, ball_y, players)
     """
-    needs_flip = not attacking_toward_120
+    needs_flip = attacking_toward_120
 
     def flip(x: float, y: float) -> tuple[float, float]:
         if needs_flip:
             return 120.0 - x, 80.0 - y
         return x, y
 
+    def clamp(x: float, y: float) -> tuple[float, float]:
+        return max(0.0, min(120.0, x)), max(0.0, min(80.0, y))
+
     loc = event.get("location") or [60.0, 40.0]
-    ball_x, ball_y = flip(loc[0], loc[1])
+    ball_x, ball_y = clamp(*flip(loc[0], loc[1]))
 
     event_actor_team_id = event.get("team", {}).get("id")
     # actor_is_defender: the player performing this event is on the defending team
@@ -134,7 +137,7 @@ def normalize_frame(
 
     players: list[PlayerPosition] = []
     for p in freeze_frame:
-        px, py = flip(*p["location"])
+        px, py = clamp(*flip(*p["location"]))
 
         # `teammate` means same team as the EVENT ACTOR (not the ball carrier's team).
         teammate: bool = p.get("teammate", False)

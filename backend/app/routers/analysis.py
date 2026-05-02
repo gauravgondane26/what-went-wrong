@@ -48,8 +48,8 @@ async def get_goal_sequence(
 
     try:
         frames360 = await data_loader.load_frames360(request.app.state.http_client, match_id)
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Failed to load 360 data: {exc}")
+    except Exception:
+        frames360 = {}  # 360 file missing or unavailable — proceed with no player positions
 
     # Find the goal event
     goal_event = next((e for e in events if e["id"] == goal_event_id), None)
@@ -74,11 +74,23 @@ async def get_goal_sequence(
     # Extract possession sequence
     sequence = possession.extract_goal_possession_sequence(events, goal_event)
 
-    # Build frames
+    # Build frames — skip events with no 360 freeze frame data
     frames: list[FrameData] = []
-    for i, event in enumerate(sequence):
+    events_with_360 = [e for e in sequence if frames360.get(e["id"])]
+
+    if not events_with_360:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "No 360 freeze-frame data is available for this match. "
+                "The match is listed in StatsBomb metadata with 360 coverage "
+                "but the data file has not been published to the open-data repository."
+            ),
+        )
+
+    for i, event in enumerate(events_with_360):
         event_id = event["id"]
-        freeze_frame = frames360.get(event_id, [])
+        freeze_frame = frames360[event_id]
 
         ball_x, ball_y, players = normalizer.normalize_frame(
             event, freeze_frame, defending_team_id, attacking_toward_120
