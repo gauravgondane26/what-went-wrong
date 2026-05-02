@@ -11,7 +11,12 @@ async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`)
   if (!res.ok) {
     const text = await res.text().catch(() => res.statusText)
-    throw new Error(`API ${res.status}: ${text}`)
+    let message = `API ${res.status}: ${text}`
+    try {
+      const json = JSON.parse(text)
+      if (json.detail) message = json.detail
+    } catch { /* leave as raw text */ }
+    throw new Error(message)
   }
   return res.json() as Promise<T>
 }

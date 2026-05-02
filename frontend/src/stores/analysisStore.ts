@@ -32,9 +32,6 @@ interface AnalysisState {
   loading: boolean
   error: string | null
 
-  // --- Derived ---
-  currentFrame: FrameData | null
-
   // --- Actions ---
   loadCompetitions: () => Promise<void>
   selectCompetition: (competition: CompetitionSummary) => Promise<void>
@@ -45,6 +42,10 @@ interface AnalysisState {
   stepBack: () => void
   reset: () => void
 }
+
+// Selector — compute currentFrame outside the store to avoid Zustand getter issues
+export const selectCurrentFrame = (state: AnalysisState): FrameData | null =>
+  state.sequence?.frames[state.currentFrameIndex] ?? null
 
 export const useAnalysisStore = create<AnalysisState>((set, get) => ({
   competitions: [],
@@ -61,18 +62,13 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
   loading: false,
   error: null,
 
-  get currentFrame() {
-    const { sequence, currentFrameIndex } = get()
-    return sequence?.frames[currentFrameIndex] ?? null
-  },
-
   loadCompetitions: async () => {
     set({ loading: true, error: null })
     try {
       const competitions = await fetchCompetitions()
       set({ competitions, loading: false })
     } catch (e) {
-      set({ error: String(e), loading: false })
+      set({ error: e instanceof Error ? e.message : String(e), loading: false })
     }
   },
 
@@ -95,7 +91,7 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
       )
       set({ matches, loading: false })
     } catch (e) {
-      set({ error: String(e), loading: false })
+      set({ error: e instanceof Error ? e.message : String(e), loading: false })
     }
   },
 
@@ -113,7 +109,7 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
       const goals = await fetchGoals(match.match_id)
       set({ goals, loading: false })
     } catch (e) {
-      set({ error: String(e), loading: false })
+      set({ error: e instanceof Error ? e.message : String(e), loading: false })
     }
   },
 
@@ -134,7 +130,7 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
       )
       set({ sequence, currentFrameIndex: 0, loading: false })
     } catch (e) {
-      set({ error: String(e), loading: false })
+      set({ error: e instanceof Error ? e.message : String(e), loading: false })
     }
   },
 

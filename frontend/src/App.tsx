@@ -1,11 +1,12 @@
-import { useAnalysisStore } from './stores/analysisStore'
+import { useAnalysisStore, selectCurrentFrame } from './stores/analysisStore'
 import { BrowsePanel } from './components/BrowsePanel/BrowsePanel'
 import { PitchContainer } from './components/Pitch/PitchContainer'
 import { FrameStepper } from './components/FrameStepper/FrameStepper'
 import { ScorePanel } from './components/ScorePanel/ScorePanel'
 
 export function App() {
-  const { sequence, currentFrame, selectedGoal, loading, error } = useAnalysisStore()
+  const { sequence, selectedGoal, loading, error } = useAnalysisStore()
+  const currentFrame = useAnalysisStore(selectCurrentFrame)
 
   return (
     <div className="app">
