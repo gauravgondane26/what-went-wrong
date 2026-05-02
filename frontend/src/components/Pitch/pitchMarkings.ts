@@ -150,8 +150,11 @@ function drawPenaltyArc(
 ) {
   const cx = side === 'left' ? PENALTY_SPOT_DIST : PITCH_LENGTH - PENALTY_SPOT_DIST
   const arcRadius = w(CENTRE_CIRCLE_RADIUS)
-  const startAngle = side === 'left' ? -53 : 127
-  const endAngle = side === 'left' ? 53 : 233
+  // D3 arc: 0 = 12 o'clock, clockwise.
+  // Left arc faces right (toward centre): centred at 90° (3 o'clock) ± 53°.
+  // Right arc faces left (toward centre): centred at 270° (9 o'clock) ± 53°.
+  const startAngle = side === 'left' ? 37 : 217
+  const endAngle = side === 'left' ? 143 : 323
 
   const arcPath = d3.arc<unknown>()({
     innerRadius: arcRadius,

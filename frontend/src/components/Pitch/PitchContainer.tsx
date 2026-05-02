@@ -39,6 +39,7 @@ export function PitchContainer({ frame, width }: Props) {
         background: '#2d5a1b',
         borderRadius: '4px',
         border: '1px solid #1a3d0f',
+        overflow: 'hidden',
       }}
     />
   )

@@ -4,7 +4,7 @@ import type { CoverShadow, FrameData } from '../../types/frame'
 const SHADOW_FILL = 'rgba(255, 200, 50, 0.12)'
 const SHADOW_STROKE = 'rgba(255, 200, 50, 0.3)'
 const SHADOW_STROKE_WIDTH = 0.5
-const TRANSITION_MS = 200
+const TRANSITION_MS = 300
 
 /**
  * Renders/updates cover shadow cones on the pitch.
@@ -40,7 +40,7 @@ export function renderShadowLayer(
     .selectAll<SVGPathElement, CoverShadow>('path.shadow-cone')
     .data(frame.cover_shadows, (_d, i) => String(i))
 
-  // Enter
+  // Enter: fade in
   paths
     .enter()
     .append('path')
@@ -49,13 +49,23 @@ export function renderShadowLayer(
     .attr('fill', SHADOW_FILL)
     .attr('stroke', SHADOW_STROKE)
     .attr('stroke-width', SHADOW_STROKE_WIDTH)
+    .attr('opacity', 0)
+    .transition()
+    .duration(TRANSITION_MS)
+    .attr('opacity', 1)
 
   // Update with transition
   paths
     .transition()
     .duration(TRANSITION_MS)
     .attr('d', shadowPath)
+    .attr('opacity', 1)
 
-  // Exit
-  paths.exit().remove()
+  // Exit: fade out then remove
+  paths
+    .exit()
+    .transition()
+    .duration(TRANSITION_MS)
+    .attr('opacity', 0)
+    .remove()
 }

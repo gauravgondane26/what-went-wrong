@@ -3,7 +3,7 @@ import type { FrameData } from '../../types/frame'
 
 const GRID_COLS = 24
 const GRID_ROWS = 16
-const TRANSITION_MS = 200
+const TRANSITION_MS = 300
 
 // Color scale: transparent → deep blue
 const colorScale = d3

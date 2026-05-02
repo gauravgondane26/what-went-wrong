@@ -10,7 +10,7 @@ const ACTOR_RING_COLOR = '#ffffff' // white ring on the actor
 const DOT_RADIUS = 5
 const KEEPER_RADIUS = 6
 const ACTOR_RING_WIDTH = 1.5
-const TRANSITION_MS = 200
+const TRANSITION_MS = 300
 
 const LOW_DEFENDER_WARNING_THRESHOLD = 6
 
@@ -34,7 +34,7 @@ export function renderPlayerLayer(
     .selectAll<SVGCircleElement, PlayerPosition>('circle.player')
     .data(frame.players, (_d, i) => String(i))
 
-  // Enter
+  // Enter: appear at position but fade in
   dots
     .enter()
     .append('circle')
@@ -45,6 +45,10 @@ export function renderPlayerLayer(
     .attr('fill', playerColor)
     .attr('stroke', d => (d.actor ? ACTOR_RING_COLOR : 'none'))
     .attr('stroke-width', d => (d.actor ? ACTOR_RING_WIDTH : 0))
+    .attr('opacity', 0)
+    .transition()
+    .duration(TRANSITION_MS)
+    .attr('opacity', 1)
 
   // Update with transition
   dots
@@ -56,9 +60,15 @@ export function renderPlayerLayer(
     .attr('fill', playerColor)
     .attr('stroke', d => (d.actor ? ACTOR_RING_COLOR : 'none'))
     .attr('stroke-width', d => (d.actor ? ACTOR_RING_WIDTH : 0))
+    .attr('opacity', 1)
 
-  // Exit
-  dots.exit().remove()
+  // Exit: fade out then remove
+  dots
+    .exit()
+    .transition()
+    .duration(TRANSITION_MS)
+    .attr('opacity', 0)
+    .remove()
 
   // --- Ball ---
   renderBall(svg, frame, xScale, yScale)
@@ -119,5 +129,5 @@ function renderWarning(
     .attr('fill', '#f7c948')
     .attr('font-size', '11px')
     .attr('font-family', 'monospace')
-    .text(`⚠ only ${defenderCount} defenders visible`)
+    .text(`only ${defenderCount} defenders visible`)
 }
