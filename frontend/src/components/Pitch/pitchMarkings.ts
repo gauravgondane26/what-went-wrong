@@ -13,7 +13,6 @@ const PENALTY_SPOT_DIST = 12
 const CENTRE_CIRCLE_RADIUS = 10
 const CORNER_ARC_RADIUS = 1
 
-const PITCH_COLOR = '#2d5a1b'
 const LINE_COLOR = 'rgba(255,255,255,0.7)'
 const LINE_WIDTH = 0.5
 

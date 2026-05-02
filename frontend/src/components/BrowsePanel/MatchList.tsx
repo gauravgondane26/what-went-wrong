@@ -1,5 +1,4 @@
 import { useAnalysisStore } from '../../stores/analysisStore'
-import type { MatchSummary } from '../../types/frame'
 
 export function MatchList() {
   const {
