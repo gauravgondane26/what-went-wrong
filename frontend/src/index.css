@@ -206,6 +206,7 @@ ul { list-style: none; }
 }
 .stepper-btn:hover:not(:disabled) { background: var(--surface2); }
 .stepper-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.stepper-btn--play { width: 40px; font-size: 14px; }
 
 .stepper-slider {
   flex: 1;

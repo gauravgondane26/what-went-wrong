@@ -1,26 +1,64 @@
-import { useEffect, useCallback } from 'react'
-import { useAnalysisStore } from '../../stores/analysisStore'
+import { useEffect, useCallback, useState, useRef } from 'react'
+import { useAnalysisStore, selectCurrentFrame } from '../../stores/analysisStore'
+
+const PLAY_INTERVAL_MS = 750
 
 export function FrameStepper() {
   const {
     sequence,
     currentFrameIndex,
-    currentFrame,
     stepBack,
     stepForward,
     setFrameIndex,
   } = useAnalysisStore()
+  const currentFrame = useAnalysisStore(selectCurrentFrame)
 
   const totalFrames = sequence?.frames.length ?? 0
+  const [isPlaying, setIsPlaying] = useState(false)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // Keyboard nav: arrow keys
+  const stopPlayback = useCallback(() => {
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+    setIsPlaying(false)
+  }, [])
+
+  const startPlayback = useCallback(() => {
+    setIsPlaying(true)
+    intervalRef.current = setInterval(() => {
+      const { currentFrameIndex, sequence } = useAnalysisStore.getState()
+      if (!sequence || currentFrameIndex >= sequence.frames.length - 1) {
+        stopPlayback()
+        return
+      }
+      useAnalysisStore.getState().stepForward()
+    }, PLAY_INTERVAL_MS)
+  }, [stopPlayback])
+
+  const togglePlay = useCallback(() => {
+    if (isPlaying) stopPlayback()
+    else startPlayback()
+  }, [isPlaying, startPlayback, stopPlayback])
+
+  // Stop playback when a new sequence loads
+  useEffect(() => {
+    stopPlayback()
+  }, [sequence]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Cleanup on unmount
+  useEffect(() => () => stopPlayback(), [stopPlayback])
+
+  // Keyboard nav: arrow keys + space to play/pause
   const handleKey = useCallback(
     (e: KeyboardEvent) => {
       if (!sequence) return
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') stepForward()
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') stepBack()
+      if (e.key === ' ') { e.preventDefault(); togglePlay() }
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { stopPlayback(); stepForward() }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { stopPlayback(); stepBack() }
     },
-    [sequence, stepForward, stepBack],
+    [sequence, togglePlay, stopPlayback, stepForward, stepBack],
   )
 
   useEffect(() => {
@@ -41,7 +79,7 @@ export function FrameStepper() {
         <span className={`event-badge ${isCollapse ? 'event-badge--collapse' : ''}`}>
           {currentFrame.event_type}
         </span>
-        {isCollapse && <span className="collapse-label">⚡ collapse</span>}
+        {isCollapse && <span className="collapse-label">collapse</span>}
         <span className="frame-time">
           {currentFrame.period === 5
             ? 'Shootout'
@@ -49,15 +87,24 @@ export function FrameStepper() {
         </span>
       </div>
 
-      {/* Prev / slider / Next */}
+      {/* Prev / play / slider / Next */}
       <div className="stepper-controls">
         <button
           className="stepper-btn"
-          onClick={stepBack}
-          disabled={isFirst}
+          onClick={() => { stopPlayback(); stepBack() }}
+          disabled={isFirst || isPlaying}
           aria-label="Previous frame"
         >
           ‹
+        </button>
+
+        <button
+          className="stepper-btn stepper-btn--play"
+          onClick={togglePlay}
+          disabled={isLast && !isPlaying}
+          aria-label={isPlaying ? 'Pause' : 'Play'}
+        >
+          {isPlaying ? '⏸' : '▶'}
         </button>
 
         <input
@@ -66,12 +113,12 @@ export function FrameStepper() {
           min={0}
           max={totalFrames - 1}
           value={currentFrameIndex}
-          onChange={e => setFrameIndex(Number(e.target.value))}
+          onChange={e => { stopPlayback(); setFrameIndex(Number(e.target.value)) }}
         />
 
         <button
           className="stepper-btn"
-          onClick={stepForward}
+          onClick={() => { stopPlayback(); stepForward() }}
           disabled={isLast}
           aria-label="Next frame"
         >
