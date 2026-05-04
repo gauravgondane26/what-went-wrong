@@ -5,7 +5,9 @@ import type {
   MatchSummary,
 } from '../types/frame'
 
-const BASE = '/api/v1'
+const BASE = import.meta.env.PROD
+  ? 'https://what-went-wrong.onrender.com/api/v1'
+  : '/api/v1'
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`)
