@@ -110,3 +110,36 @@ def test_sequence_sorted_by_index():
     seq = extract_goal_possession_sequence(events_shuffled, goal_event)
     indices = [e["index"] for e in seq]
     assert indices == sorted(indices)
+
+
+def test_find_goal_events_excludes_saved_shot():
+    events = [
+        _event(1, "saved", 1, TEAM_A, "Team A", TEAM_A, "Shot", "Saved"),
+        _event(2, "goal", 2, TEAM_A, "Team A", TEAM_A, "Shot", "Goal"),
+    ]
+    goals = find_goal_events(events)
+    assert len(goals) == 1
+    assert goals[0]["id"] == "goal"
+
+
+def test_find_goal_events_sorted_by_index():
+    # Feed events out of order; result must be sorted ascending by index
+    events = [
+        _event(5, "g2", 2, TEAM_A, "Team A", TEAM_A, "Shot", "Goal"),
+        _event(2, "g1", 1, TEAM_A, "Team A", TEAM_A, "Shot", "Goal"),
+    ]
+    goals = find_goal_events(events)
+    assert goals[0]["id"] == "g1"
+    assert goals[1]["id"] == "g2"
+
+
+def test_extract_sequence_when_goal_is_first_event():
+    """Goal is the first (and only) event of the possession — sequence length is 1."""
+    events = [
+        _event(1, "goal", 5, TEAM_A, "Team A", TEAM_A, "Shot", "Goal"),
+        _event(2, "e2", 6, TEAM_B, "Team B", TEAM_B, "Pass"),
+    ]
+    goal_event = events[0]
+    seq = extract_goal_possession_sequence(events, goal_event)
+    assert len(seq) == 1
+    assert seq[0]["id"] == "goal"
