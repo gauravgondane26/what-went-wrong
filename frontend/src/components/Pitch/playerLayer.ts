@@ -2,8 +2,8 @@ import * as d3 from 'd3'
 import type { FrameData, PlayerPosition } from '../../types/frame'
 
 // Player dot colors
-const ATTACKER_COLOR = '#e05c2a'   // orange-red
-const DEFENDER_COLOR = '#3a86e8'   // blue
+const ATTACKER_COLOR = '#3a86e8'   // blue
+const DEFENDER_COLOR = '#e05c2a'   // orange-red
 const KEEPER_COLOR = '#f7c948'     // yellow
 const ACTOR_RING_COLOR = '#ffffff' // white ring on the actor
 
@@ -11,6 +11,14 @@ const DOT_RADIUS = 5
 const KEEPER_RADIUS = 6
 const ACTOR_RING_WIDTH = 1.5
 const TRANSITION_MS = 300
+// When the ball jumps more than this many pitch units between frames (a clearance,
+// backward pass, or 360-lag frame), snap everything instead of animating.
+const SNAP_THRESHOLD = 30
+
+// Module-level state so we can detect large ball jumps across calls.
+// Reset to null on frame_index === 0 (new goal sequence loaded).
+let _prevBallX: number | null = null
+let _prevBallY: number | null = null
 
 const LOW_DEFENDER_WARNING_THRESHOLD = 6
 
@@ -24,6 +32,21 @@ export function renderPlayerLayer(
   xScale: d3.ScaleLinear<number, number>,
   yScale: d3.ScaleLinear<number, number>,
 ) {
+  // Reset prev position at start of each new goal sequence so the first frame
+  // never triggers a spurious snap.
+  if (frame.frame_index === 0) {
+    _prevBallX = null
+    _prevBallY = null
+  }
+
+  const ballDist = _prevBallX !== null
+    ? Math.hypot(frame.ball_x - _prevBallX, frame.ball_y - (_prevBallY ?? 0))
+    : 0
+  const transitionMs = ballDist > SNAP_THRESHOLD ? 0 : TRANSITION_MS
+
+  _prevBallX = frame.ball_x
+  _prevBallY = frame.ball_y
+
   // --- Player dots ---
   let g = svg.select<SVGGElement>('g.player-layer')
   if (g.empty()) {
@@ -47,13 +70,13 @@ export function renderPlayerLayer(
     .attr('stroke-width', d => (d.actor ? ACTOR_RING_WIDTH : 0))
     .attr('opacity', 0)
     .transition()
-    .duration(TRANSITION_MS)
+    .duration(transitionMs)
     .attr('opacity', 1)
 
   // Update with transition
   dots
     .transition()
-    .duration(TRANSITION_MS)
+    .duration(transitionMs)
     .attr('cx', d => xScale(d.x))
     .attr('cy', d => yScale(d.y))
     .attr('r', d => (d.keeper ? KEEPER_RADIUS : DOT_RADIUS))
@@ -66,12 +89,12 @@ export function renderPlayerLayer(
   dots
     .exit()
     .transition()
-    .duration(TRANSITION_MS)
+    .duration(transitionMs)
     .attr('opacity', 0)
     .remove()
 
   // --- Ball ---
-  renderBall(svg, frame, xScale, yScale)
+  renderBall(svg, frame, xScale, yScale, transitionMs)
 
   // --- Low defender count warning indicator ---
   renderWarning(svg, frame)
@@ -87,6 +110,7 @@ function renderBall(
   frame: FrameData,
   xScale: d3.ScaleLinear<number, number>,
   yScale: d3.ScaleLinear<number, number>,
+  transitionMs: number,
 ) {
   let ball = svg.select<SVGGElement>('g.ball-layer')
   if (ball.empty()) {
@@ -101,7 +125,7 @@ function renderBall(
 
   circle
     .transition()
-    .duration(TRANSITION_MS)
+    .duration(transitionMs)
     .attr('cx', xScale(frame.ball_x))
     .attr('cy', yScale(frame.ball_y))
     .attr('fill', '#ffffff')
