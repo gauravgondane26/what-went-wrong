@@ -1,14 +1,17 @@
 """Tests for defensive shape scoring."""
 import pytest
 
+from app.models.frame import PlayerPosition
 from app.services.scorer import (
     GRID_COLS,
     GRID_ROWS,
+    MAX_SHADOW_RANGE,
     _is_shadowed,
     compute_composite,
     compute_pressure_grid,
     score_compactness,
     score_cover_shadows,
+    score_frame,
     score_line_height,
 )
 
@@ -127,3 +130,67 @@ def test_pressure_grid_empty():
     grid = compute_pressure_grid([])
     assert len(grid) == GRID_COLS * GRID_ROWS
     assert all(v == 0.0 for v in grid)
+
+
+def test_line_height_more_than_four_defenders():
+    """With 6 defenders, only the 4 with the lowest x are used."""
+    defenders = [(5.0, 20.0), (8.0, 40.0), (12.0, 60.0), (15.0, 40.0), (50.0, 30.0), (70.0, 45.0)]
+    result = score_line_height(defenders)
+    assert result == pytest.approx((5.0 + 8.0 + 12.0 + 15.0) / 4)
+
+
+def test_line_height_three_defenders():
+    """With fewer than 4 defenders, all are used."""
+    defenders = [(10.0, 30.0), (20.0, 40.0), (30.0, 50.0)]
+    result = score_line_height(defenders)
+    assert result == pytest.approx((10.0 + 20.0 + 30.0) / 3)
+
+
+def test_compactness_all_same_location():
+    """All defenders stacked at the same point: zero bounding-box area → compactness=1.0."""
+    defenders = [(60.0, 40.0)] * 5
+    assert score_compactness(defenders) == pytest.approx(1.0)
+
+
+def test_compactness_exactly_two_defenders():
+    """Bounding box area is computed correctly for exactly two defenders."""
+    defenders = [(10.0, 20.0), (50.0, 60.0)]
+    # area = (50-10) * (60-20) = 40 * 40 = 1600
+    expected = round(1.0 - 1600 / 2400, 4)
+    assert score_compactness(defenders) == pytest.approx(expected)
+
+
+def test_composite_line_height_above_max():
+    """line_height above MAX_LINE_HEIGHT (60) clamps line_norm to 0."""
+    result = compute_composite(1.0, 80.0, 1.0)
+    # line_norm = max(0, 1 - 80/60) = 0 → composite = 0.4*1 + 0.3*0 + 0.3*1 = 0.7
+    assert result == pytest.approx(0.7)
+
+
+def test_is_shadowed_attacker_at_ball_position():
+    """Attacker coincident with ball: ray_len < 0.1 → not shadowed."""
+    ball = (60.0, 40.0)
+    defender = (55.0, 40.0)
+    attacker = (60.0, 40.0)
+    assert _is_shadowed(ball, defender, attacker) is False
+
+
+def test_is_shadowed_beyond_max_range():
+    """Defender beyond MAX_SHADOW_RANGE is never shadowing, even on a perfect ray."""
+    ball = (0.0, 40.0)
+    attacker = (100.0, 40.0)
+    # Defender exactly on the ray, but beyond MAX_SHADOW_RANGE from ball
+    defender_far = (MAX_SHADOW_RANGE + 1.0, 40.0)
+    assert _is_shadowed(ball, defender_far, attacker) is False
+    # Same geometry but within range → should shadow
+    defender_near = (MAX_SHADOW_RANGE - 1.0, 40.0)
+    assert _is_shadowed(ball, defender_near, attacker) is True
+
+
+def test_score_frame_keeper_excluded_from_defenders():
+    """Goalkeeper is excluded from defender list; compactness and line_height see no defenders."""
+    gk = PlayerPosition(x=5.0, y=40.0, is_attacker=False, actor=False, keeper=True)
+    attacker = PlayerPosition(x=80.0, y=40.0, is_attacker=True, actor=False, keeper=False)
+    scores, _, _ = score_frame([gk, attacker], 70.0, 40.0)
+    assert scores.compactness == pytest.approx(1.0)   # < 2 outfield defenders
+    assert scores.line_height == pytest.approx(0.0)   # no outfield defenders

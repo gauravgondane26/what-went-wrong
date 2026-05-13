@@ -31,6 +31,11 @@ GRID_COLS = 24  # 5-unit cells across 120
 GRID_ROWS = 16  # 5-unit cells across 80
 SIGMA = 8.0  # Gaussian influence radius in pitch units
 
+# Cover shadow max useful range — defenders beyond this distance can't meaningfully
+# block a passing lane in real soccer (~36 metres). Prevents cross-pitch shadow
+# cones when 360 freeze-frame player positions lag behind ball movement.
+MAX_SHADOW_RANGE = 40.0
+
 
 def score_compactness(defenders: list[tuple[float, float]]) -> float:
     """
@@ -75,6 +80,10 @@ def _is_shadowed(
     dx, dy = defender
     ax, ay = attacker
 
+    def_dist = math.hypot(dx - bx, dy - by)
+    if def_dist > MAX_SHADOW_RANGE:
+        return False
+
     ray_len = math.hypot(ax - bx, ay - by)
     if ray_len < 0.1:
         return False
@@ -87,7 +96,6 @@ def _is_shadowed(
     # Perpendicular distance from defender to the ray
     perp_dist = abs((dx - bx) * (ay - by) - (dy - by) * (ax - bx)) / ray_len
 
-    def_dist = math.hypot(dx - bx, dy - by)
     shadow_width = max(1.5, def_dist * width_factor)
 
     return perp_dist < shadow_width
