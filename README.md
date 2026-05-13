@@ -4,6 +4,8 @@ A soccer defensive collapse analyzer. Pick a goal from StatsBomb open data, step
 
 ![Status](https://img.shields.io/badge/status-live-brightgreen)
 
+**Live app: [whatwentwrong-app.netlify.app](https://whatwentwrong-app.netlify.app/)**
+
 ---
 
 ## What it does
