@@ -68,15 +68,19 @@ async def get_goal_sequence(
     team_names = {e["team"]["id"]: e["team"]["name"] for e in events if e.get("team", {}).get("id")}
     defending_team_name: str = team_names.get(defending_team_id, "Unknown")
 
-    # Determine attack direction from the goal event shot location
-    attacking_toward_120 = normalizer.detect_attack_direction(goal_event)
-
     # Extract possession sequence
     sequence = possession.extract_goal_possession_sequence(events, goal_event)
 
-    # Build frames — skip events with no 360 freeze frame data
+    # Build frames — skip events with no 360 freeze frame data, and skip
+    # Ball Receipt* events whose freeze frames are re-used from the preceding
+    # event's actor-relative coordinate system, causing a 180° position flip.
     frames: list[FrameData] = []
-    events_with_360 = [e for e in sequence if frames360.get(e["id"])]
+    _SKIP_EVENT_TYPES = {"Ball Receipt*"}
+    events_with_360 = [
+        e for e in sequence
+        if frames360.get(e["id"])
+        and e.get("type", {}).get("name") not in _SKIP_EVENT_TYPES
+    ]
 
     if not events_with_360:
         raise HTTPException(
@@ -93,7 +97,7 @@ async def get_goal_sequence(
         freeze_frame = frames360[event_id]
 
         ball_x, ball_y, players = normalizer.normalize_frame(
-            event, freeze_frame, defending_team_id, attacking_toward_120
+            event, freeze_frame, defending_team_id
         )
 
         scores, shadows, pressure_grid = scorer.score_frame(players, ball_x, ball_y)
