@@ -5,6 +5,8 @@ from app.services.data_loader import load_competitions
 
 router = APIRouter(tags=["competitions"])
 
+_EXCLUDED_COMPETITIONS = {"La Liga", "Ligue 1", "Major League Soccer"}
+
 # Cache competitions list in module memory (static data, never changes)
 _competitions_cache: list[dict] | None = None
 
@@ -29,4 +31,5 @@ async def list_competitions(request: Request) -> list[CompetitionSummary]:
         )
         for c in _competitions_cache
         if c.get("match_available_360")
+        and c.get("competition_name") not in _EXCLUDED_COMPETITIONS
     ]
