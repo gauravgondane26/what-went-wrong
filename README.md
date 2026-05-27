@@ -4,8 +4,6 @@ A soccer defensive collapse analyzer. Pick a goal from StatsBomb open data, step
 
 ![Status](https://img.shields.io/badge/status-live-brightgreen)
 
-**Live app: [whatwentwrong-app.netlify.app](https://whatwentwrong-app.netlify.app/)**
-
 ---
 
 ## What it does
@@ -25,12 +23,12 @@ A soccer defensive collapse analyzer. Pick a goal from StatsBomb open data, step
 
 ## Stack
 
-| Layer    | Tech                                                                  |
-| -------- | --------------------------------------------------------------------- |
-| Data     | [StatsBomb open data](https://github.com/statsbomb/open-data) (free)  |
-| Backend  | Python 3.12 · FastAPI · httpx · numpy · Pydantic v2                   |
-| Frontend | React 18 · TypeScript · D3.js v7 · Zustand · Vite                     |
-| Deploy   | Render (backend) · Netlify (frontend)                                  |
+| Layer    | Tech                                                                 |
+| -------- | -------------------------------------------------------------------- |
+| Data     | [StatsBomb open data](https://github.com/statsbomb/open-data) (free) |
+| Backend  | Python 3.12 · FastAPI · httpx · numpy · Pydantic v2                  |
+| Frontend | React 18 · TypeScript · D3.js v7 · Zustand · Vite                    |
+| Deploy   | Render (backend) · Netlify (frontend)                                |
 
 ---
 
@@ -144,7 +142,7 @@ All coordinates are normalized so the **defending team's goal is always at x = 0
 | Compactness   | `1 − (bounding box area of defenders / 2400)`                  |
 | Line height   | Average x of the 4 deepest defenders (lower = safer)           |
 | Cover shadows | Fraction of attackers with a defender on the ball→attacker ray |
-| **Composite** | `0.4 × compactness + 0.3 × (1 − line/60) + 0.3 × shadows`     |
+| **Composite** | `0.4 × compactness + 0.3 × (1 − line/60) + 0.3 × shadows`      |
 
 The **collapse frame** is the one with the largest single-step drop in composite score.
 
@@ -154,14 +152,14 @@ Camera occlusion means only 9–20 of 22 players are typically visible per frame
 
 ## Environment variables
 
-| Variable                | Default                    | Description                              |
-| ----------------------- | -------------------------- | ---------------------------------------- |
-| `STATSBOMB_LOCAL_PATH`  | _(none)_                   | Path to a local open-data clone          |
-| `HTTP_TIMEOUT_SECONDS`  | `30`                       | httpx request timeout                    |
-| `HTTP_MAX_RETRIES`      | `3`                        | Retry attempts with exponential backoff  |
-| `CACHE_MAX_SIZE`        | `20`                       | Max entries in the TTL LRU cache         |
-| `CACHE_TTL_SECONDS`     | `3600`                     | Cache entry lifetime                     |
-| `CORS_ORIGINS`          | `http://localhost:5173`    | Comma-separated allowed origins          |
+| Variable               | Default                 | Description                             |
+| ---------------------- | ----------------------- | --------------------------------------- |
+| `STATSBOMB_LOCAL_PATH` | _(none)_                | Path to a local open-data clone         |
+| `HTTP_TIMEOUT_SECONDS` | `30`                    | httpx request timeout                   |
+| `HTTP_MAX_RETRIES`     | `3`                     | Retry attempts with exponential backoff |
+| `CACHE_MAX_SIZE`       | `20`                    | Max entries in the TTL LRU cache        |
+| `CACHE_TTL_SECONDS`    | `3600`                  | Cache entry lifetime                    |
+| `CORS_ORIGINS`         | `http://localhost:5173` | Comma-separated allowed origins         |
 
 ---
 
