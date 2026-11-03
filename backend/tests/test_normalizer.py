@@ -278,3 +278,51 @@ def test_player_at_center_unaffected_by_flip():
     _, _, players = normalize_frame(event, freeze_frame, defending_team_id=2)
     assert players[0].x == pytest.approx(60.0)
     assert players[0].y == pytest.approx(40.0)
+
+
+# ---------------------------------------------------------------------------
+# Freeze frames stored in the opponent's coordinate system.
+#
+# For "losing side" events (Dribbled Past, Dispossessed, Foul Won, and some
+# Duels/Dribbles) StatsBomb stores player POSITIONS rotated 180° into the
+# opponent's frame, while the `teammate` flag stays relative to the actor.
+# Verified on EURO 2020 / WC 2022 360 data: on 131/132 Dribbled Past frames the
+# actor's own keeper (teammate=True) sits at x≈118 and the actor stands at the
+# rotated ball position.
+# ---------------------------------------------------------------------------
+def _dribbled_past_frame() -> tuple[dict, list[dict]]:
+    """Defender (team 2) is dribbled past at (30, 50) in normalized space.
+
+    event.location is actor-relative (defender frame: own goal at x=0) → (30, 50).
+    Player positions are stored in the ATTACKER's frame (rotated): the defender
+    actor sits at (90, 30) and the defending keeper (teammate=True) at (118, 40).
+    """
+    event = {"team": {"id": 2}, "location": [30.0, 50.0], "type": {"name": "Dribbled Past"}}
+    freeze_frame = [
+        {"location": [90.0, 30.0], "teammate": True, "actor": True, "keeper": False},    # defender actor
+        {"location": [118.0, 40.0], "teammate": True, "actor": False, "keeper": True},   # defending keeper
+        {"location": [100.0, 45.0], "teammate": True, "actor": False, "keeper": False},  # defender
+        {"location": [88.0, 32.0], "teammate": False, "actor": False, "keeper": False},  # attacker (dribbler)
+        {"location": [80.0, 50.0], "teammate": False, "actor": False, "keeper": False},  # attacker
+    ]
+    return event, freeze_frame
+
+
+def test_rotated_freeze_frame_keeps_team_labels():
+    """Positions are rotated back, but team labels must NOT be inverted."""
+    event, freeze_frame = _dribbled_past_frame()
+    _, _, players = normalize_frame(event, freeze_frame, defending_team_id=2)
+
+    by_loc = {(round(p.x), round(p.y)): p for p in players}
+    actor = next(p for p in players if p.actor)
+    keeper = next(p for p in players if p.keeper)
+
+    # Actor (a defender) is back at the ball and still labelled a defender
+    assert (round(actor.x), round(actor.y)) == (30, 50)
+    assert actor.is_attacker is False
+    # Defending keeper is in its own goal at x≈2 and still a defender
+    assert keeper.x < 10
+    assert keeper.is_attacker is False
+    # The two attackers stay attackers
+    assert by_loc[(32, 48)].is_attacker is True
+    assert by_loc[(40, 30)].is_attacker is True

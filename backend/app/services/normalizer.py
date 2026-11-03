@@ -87,16 +87,17 @@ def normalize_frame(
 
     # Sanity check: the actor always performs the event at the ball's location,
     # so actor.x should be near ball_x. If the distance is large (>30 units),
-    # the freeze frame was stored in the wrong actor-relative coordinate system
-    # (e.g. Duel events where both players generate records but share the
-    # opposing player's freeze frame). Re-flip positions and invert team labels.
+    # the freeze frame POSITIONS were stored in the opponent's coordinate system
+    # (e.g. Dribbled Past, Dispossessed, Foul Won). Only the positions are
+    # rotated — the `teammate` flag is still relative to the actor, so the
+    # team labels computed above are already correct and must not be inverted.
     actor = next((p for p in players if p.actor), None)
     if actor is not None and math.hypot(actor.x - ball_x, actor.y - ball_y) > 30.0:
         players = [
             PlayerPosition(
                 x=round(120.0 - p.x, 3),
                 y=round(80.0 - p.y, 3),
-                is_attacker=not p.is_attacker,
+                is_attacker=p.is_attacker,
                 actor=p.actor,
                 keeper=p.keeper,
             )
