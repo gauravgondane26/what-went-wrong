@@ -5,9 +5,10 @@ StatsBomb possession model:
 - `possession` is a monotonically increasing integer; all events with the same
   value belong to one sequence.
 - `possession_team` identifies which team holds the ball for that sequence.
-- We use `possession_team.id` (NOT `team.id`) so that own goals are handled
-  correctly — for an own goal, `team.id` is the team that benefited, but
-  `possession_team.id` is the team that played the ball into their own net.
+- `possession_team` is NOT the scoring team in general: for an own goal it is
+  usually the team that benefits, but not always (e.g. a back-pass into the
+  own net), and a goal scored straight after winning the ball keeps the
+  conceding team's possession. Use `goal_teams` to identify scorer/conceder.
 """
 from __future__ import annotations
 
@@ -64,6 +65,33 @@ def find_goal_events(events: list[dict]) -> list[dict]:
             goals.append(e)
     goals.sort(key=lambda e: e["index"])
     return goals
+
+
+def goal_teams(events: list[dict], goal_event: dict) -> tuple[dict, dict]:
+    """Return (scoring_team, conceding_team) as {"id", "name"} dicts.
+
+    - Shot: the scorer is `team` (not `possession_team` — a goal straight
+      after winning the ball keeps the conceding team's possession number;
+      5 of 300 non-shootout goals in EURO 2020 + WC 2022).
+    - Own Goal Against: `team` is the side that put it in its own net, so the
+      scoring team is the other one.
+    """
+    teams: dict[int, str] = {}
+    for e in events:
+        t = e.get("team") or {}
+        if t.get("id") is not None:
+            teams[t["id"]] = t.get("name", "Unknown")
+
+    actor = goal_event["team"]["id"]
+    other = next((tid for tid in teams if tid != actor), actor)
+    if goal_event.get("type", {}).get("name") == "Own Goal Against":
+        scoring_id, conceding_id = other, actor
+    else:
+        scoring_id, conceding_id = actor, other
+    return (
+        {"id": scoring_id, "name": teams.get(scoring_id, "Unknown")},
+        {"id": conceding_id, "name": teams.get(conceding_id, "Unknown")},
+    )
 
 
 def is_penalty_goal(goal_event: dict) -> bool:

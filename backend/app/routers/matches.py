@@ -59,28 +59,10 @@ async def list_goals(match_id: int, request: Request) -> list[GoalSummary]:
 
     goal_events = possession.find_goal_events(events)
 
-    # Build a team ID → name lookup from event data
-    team_lookup: dict[int, str] = {}
-    for e in events:
-        team = e.get("team", {})
-        if team.get("id") and team.get("name"):
-            team_lookup[team["id"]] = team["name"]
-
-    # Build possession-team ID → team ID lookup
-    # (for identifying the conceding team = the non-attacking team)
-    all_team_ids = list(team_lookup.keys())
-
     result = []
     for g in goal_events:
         type_name = g.get("type", {}).get("name", "")
-        scoring_team_id = g["possession_team"]["id"]
-        scoring_team_name = g["possession_team"]["name"]
-
-        # Conceding team is whichever team is NOT the possession team
-        conceding_team_id = next(
-            (tid for tid in all_team_ids if tid != scoring_team_id), scoring_team_id
-        )
-        conceding_team_name = team_lookup.get(conceding_team_id, "Unknown")
+        scoring, conceding = possession.goal_teams(events, g)
 
         xg: float | None = None
         if type_name == "Shot":
@@ -95,10 +77,10 @@ async def list_goals(match_id: int, request: Request) -> list[GoalSummary]:
                 minute=g.get("minute", 0),
                 second=g.get("second", 0),
                 period=g.get("period", 1),
-                scoring_team_id=scoring_team_id,
-                scoring_team_name=scoring_team_name,
-                conceding_team_id=conceding_team_id,
-                conceding_team_name=conceding_team_name,
+                scoring_team_id=scoring["id"],
+                scoring_team_name=scoring["name"],
+                conceding_team_id=conceding["id"],
+                conceding_team_name=conceding["name"],
                 xg=xg,
                 possession_number=g.get("possession", 0),
                 is_penalty=possession.is_penalty_goal(g),

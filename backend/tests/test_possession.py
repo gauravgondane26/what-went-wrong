@@ -4,6 +4,7 @@ import pytest
 from app.services.possession import (
     extract_goal_possession_sequence,
     find_goal_events,
+    goal_teams,
     is_penalty_goal,
     sequence_length_for_goal,
 )
@@ -91,16 +92,50 @@ def test_find_goal_events_no_goals():
     assert find_goal_events(events) == []
 
 
-def test_own_goal_uses_possession_team():
-    """Own goal: team.id is the beneficiary; possession_team.id is the scorer."""
+def test_own_goal_sequence_is_its_possession():
+    """Own goal: the sequence is the possession the own goal happened in."""
     events = [
         _event(1, "og", 5, TEAM_A, "Team A", TEAM_B, "Own Goal Against"),
     ]
     goal_event = events[0]
-    # possession_team is Team A (they played it in), even though team.id is Team B
     seq = extract_goal_possession_sequence(events, goal_event)
     assert len(seq) == 1
     assert seq[0]["id"] == "og"
+
+
+def _two_team_events(goal: dict) -> list[dict]:
+    return [
+        {**_event(1, "a", 1, TEAM_A, "Team A", TEAM_A), "team": {"id": TEAM_A, "name": "Team A"}},
+        {**_event(2, "b", 2, TEAM_B, "Team B", TEAM_B), "team": {"id": TEAM_B, "name": "Team B"}},
+        goal,
+    ]
+
+
+def test_goal_teams_own_goal_benefiting_team_had_possession():
+    """Own Goal Against is the conceding team's event; the other team scores."""
+    og = {**_event(3, "og", 3, TEAM_A, "Team A", TEAM_B, "Own Goal Against"),
+          "team": {"id": TEAM_B, "name": "Team B"}}
+    scoring, conceding = goal_teams(_two_team_events(og), og)
+    assert (scoring["id"], conceding["id"]) == (TEAM_A, TEAM_B)
+
+
+def test_goal_teams_own_goal_conceding_team_had_possession():
+    """Real case: Croatia v Spain, EURO 2020 19' — Pedri's back-pass own goal
+    during Spain's possession. Croatia scores; possession_team is Spain."""
+    og = {**_event(3, "og", 3, TEAM_B, "Team B", TEAM_B, "Own Goal Against"),
+          "team": {"id": TEAM_B, "name": "Team B"}}
+    scoring, conceding = goal_teams(_two_team_events(og), og)
+    assert (scoring["id"], conceding["id"]) == (TEAM_A, TEAM_B)
+    assert scoring["name"] == "Team A"
+
+
+def test_goal_teams_shot_uses_team_not_possession_team():
+    """A goal straight after winning the ball keeps the conceding team's
+    possession number — the scorer is the shot's team."""
+    shot = {**_event(3, "g", 3, TEAM_B, "Team B", TEAM_A, "Shot", "Goal"),
+            "team": {"id": TEAM_A, "name": "Team A"}}
+    scoring, conceding = goal_teams(_two_team_events(shot), shot)
+    assert (scoring["id"], conceding["id"]) == (TEAM_A, TEAM_B)
 
 
 def test_sequence_sorted_by_index():

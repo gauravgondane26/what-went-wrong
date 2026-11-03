@@ -56,17 +56,12 @@ async def get_goal_sequence(
     if goal_event is None:
         raise HTTPException(status_code=404, detail=f"Goal event {goal_event_id} not found")
 
-    # Identify teams
-    attacking_team_id: int = goal_event["possession_team"]["id"]
-    attacking_team_name: str = goal_event["possession_team"]["name"]
-
-    # Defending team = the other team in the match
-    all_team_ids = list({e["team"]["id"] for e in events if e.get("team", {}).get("id")})
-    defending_team_id: int = next(
-        (tid for tid in all_team_ids if tid != attacking_team_id), attacking_team_id
-    )
-    team_names = {e["team"]["id"]: e["team"]["name"] for e in events if e.get("team", {}).get("id")}
-    defending_team_name: str = team_names.get(defending_team_id, "Unknown")
+    # Identify teams: attacking = the team the goal counts for
+    scoring, conceding = possession.goal_teams(events, goal_event)
+    attacking_team_id: int = scoring["id"]
+    attacking_team_name: str = scoring["name"]
+    defending_team_id: int = conceding["id"]
+    defending_team_name: str = conceding["name"]
 
     # Extract possession sequence
     sequence = possession.extract_goal_possession_sequence(events, goal_event)
