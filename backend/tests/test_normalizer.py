@@ -488,3 +488,28 @@ def test_hint_ignores_same_team_copies():
     duel, ff, by_id, frames = _pair(teammate_flags_copied=True)
     by_id["s"]["team"]["id"] = 2
     assert copied_labels_hint(duel, ff, by_id, frames) is None
+
+
+# ---------------------------------------------------------------------------
+# same_snapshot (B2): consecutive events often carry the same freeze frame.
+# ---------------------------------------------------------------------------
+from app.models.frame import PlayerPosition  # noqa: E402
+from app.services.normalizer import same_snapshot  # noqa: E402
+
+
+def _pp(x, y, att=False):
+    return PlayerPosition(x=x, y=y, is_attacker=att, actor=False, keeper=False)
+
+
+def test_same_snapshot_ignores_order_and_tiny_float_noise():
+    a = [_pp(10.0, 20.0), _pp(30.0, 40.0, True)]
+    b = [_pp(30.00000002, 40.0, True), _pp(10.0, 19.99999997)]
+    assert same_snapshot(a, b) is True
+
+
+def test_same_snapshot_detects_movement_label_and_count_changes():
+    a = [_pp(10.0, 20.0), _pp(30.0, 40.0, True)]
+    assert same_snapshot(a, [_pp(10.0, 20.0), _pp(31.0, 40.0, True)]) is False
+    assert same_snapshot(a, [_pp(10.0, 20.0), _pp(30.0, 40.0, False)]) is False
+    assert same_snapshot(a, a[:1]) is False
+    assert same_snapshot([], []) is False

@@ -82,7 +82,7 @@ async def get_goal_sequence(
 
     events_by_id = {e["id"]: e for e in events}
 
-    for i, event in enumerate(events_with_360):
+    for event in events_with_360:
         event_id = event["id"]
         freeze_frame = frames360[event_id]
 
@@ -92,6 +92,12 @@ async def get_goal_sequence(
         ball_x, ball_y, players = normalizer.normalize_frame(
             event, freeze_frame, defending_team_id, copied_labels
         )
+
+        # Consecutive events often carry the same snapshot (a Carry repeats the
+        # Ball Receipt* before it); keep only the first so every frame is new.
+        if frames and normalizer.same_snapshot(frames[-1].players, players):
+            continue
+        i = len(frames)
 
         scores, shadows, pressure_grid = scorer.score_frame(players, ball_x, ball_y)
 

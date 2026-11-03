@@ -139,6 +139,25 @@ def normalize_frame(
     return ball_x, ball_y, players
 
 
+def same_snapshot(
+    a: list[PlayerPosition],
+    b: list[PlayerPosition],
+    tolerance: float = 0.05,
+) -> bool:
+    """True if two normalized frames show the same players in the same places.
+
+    Paired and follow-on events often carry the same freeze frame (e.g. a Carry
+    repeats the preceding Ball Receipt*); after normalization they match.
+    """
+    if not a or len(a) != len(b):
+        return False
+    key = lambda p: (p.x, p.y, p.is_attacker)  # noqa: E731
+    return all(
+        abs(p.x - q.x) <= tolerance and abs(p.y - q.y) <= tolerance and p.is_attacker == q.is_attacker
+        for p, q in zip(sorted(a, key=key), sorted(b, key=key))
+    )
+
+
 def copied_labels_hint(
     event: dict,
     freeze_frame: list[dict],
