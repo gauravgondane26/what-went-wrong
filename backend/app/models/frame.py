@@ -21,10 +21,14 @@ class CoverShadow(BaseModel):
 
 
 class DefensiveScores(BaseModel):
-    compactness: float  # 0–1; higher = tighter defensive unit (better shape)
-    line_height: float  # raw x-coord of last defensive line, 0–60+; lower = deeper (safer)
-    cover_shadow_coverage: float  # 0–1; fraction of attackers with a cover shadow over them
-    composite: float  # 0.4*compactness + 0.3*(1 - line_height/60) + 0.3*shadow_coverage
+    compactness: float  # 0–1; higher = tighter unit (spread of the 6 defenders nearest the ball)
+    line_height: float  # raw x of the 4 deepest defenders; display only, not in composite
+    goal_side_share: float  # 0–1; fraction of outfield defenders between ball and own goal
+    cover_shadow_coverage: float  # 0–1; fraction of receivable attackers with a lane blocked
+    # 0.4*compactness + 0.3*goal_side_share + 0.3*shadow_coverage; None when not reliable
+    composite: float | None
+    defenders_visible: int  # visible outfield defenders (keeper excluded)
+    reliable: bool  # defenders_visible >= MIN_RELIABLE_DEFENDERS
 
 
 class FrameData(BaseModel):
@@ -46,8 +50,9 @@ class FrameData(BaseModel):
     cover_shadows: list[CoverShadow]
     pressure_grid: list[float]  # 384 floats (24 cols × 16 rows), row-major, values 0–1
 
-    is_collapse_frame: bool  # True on the frame with the steepest composite score drop
-    score_delta: float  # composite[i] - composite[i-1]; 0.0 for first frame
+    is_collapse_frame: bool  # True on the frame where the sustained composite drop is steepest
+    # composite minus the previous reliable frame's; None if unreliable or first reliable
+    score_delta: float | None
 
 
 class GoalSequenceResponse(BaseModel):
@@ -57,7 +62,7 @@ class GoalSequenceResponse(BaseModel):
     defending_team_name: str
     attacking_team_id: int
     attacking_team_name: str
-    collapse_frame_index: int
+    collapse_frame_index: int | None  # None when no reliable drop was found
     frames: list[FrameData]
 
 

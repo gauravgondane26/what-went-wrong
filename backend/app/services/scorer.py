@@ -15,21 +15,36 @@ from app.models.frame import CoverShadow, DefensiveScores, PlayerPosition
 PITCH_LENGTH = 120.0
 PITCH_WIDTH = 80.0
 
-# Max bounding box area for a fully spread defensive unit (~40 wide × 60 deep)
-MAX_DEFENSIVE_AREA = 2400.0
+# Compactness = mean distance from their centroid of the COMPACT_UNIT outfield
+# defenders nearest the ball, mapped linearly so SPREAD_TIGHT (or less) → 1.0 and
+# SPREAD_LOOSE (or more) → 0.0. Using a fixed-size unit makes the score almost
+# independent of how many defenders the camera caught (C2): on EURO 2020 goals the
+# median per-sequence correlation with visible-defender count is −0.03, versus
+# +0.64 for the old bounding box. The range spans roughly p5–p95 of real frames.
+COMPACT_UNIT = 6
+SPREAD_TIGHT = 5.0
+SPREAD_LOOSE = 15.0
 
-# Max x value for last-line normalization (defender at x=60 = midfield)
-MAX_LINE_HEIGHT = 60.0
+# Below this many visible outfield defenders a frame says more about the camera
+# than the shape: its composite is None and collapse detection skips it (C2).
+MIN_RELIABLE_DEFENDERS = 6
+
+# Attackers this close to the ball are the carrier: no lane to block (C3).
+CARRIER_RADIUS = 2.0
 
 # Composite weights
 W_COMPACTNESS = 0.4
-W_LINE_HEIGHT = 0.3
+W_GOAL_SIDE = 0.3
 W_SHADOW = 0.3
 
 # Pressure grid dimensions
 GRID_COLS = 24  # 5-unit cells across 120
 GRID_ROWS = 16  # 5-unit cells across 80
 SIGMA = 8.0  # Gaussian influence radius in pitch units
+# Fixed pressure scale: a cell covered by this much summed Gaussian weight (two
+# defenders on top of it) reads 1.0. Fixed, not per-frame, so frames compare
+# and the heatmap fades when defenders leave an area (C4).
+PRESSURE_SATURATION = 2.0
 
 # Cover shadow max useful range — defenders beyond this distance can't meaningfully
 # block a passing lane in real soccer (~36 metres). Prevents cross-pitch shadow
@@ -37,24 +52,46 @@ SIGMA = 8.0  # Gaussian influence radius in pitch units
 MAX_SHADOW_RANGE = 40.0
 
 
-def score_compactness(defenders: list[tuple[float, float]]) -> float:
+def score_compactness(
+    defenders: list[tuple[float, float]], ball: tuple[float, float]
+) -> float:
     """
-    1 - normalized bounding-box area of the defensive unit.
-    Returns 1.0 if defenders are perfectly stacked, 0.0 if fully spread.
+    How tightly grouped the defensive unit around the ball is, 0–1 (higher = tighter).
+
+    Takes the COMPACT_UNIT defenders nearest the ball and uses their mean
+    distance from their centroid. Returns 1.0 with fewer than 2 defenders
+    (such frames are flagged unreliable anyway).
     """
     if len(defenders) < 2:
         return 1.0
-    xs = [p[0] for p in defenders]
-    ys = [p[1] for p in defenders]
-    area = (max(xs) - min(xs)) * (max(ys) - min(ys))
-    return round(1.0 - min(area / MAX_DEFENSIVE_AREA, 1.0), 4)
+    bx, by = ball
+    defenders = sorted(defenders, key=lambda p: math.hypot(p[0] - bx, p[1] - by))
+    defenders = defenders[:COMPACT_UNIT]
+    cx = sum(p[0] for p in defenders) / len(defenders)
+    cy = sum(p[1] for p in defenders) / len(defenders)
+    spread = sum(math.hypot(x - cx, y - cy) for x, y in defenders) / len(defenders)
+    norm = (spread - SPREAD_TIGHT) / (SPREAD_LOOSE - SPREAD_TIGHT)
+    return round(1.0 - min(max(norm, 0.0), 1.0), 4)
+
+
+def score_goal_side(defenders: list[tuple[float, float]], ball_x: float) -> float:
+    """
+    Fraction of outfield defenders between the ball and their own goal (x < ball_x).
+
+    Replaces absolute line height in the composite (C1): absolute depth rises
+    naturally as play nears goal, whereas being goal-side of the ball is what a
+    defence loses when it is broken.
+    """
+    if not defenders:
+        return 0.0
+    return round(sum(1 for x, _ in defenders if x < ball_x) / len(defenders), 4)
 
 
 def score_line_height(defenders: list[tuple[float, float]]) -> float:
     """
     Average x-coordinate of the 4 deepest defenders (lowest x = closest to own goal).
     Lower values = deeper, safer defensive line.
-    Returns raw x (0–120); callers should interpret relative to PITCH_LENGTH.
+    Returns raw x (0–120). Display only; not part of the composite (C1).
     """
     if not defenders:
         return 0.0
@@ -130,11 +167,13 @@ def score_cover_shadows(
 ) -> tuple[float, list[CoverShadow]]:
     """
     Returns (coverage_fraction, shadows).
-    coverage_fraction: 0–1, fraction of attackers with at least one cover shadow.
+    coverage_fraction: 0–1, fraction of `attackers` with at least one cover shadow.
+        `attackers` should already exclude the carrier and keeper (see
+        `shadow_targets`). With no targets there is no open lane, so 1.0.
     shadows: list of CoverShadow cone geometries for rendering.
     """
     if not attackers:
-        return 0.0, []
+        return 1.0, []
 
     blocked = 0
     shadows: list[CoverShadow] = []
@@ -150,12 +189,26 @@ def score_cover_shadows(
     return coverage, shadows
 
 
+def shadow_targets(
+    players: list[PlayerPosition], ball: tuple[float, float]
+) -> list[tuple[float, float]]:
+    """Attackers a defender could cut off: not the keeper, not the ball carrier (C3)."""
+    bx, by = ball
+    return [
+        (p.x, p.y)
+        for p in players
+        if p.is_attacker
+        and not p.keeper
+        and not p.actor
+        and math.hypot(p.x - bx, p.y - by) > CARRIER_RADIUS
+    ]
+
+
 def compute_composite(
-    compactness: float, line_height: float, shadow_coverage: float
+    compactness: float, goal_side: float, shadow_coverage: float
 ) -> float:
-    line_norm = max(0.0, 1.0 - line_height / MAX_LINE_HEIGHT)
     return round(
-        W_COMPACTNESS * compactness + W_LINE_HEIGHT * line_norm + W_SHADOW * shadow_coverage,
+        W_COMPACTNESS * compactness + W_GOAL_SIDE * goal_side + W_SHADOW * shadow_coverage,
         4,
     )
 
@@ -168,7 +221,7 @@ def compute_pressure_grid(
     defensive pressure intensity values in [0, 1].
 
     Each cell's value is the sum of Gaussian contributions from all defenders,
-    normalised so the maximum cell is 1.0.
+    divided by the fixed PRESSURE_SATURATION and clipped to 1.0.
     """
     cell_w = PITCH_LENGTH / GRID_COLS  # 5.0
     cell_h = PITCH_WIDTH / GRID_ROWS   # 5.0
@@ -183,9 +236,7 @@ def compute_pressure_grid(
         dist_sq = (XX - dx) ** 2 + (YY - dy) ** 2
         grid += np.exp(-dist_sq / (2.0 * SIGMA ** 2))
 
-    max_val = grid.max()
-    if max_val > 0:
-        grid = grid / max_val
+    grid = np.minimum(grid / PRESSURE_SATURATION, 1.0)
 
     return [round(float(v), 4) for v in grid.flatten()]
 
@@ -201,19 +252,26 @@ def score_frame(
     Returns (DefensiveScores, cover_shadows, pressure_grid).
     """
     defenders = [(p.x, p.y) for p in players if not p.is_attacker and not p.keeper]
-    attackers = [(p.x, p.y) for p in players if p.is_attacker]
     ball = (ball_x, ball_y)
+    attackers = shadow_targets(players, ball)
 
-    compactness = score_compactness(defenders)
+    compactness = score_compactness(defenders, ball)
     line_height = score_line_height(defenders)
+    goal_side = score_goal_side(defenders, ball_x)
     shadow_coverage, shadows = score_cover_shadows(defenders, attackers, ball)
-    composite = compute_composite(compactness, line_height, shadow_coverage)
+    reliable = len(defenders) >= MIN_RELIABLE_DEFENDERS
+    composite = (
+        compute_composite(compactness, goal_side, shadow_coverage) if reliable else None
+    )
     pressure_grid = compute_pressure_grid(defenders)
 
     scores = DefensiveScores(
         compactness=compactness,
         line_height=line_height,
+        goal_side_share=goal_side,
         cover_shadow_coverage=shadow_coverage,
         composite=composite,
+        defenders_visible=len(defenders),
+        reliable=reliable,
     )
     return scores, shadows, pressure_grid

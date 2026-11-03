@@ -12,28 +12,30 @@ from app.services.scorer import (
     score_compactness,
     score_cover_shadows,
     score_frame,
+    score_goal_side,
     score_line_height,
+    shadow_targets,
 )
 
 
 def test_compactness_tight_unit():
     defenders = [(10.0, 38.0), (10.0, 42.0), (12.0, 38.0), (12.0, 42.0)]
-    score = score_compactness(defenders)
+    score = score_compactness(defenders, (11.0, 40.0))
     assert score > 0.99  # near-zero area → near 1.0
 
 
 def test_compactness_spread_unit():
     defenders = [(5.0, 10.0), (5.0, 70.0), (45.0, 10.0), (45.0, 70.0)]
-    score = score_compactness(defenders)
-    assert score < 0.2  # wide bounding box → low compactness
+    score = score_compactness(defenders, (25.0, 40.0))
+    assert score < 0.2  # wide spread → low compactness
 
 
 def test_compactness_single_player():
-    assert score_compactness([(30.0, 40.0)]) == 1.0
+    assert score_compactness([(30.0, 40.0)], (30.0, 40.0)) == 1.0
 
 
 def test_compactness_empty():
-    assert score_compactness([]) == 1.0
+    assert score_compactness([], (30.0, 40.0)) == 1.0
 
 
 def test_line_height_deep():
@@ -95,22 +97,10 @@ def test_cover_shadows_no_coverage():
     assert len(shadows) == 0
 
 
-def test_cover_shadows_empty_attackers():
+def test_cover_shadows_no_targets_means_no_open_lane():
     coverage, shadows = score_cover_shadows([(30.0, 40.0)], [], (60.0, 40.0))
-    assert coverage == 0.0
+    assert coverage == 1.0
     assert shadows == []
-
-
-def test_composite_perfect_shape():
-    # compactness=1, line_height=0, shadow=1 → 0.4 + 0.3*(1-0/60) + 0.3 = 1.0
-    score = compute_composite(1.0, 0.0, 1.0)
-    assert score == pytest.approx(1.0)
-
-
-def test_composite_broken_shape():
-    # compactness=0, line_height=60, shadow=0 → 0 + 0.3*(0) + 0 = 0.0
-    score = compute_composite(0.0, 60.0, 0.0)
-    assert score == pytest.approx(0.0)
 
 
 def test_pressure_grid_dimensions():
@@ -119,11 +109,13 @@ def test_pressure_grid_dimensions():
     assert len(grid) == GRID_COLS * GRID_ROWS  # 384
 
 
-def test_pressure_grid_normalized():
-    defenders = [(60.0, 40.0)]
-    grid = compute_pressure_grid(defenders)
-    assert max(grid) == pytest.approx(1.0, abs=0.001)
-    assert min(grid) >= 0.0
+def test_pressure_grid_fixed_scale():
+    """C4: one defender alone doesn't saturate; values compare across frames."""
+    one = compute_pressure_grid([(62.5, 42.5)])
+    assert max(one) == pytest.approx(0.5, abs=0.01)
+    many = compute_pressure_grid([(62.5, 42.5)] * 3)
+    assert max(many) == 1.0
+    assert min(many) >= 0.0
 
 
 def test_pressure_grid_empty():
@@ -146,27 +138,6 @@ def test_line_height_three_defenders():
     assert result == pytest.approx((10.0 + 20.0 + 30.0) / 3)
 
 
-def test_compactness_all_same_location():
-    """All defenders stacked at the same point: zero bounding-box area → compactness=1.0."""
-    defenders = [(60.0, 40.0)] * 5
-    assert score_compactness(defenders) == pytest.approx(1.0)
-
-
-def test_compactness_exactly_two_defenders():
-    """Bounding box area is computed correctly for exactly two defenders."""
-    defenders = [(10.0, 20.0), (50.0, 60.0)]
-    # area = (50-10) * (60-20) = 40 * 40 = 1600
-    expected = round(1.0 - 1600 / 2400, 4)
-    assert score_compactness(defenders) == pytest.approx(expected)
-
-
-def test_composite_line_height_above_max():
-    """line_height above MAX_LINE_HEIGHT (60) clamps line_norm to 0."""
-    result = compute_composite(1.0, 80.0, 1.0)
-    # line_norm = max(0, 1 - 80/60) = 0 → composite = 0.4*1 + 0.3*0 + 0.3*1 = 0.7
-    assert result == pytest.approx(0.7)
-
-
 def test_is_shadowed_attacker_at_ball_position():
     """Attacker coincident with ball: ray_len < 0.1 → not shadowed."""
     ball = (60.0, 40.0)
@@ -187,10 +158,78 @@ def test_is_shadowed_beyond_max_range():
     assert _is_shadowed(ball, defender_near, attacker) is True
 
 
-def test_score_frame_keeper_excluded_from_defenders():
-    """Goalkeeper is excluded from defender list; compactness and line_height see no defenders."""
-    gk = PlayerPosition(x=5.0, y=40.0, is_attacker=False, actor=False, keeper=True)
-    attacker = PlayerPosition(x=80.0, y=40.0, is_attacker=True, actor=False, keeper=False)
-    scores, _, _ = score_frame([gk, attacker], 70.0, 40.0)
-    assert scores.compactness == pytest.approx(1.0)   # < 2 outfield defenders
-    assert scores.line_height == pytest.approx(0.0)   # no outfield defenders
+def test_compactness_all_same_location():
+    assert score_compactness([(60.0, 40.0)] * 5, (60.0, 40.0)) == pytest.approx(1.0)
+
+
+def test_compactness_ignores_far_defenders():
+    """C2: extra defenders the camera catches far from the ball don't change the score."""
+    ball = (25.0, 40.0)
+    block = [(20.0, 30.0), (20.0, 50.0), (30.0, 30.0), (30.0, 50.0), (25.0, 40.0), (22.0, 36.0)]
+    wider = block + [(22.0, 5.0), (22.0, 75.0), (60.0, 40.0)]
+    assert score_compactness(block, ball) == score_compactness(wider, ball)
+
+
+def test_compactness_uses_unit_nearest_ball():
+    ball = (30.0, 40.0)
+    tight_near_ball = [(30.0 + dx, 40.0 + dy) for dx, dy in [(0, 0), (2, 0), (0, 2), (2, 2), (1, 1), (-1, -1)]]
+    far_scattered = [(90.0, 5.0), (100.0, 75.0)]
+    assert score_compactness(tight_near_ball + far_scattered, ball) == 1.0
+
+
+def test_goal_side_share():
+    defenders = [(10.0, 40.0), (20.0, 40.0), (50.0, 40.0), (70.0, 40.0)]
+    assert score_goal_side(defenders, 30.0) == pytest.approx(0.5)
+    assert score_goal_side(defenders, 100.0) == pytest.approx(1.0)
+    assert score_goal_side([], 30.0) == 0.0
+
+
+def test_composite_perfect_shape():
+    assert compute_composite(1.0, 1.0, 1.0) == pytest.approx(1.0)
+
+
+def test_composite_broken_shape():
+    assert compute_composite(0.0, 0.0, 0.0) == pytest.approx(0.0)
+
+
+def test_composite_weights():
+    assert compute_composite(1.0, 0.0, 0.0) == pytest.approx(0.4)
+    assert compute_composite(0.0, 1.0, 0.0) == pytest.approx(0.3)
+    assert compute_composite(0.0, 0.0, 1.0) == pytest.approx(0.3)
+
+
+def _p(x, y, attacker=False, actor=False, keeper=False):
+    return PlayerPosition(x=x, y=y, is_attacker=attacker, actor=actor, keeper=keeper)
+
+
+def test_shadow_targets_exclude_carrier_and_keeper():
+    """C3: carrier (actor or on the ball) and attacking keeper can't be cut off."""
+    players = [
+        _p(60.0, 40.0, attacker=True, actor=True),   # carrier
+        _p(61.0, 40.5, attacker=True),               # on the ball, not flagged actor
+        _p(115.0, 40.0, attacker=True, keeper=True),  # attacking keeper
+        _p(40.0, 20.0, attacker=True),               # real target
+        _p(30.0, 40.0),                              # defender
+    ]
+    assert shadow_targets(players, (60.0, 40.0)) == [(40.0, 20.0)]
+
+
+def test_score_frame_unreliable_below_min_defenders():
+    """C2: fewer than 6 outfield defenders → no composite."""
+    players = [_p(5.0, 40.0, keeper=True)] + [_p(20.0 + i, 40.0) for i in range(5)]
+    scores, _, _ = score_frame(players, 70.0, 40.0)
+    assert scores.defenders_visible == 5
+    assert scores.reliable is False
+    assert scores.composite is None
+
+
+def test_score_frame_reliable_composite():
+    defenders = [_p(20.0 + 2 * i, 30.0 + 3 * i) for i in range(6)]
+    players = defenders + [_p(5.0, 40.0, keeper=True), _p(60.0, 40.0, attacker=True, actor=True)]
+    scores, _, _ = score_frame(players, 60.0, 40.0)
+    assert scores.reliable is True
+    assert scores.goal_side_share == 1.0
+    assert scores.cover_shadow_coverage == 1.0  # only the carrier attacks
+    assert scores.composite == pytest.approx(
+        compute_composite(scores.compactness, 1.0, 1.0)
+    )
