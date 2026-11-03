@@ -21,18 +21,19 @@ def extract_goal_possession_sequence(
     Returns the ordered list of events from the start of possession through
     the goal (inclusive).
 
+    Includes the defending team's events inside the possession (Pressure,
+    tackles, blocks, clearances, ...): they are the defensive actions the
+    analysis is about. StatsBomb keeps one possession number while the
+    defending team presses or briefly touches the ball.
+
     Trims trailing goalkeeper-recovery events that StatsBomb sometimes tags
     with the same possession number after the shot.
     """
     target_possession: int = goal_event["possession"]
-    attacking_team_id: int = goal_event["possession_team"]["id"]
 
-    sequence = [
-        e
-        for e in events
-        if e["possession"] == target_possession
-        and e["possession_team"]["id"] == attacking_team_id
-    ]
+    # possession_team is constant within a possession (0 of 19,998 possessions
+    # in EURO 2020 + WC 2022 differ), so the possession number alone selects it.
+    sequence = [e for e in events if e["possession"] == target_possession]
     sequence.sort(key=lambda e: e["index"])
 
     # Trim at the goal event (inclusive)

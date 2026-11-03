@@ -190,6 +190,19 @@ def test_is_penalty_goal_uses_shot_type():
     assert is_penalty_goal(_event(3, "og", 3, TEAM_A, "Team A", TEAM_B, "Own Goal Against")) is False
 
 
+def test_sequence_includes_defending_team_events_in_the_possession():
+    """Defensive actions inside the possession (Pressure, Duel) are part of the sequence."""
+    events = [
+        _event(1, "p1", 7, TEAM_A, "Team A", TEAM_A, "Pass"),
+        _event(2, "press", 7, TEAM_A, "Team A", TEAM_B, "Pressure"),
+        _event(3, "duel", 7, TEAM_A, "Team A", TEAM_B, "Duel"),
+        _event(4, "goal", 7, TEAM_A, "Team A", TEAM_A, "Shot", "Goal"),
+        _event(5, "other", 8, TEAM_B, "Team B", TEAM_B, "Pass"),
+    ]
+    seq = extract_goal_possession_sequence(events, events[3])
+    assert [e["id"] for e in seq] == ["p1", "press", "duel", "goal"]
+
+
 def test_frame_events_keeps_ball_receipts_and_drops_missing_frames():
     """Every event with a non-empty freeze frame becomes a frame, Ball Receipt* included."""
     seq = [
