@@ -4,6 +4,7 @@ import pytest
 from app.services.possession import (
     extract_goal_possession_sequence,
     find_goal_events,
+    frame_events,
     goal_teams,
     is_penalty_goal,
     sequence_length_for_goal,
@@ -187,6 +188,18 @@ def test_is_penalty_goal_uses_shot_type():
     assert is_penalty_goal(pen) is True
     assert is_penalty_goal(open_play) is False
     assert is_penalty_goal(_event(3, "og", 3, TEAM_A, "Team A", TEAM_B, "Own Goal Against")) is False
+
+
+def test_frame_events_keeps_ball_receipts_and_drops_missing_frames():
+    """Every event with a non-empty freeze frame becomes a frame, Ball Receipt* included."""
+    seq = [
+        _event(1, "pass", 1, TEAM_A, "Team A", TEAM_A, "Pass"),
+        _event(2, "rcpt", 1, TEAM_A, "Team A", TEAM_A, "Ball Receipt*"),
+        _event(3, "carry", 1, TEAM_A, "Team A", TEAM_A, "Carry"),
+        _event(4, "shot", 1, TEAM_A, "Team A", TEAM_A, "Shot", "Goal"),
+    ]
+    frames360 = {"pass": [{}], "rcpt": [{}], "carry": [], "shot": [{}]}
+    assert [e["id"] for e in frame_events(seq, frames360)] == ["pass", "rcpt", "shot"]
 
 
 def test_extract_sequence_when_goal_is_first_event():

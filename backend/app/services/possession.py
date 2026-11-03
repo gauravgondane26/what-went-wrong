@@ -67,6 +67,18 @@ def find_goal_events(events: list[dict]) -> list[dict]:
     return goals
 
 
+def frame_events(sequence: list[dict], frames360: dict[str, list]) -> list[dict]:
+    """Events of the sequence that become frames: every event with a non-empty
+    360 freeze frame, in sequence order.
+
+    Ball Receipt* events are included. They used to be skipped on the belief
+    that they re-use the preceding pass's freeze frame and appear rotated 180°;
+    in EURO 2020 data none is a copy of its pass frame, and the ~7% that are
+    stored rotated are handled by the normalizer like any other event.
+    """
+    return [e for e in sequence if frames360.get(e["id"])]
+
+
 def goal_teams(events: list[dict], goal_event: dict) -> tuple[dict, dict]:
     """Return (scoring_team, conceding_team) as {"id", "name"} dicts.
 

@@ -66,16 +66,9 @@ async def get_goal_sequence(
     # Extract possession sequence
     sequence = possession.extract_goal_possession_sequence(events, goal_event)
 
-    # Build frames — skip events with no 360 freeze frame data, and skip
-    # Ball Receipt* events whose freeze frames are re-used from the preceding
-    # event's actor-relative coordinate system, causing a 180° position flip.
+    # Build frames from every sequence event that has a 360 freeze frame
     frames: list[FrameData] = []
-    _SKIP_EVENT_TYPES = {"Ball Receipt*"}
-    events_with_360 = [
-        e for e in sequence
-        if frames360.get(e["id"])
-        and e.get("type", {}).get("name") not in _SKIP_EVENT_TYPES
-    ]
+    events_with_360 = possession.frame_events(sequence, frames360)
 
     if not events_with_360:
         raise HTTPException(
