@@ -73,7 +73,7 @@ class GoalSummary(BaseModel):
     conceding_team_name: str
     xg: float | None
     possession_number: int
-    is_penalty: bool  # period == 5; shape analysis is limited
+    is_penalty: bool  # in-game penalty (shot.type == "Penalty"); shape analysis is limited
     sequence_length: int  # number of events in the possession sequence
 
 

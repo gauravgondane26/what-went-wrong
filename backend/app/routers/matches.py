@@ -101,7 +101,7 @@ async def list_goals(match_id: int, request: Request) -> list[GoalSummary]:
                 conceding_team_name=conceding_team_name,
                 xg=xg,
                 possession_number=g.get("possession", 0),
-                is_penalty=g.get("period", 1) == 5,
+                is_penalty=possession.is_penalty_goal(g),
                 sequence_length=seq_len,
             )
         )

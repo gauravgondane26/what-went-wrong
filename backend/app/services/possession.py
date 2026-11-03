@@ -42,13 +42,19 @@ def extract_goal_possession_sequence(
     return sequence[: goal_idx + 1]
 
 
+SHOOTOUT_PERIOD = 5
+
+
 def find_goal_events(events: list[dict]) -> list[dict]:
     """
     Returns all shot events where the outcome is a goal.
     Includes own goals (type.name == "Own Goal Against") as a separate entry.
+    Excludes penalty-shootout kicks (period 5): they have no build-up to analyse.
     """
     goals = []
     for e in events:
+        if e.get("period") == SHOOTOUT_PERIOD:
+            continue
         type_name = e.get("type", {}).get("name", "")
         if type_name == "Shot":
             outcome = (e.get("shot") or {}).get("outcome", {}).get("name", "")
@@ -58,6 +64,11 @@ def find_goal_events(events: list[dict]) -> list[dict]:
             goals.append(e)
     goals.sort(key=lambda e: e["index"])
     return goals
+
+
+def is_penalty_goal(goal_event: dict) -> bool:
+    """True for an in-game penalty kick (shot.type == "Penalty")."""
+    return ((goal_event.get("shot") or {}).get("type") or {}).get("name") == "Penalty"
 
 
 def sequence_length_for_goal(events: list[dict], goal_event: dict) -> int:

@@ -4,6 +4,7 @@ import pytest
 from app.services.possession import (
     extract_goal_possession_sequence,
     find_goal_events,
+    is_penalty_goal,
     sequence_length_for_goal,
 )
 
@@ -131,6 +132,26 @@ def test_find_goal_events_sorted_by_index():
     goals = find_goal_events(events)
     assert goals[0]["id"] == "g1"
     assert goals[1]["id"] == "g2"
+
+
+def test_find_goal_events_excludes_shootout_kicks():
+    """Penalty-shootout kicks (period 5) have no build-up and are not listed."""
+    in_game = _event(1, "g", 1, TEAM_A, "Team A", TEAM_A, "Shot", "Goal")
+    shootout = _event(2, "so", 2, TEAM_A, "Team A", TEAM_A, "Shot", "Goal")
+    shootout["period"] = 5
+    assert [g["id"] for g in find_goal_events([in_game, shootout])] == ["g"]
+
+
+def test_is_penalty_goal_uses_shot_type():
+    """In-game penalties are flagged by shot.type, not by period."""
+    pen = _event(1, "pen", 1, TEAM_A, "Team A", TEAM_A, "Shot", "Goal")
+    pen["period"] = 1
+    pen["shot"]["type"] = {"name": "Penalty"}
+    open_play = _event(2, "op", 2, TEAM_A, "Team A", TEAM_A, "Shot", "Goal")
+    open_play["shot"]["type"] = {"name": "Open Play"}
+    assert is_penalty_goal(pen) is True
+    assert is_penalty_goal(open_play) is False
+    assert is_penalty_goal(_event(3, "og", 3, TEAM_A, "Team A", TEAM_B, "Own Goal Against")) is False
 
 
 def test_extract_sequence_when_goal_is_first_event():
