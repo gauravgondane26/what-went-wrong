@@ -24,6 +24,19 @@ actor-relative coordinate system:
   actor is defender → no flip (defender's actor-relative already matches:
                       the two flips — actor-relative→absolute, absolute→target
                       — cancel out)
+
+Exception — shared freeze frames:
+  Paired events (Dribble/Dribbled Past, Duel/Dispossessed, Foul Committed/Foul
+  Won, Aerial Lost/Clearance or Shot, Own Goal Against/For, ...) share ONE
+  freeze frame, stored in the coordinate system of one of the two teams. For the
+  other team's event two things can be wrong, independently:
+    - POSITIONS are in the opponent's frame (the actor stands on the rotated
+      ball position), and
+    - TEAMMATE labels are relative to the opponent — StatsBomb re-labels them
+      for some pairs (Dribbled Past, Dispossessed, Foul Won) but copies them
+      verbatim for others (Aerial Lost ↔ Clearance/Shot, Own Goal pairs).
+  `normalize_frame` decides each separately (see `_positions_rotated` and
+  `_labels_inverted`); `copied_labels_hint` tells it how the labels were shared.
 """
 from __future__ import annotations
 
@@ -31,17 +44,28 @@ import math
 
 from app.models.frame import PlayerPosition
 
+_FAR_FROM_BALL = 30.0
+_COPY_TOLERANCE = 0.01
+
+# Positions for these types are (almost) always in the opponent's frame and the
+# teammate labels are re-labelled for the actor (EURO 2020 / WC 2022 360 data:
+# 95–99% of frames). Used when the actor is not visible / no keeper is visible.
+_RELABELLED_OPPONENT_FRAME_TYPES = {"Dribbled Past", "Dispossessed", "Foul Won"}
+
 
 def normalize_frame(
     event: dict,
     freeze_frame: list[dict],
     defending_team_id: int,
+    copied_labels: bool | None = None,
 ) -> tuple[float, float, list[PlayerPosition]]:
     """
     Normalize a single event frame so the defending team's goal is at x=0.
 
-    Both event.location and freeze frame positions are actor-relative, so they
-    receive identical flip treatment based solely on who performed the event.
+    `copied_labels` (from `copied_labels_hint`) says how this freeze frame was
+    shared with a related event of the other team: True = copied verbatim
+    (labels relative to the other team), False = re-labelled for this event's
+    actor, None = not a shared frame / unknown.
 
     Returns (ball_x, ball_y, players).
     """
@@ -87,10 +111,8 @@ def normalize_frame(
 
     event_type = (event.get("type") or {}).get("name", "")
 
-    # Some events store the freeze-frame POSITIONS in the opponent's coordinate
-    # system. Only positions are rotated back — the `teammate` flag is still
-    # relative to the actor, so the team labels above are already correct.
-    if _positions_rotated(event_type, players, ball_x, ball_y):
+    rotated = _positions_rotated(event_type, players, ball_x, ball_y)
+    if rotated:
         players = [
             PlayerPosition(
                 x=round(120.0 - p.x, 3),
@@ -102,37 +124,78 @@ def normalize_frame(
             for p in players
         ]
 
-    # Other events have correct positions but an `event.location` stored in
-    # the opposite frame: the actor then stands on the rotated ball position.
-    actor = next((p for p in players if p.actor), None)
-    if actor is not None:
-        far = math.hypot(actor.x - ball_x, actor.y - ball_y) > _FAR_FROM_BALL
-        rot_x, rot_y = 120.0 - ball_x, 80.0 - ball_y
-        if far and math.hypot(actor.x - rot_x, actor.y - rot_y) < _NEAR_ROTATED_BALL:
-            ball_x, ball_y = rot_x, rot_y
+    if _labels_inverted(event_type, players, rotated, copied_labels):
+        players = [
+            PlayerPosition(
+                x=p.x,
+                y=p.y,
+                is_attacker=not p.is_attacker,
+                actor=p.actor,
+                keeper=p.keeper,
+            )
+            for p in players
+        ]
 
     return ball_x, ball_y, players
 
 
-# Freeze-frame positions for these event types are stored in the opponent's
-# frame (EURO 2020 / WC 2022 360 data: 95–99% of Dribbled Past, Dispossessed and
-# Foul Won frames have the actor standing on the rotated ball position).
-_OPPONENT_FRAME_TYPES = {"Dribbled Past", "Dispossessed", "Foul Won"}
+def copied_labels_hint(
+    event: dict,
+    freeze_frame: list[dict],
+    events_by_id: dict[str, dict],
+    frames360: dict[str, list[dict]],
+) -> bool | None:
+    """How this freeze frame was shared with a related event of the other team.
 
-# For these types an actor far from the ball means the BALL location is in the
-# opposite frame, not the players (goalkeepers confirm the players: 543 vs 17
-# frames for Ball Receipt*, 26 vs 10 for Carry).
-_BALL_LOCATION_SUSPECT_TYPES = {"Ball Receipt*", "Carry"}
+    Returns True if it is a copy of that event's frame with the teammate flags
+    copied verbatim (so they are relative to the other team), False if it is a
+    copy with the flags re-labelled for this event's actor, and None if it is
+    not a copy of any related other-team frame.
+    """
+    team_id = event.get("team", {}).get("id")
+    for rel_id in event.get("related_events") or []:
+        other = events_by_id.get(rel_id)
+        other_frame = frames360.get(rel_id)
+        if not other or not other_frame or other.get("team", {}).get("id") == team_id:
+            continue
+        pairs = _match_players(freeze_frame, other_frame)
+        if pairs is None:
+            continue
+        same = sum(a.get("teammate", False) == b.get("teammate", False) for a, b in pairs)
+        if same == len(pairs):
+            return True
+        if same == 0:
+            return False
+    return None
 
-_FAR_FROM_BALL = 30.0
-_NEAR_ROTATED_BALL = 10.0
+
+def _match_players(a: list[dict], b: list[dict]) -> list[tuple[dict, dict]] | None:
+    """Pair up two freeze frames player-by-player if their positions coincide."""
+    if not a or len(a) != len(b):
+        return None
+    pairs = []
+    remaining = list(b)
+    for p in a:
+        q = next(
+            (
+                q for q in remaining
+                if math.hypot(p["location"][0] - q["location"][0],
+                              p["location"][1] - q["location"][1]) <= _COPY_TOLERANCE
+            ),
+            None,
+        )
+        if q is None:
+            return None
+        remaining.remove(q)
+        pairs.append((p, q))
+    return pairs
 
 
 def _keeper_vote(players: list[PlayerPosition]) -> int:
     """+1 for each visible keeper in its own half, −1 for each in the wrong half.
 
     After normalization the defending keeper belongs near x=0 and the attacking
-    keeper near x=120, so a negative vote means the positions are rotated.
+    keeper near x=120.
     """
     vote = 0
     for p in players:
@@ -148,27 +211,41 @@ def _positions_rotated(
     ball_x: float,
     ball_y: float,
 ) -> bool:
-    """Decide whether freeze-frame positions are in the opponent's frame.
+    """Are the freeze-frame positions in the opponent's coordinate system?
+
+    The actor performs the event at the ball, so an actor more than 30 units
+    away means the positions are rotated. It is the players, not the ball, that
+    are off: checked by continuity against the related same-team frame
+    (Ball Receipt* 963 vs 90 frames, Carry 80 vs 22). Requiring the actor to
+    stand exactly on the rotated ball made consecutive-frame orientation errors
+    worse (556 → 915), so any far actor counts.
+    """
+    actor = next((p for p in players if p.actor), None)
+    if actor is None:
+        return event_type in _RELABELLED_OPPONENT_FRAME_TYPES
+    return math.hypot(actor.x - ball_x, actor.y - ball_y) > _FAR_FROM_BALL
+
+
+def _labels_inverted(
+    event_type: str,
+    players: list[PlayerPosition],
+    positions_rotated: bool,
+    copied_labels: bool | None,
+) -> bool:
+    """Are the teammate labels relative to the opponent instead of the actor?
 
     Evidence, strongest first:
-      1. Visible goalkeepers — they directly show which end each team defends.
-      2. Event types known to always store opponent-frame positions.
-      3. Actor far from the ball but standing on the rotated ball position
-         (skipped for types where the ball location is the usual culprit).
+      1. Visible goalkeepers (with positions already settled, each team's
+         keeper must be in its own half).
+      2. How the frame was shared with the other team's event.
+      3. Event types known to re-label (keep labels); otherwise a rotated frame
+         carries the opponent's labels too.
     """
     vote = _keeper_vote(players)
     if vote != 0:
         return vote < 0
-
-    if event_type in _OPPONENT_FRAME_TYPES:
-        return True
-
-    if event_type in _BALL_LOCATION_SUSPECT_TYPES:
+    if not positions_rotated:
         return False
-
-    actor = next((p for p in players if p.actor), None)
-    if actor is None:
-        return False
-    far = math.hypot(actor.x - ball_x, actor.y - ball_y) > _FAR_FROM_BALL
-    near_rotated = math.hypot(actor.x - (120.0 - ball_x), actor.y - (80.0 - ball_y)) < _NEAR_ROTATED_BALL
-    return far and near_rotated
+    if copied_labels is not None:
+        return copied_labels
+    return event_type not in _RELABELLED_OPPONENT_FRAME_TYPES
