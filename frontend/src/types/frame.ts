@@ -19,10 +19,13 @@ export interface CoverShadow {
 }
 
 export interface DefensiveScores {
-  compactness: number             // 0–1; higher = tighter unit
-  line_height: number             // raw x of last defensive line; lower = deeper/safer
-  cover_shadow_coverage: number   // 0–1; fraction of attackers shadowed
-  composite: number               // weighted combined score
+  compactness: number             // 0–1; higher = tighter unit (6 defenders nearest the ball)
+  line_height: number             // raw x of the 4 deepest defenders; display only
+  goal_side_share: number         // 0–1; fraction of outfield defenders between ball and own goal
+  cover_shadow_coverage: number   // 0–1; fraction of receivable attackers shadowed
+  composite: number | null        // weighted combined score; null when not reliable
+  defenders_visible: number       // visible outfield defenders (keeper excluded)
+  reliable: boolean               // enough defenders visible to score the shape
 }
 
 export interface FrameData {
@@ -45,7 +48,7 @@ export interface FrameData {
   pressure_grid: number[]   // 384 floats (24 cols × 16 rows), row-major, 0–1
 
   is_collapse_frame: boolean
-  score_delta: number       // composite[i] - composite[i-1]; 0 for first frame
+  score_delta: number | null  // composite minus previous reliable frame's; null if unreliable/first
 }
 
 export interface GoalSequenceResponse {
@@ -55,7 +58,7 @@ export interface GoalSequenceResponse {
   defending_team_name: string
   attacking_team_id: number
   attacking_team_name: string
-  collapse_frame_index: number
+  collapse_frame_index: number | null  // null when no reliable drop was found
   frames: FrameData[]
 }
 

@@ -5,7 +5,7 @@ import type { FrameData } from '../../types/frame'
 interface Props {
   frames: FrameData[]
   currentIndex: number
-  collapseIndex: number
+  collapseIndex: number | null
   width: number
   height: number
 }
@@ -24,10 +24,11 @@ export function Sparkline({ frames, currentIndex, collapseIndex, width, height }
     const xScale = d3.scaleLinear([0, n - 1], [8, width - 8])
     const yScale = d3.scaleLinear([0, 1], [height - 6, 6])
 
-    // Line
-    const line = d3.line<number>()
+    // Line — unreliable frames (null composite) leave a gap
+    const line = d3.line<number | null>()
+      .defined(d => d !== null)
       .x((_, i) => xScale(i))
-      .y(d => yScale(d))
+      .y(d => yScale(d as number))
       .curve(d3.curveMonotoneX)
 
     svg.append('path')
@@ -38,19 +39,22 @@ export function Sparkline({ frames, currentIndex, collapseIndex, width, height }
       .attr('d', line)
 
     // Collapse marker — vertical red line
-    svg.append('line')
-      .attr('x1', xScale(collapseIndex))
-      .attr('x2', xScale(collapseIndex))
-      .attr('y1', 4)
-      .attr('y2', height - 4)
-      .attr('stroke', '#e05c2a')
-      .attr('stroke-width', 1.5)
-      .attr('stroke-dasharray', '3,2')
+    if (collapseIndex !== null) {
+      svg.append('line')
+        .attr('x1', xScale(collapseIndex))
+        .attr('x2', xScale(collapseIndex))
+        .attr('y1', 4)
+        .attr('y2', height - 4)
+        .attr('stroke', '#e05c2a')
+        .attr('stroke-width', 1.5)
+        .attr('stroke-dasharray', '3,2')
+    }
 
-    // Current frame dot
+    // Current frame dot (on the baseline when the frame has no score)
+    const current = scores[currentIndex]
     svg.append('circle')
       .attr('cx', xScale(currentIndex))
-      .attr('cy', yScale(scores[currentIndex]))
+      .attr('cy', current === null ? height - 6 : yScale(current))
       .attr('r', 3.5)
       .attr('fill', '#ffffff')
       .attr('stroke', '#3a86e8')
