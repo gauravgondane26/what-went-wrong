@@ -326,3 +326,81 @@ def test_rotated_freeze_frame_keeps_team_labels():
     # The two attackers stay attackers
     assert by_loc[(32, 48)].is_attacker is True
     assert by_loc[(40, 30)].is_attacker is True
+
+
+# ---------------------------------------------------------------------------
+# Orientation decision (A2). "Actor far from the ball" is ambiguous: either the
+# player positions or the event location can be the part stored in the
+# opposite frame. Evidence order: visible keepers → known opponent-frame event
+# types → actor/ball geometry.
+# In these tests team 1 attacks, team 2 defends; truth is given in normalized
+# space (defending goal at x=0).
+# ---------------------------------------------------------------------------
+def test_keeper_overrides_distance_when_ball_location_is_rotated():
+    """Aerial duel: players are correct, event.location is rotated → move the ball, not the players."""
+    event = {"team": {"id": 1}, "location": [40.0, 30.0], "type": {"name": "Duel"}}  # rotated ball
+    freeze_frame = [
+        {"location": [80.0, 50.0], "teammate": True, "actor": True, "keeper": False},    # → (40, 30)
+        {"location": [117.0, 40.0], "teammate": False, "actor": False, "keeper": True},  # → (3, 40)
+    ]
+    ball_x, ball_y, players = normalize_frame(event, freeze_frame, defending_team_id=2)
+    actor = next(p for p in players if p.actor)
+    keeper = next(p for p in players if p.keeper)
+    assert (actor.x, actor.y) == pytest.approx((40.0, 30.0))
+    assert keeper.x == pytest.approx(3.0)
+    assert keeper.is_attacker is False
+    assert (ball_x, ball_y) == pytest.approx((40.0, 30.0))
+
+
+def test_ball_receipt_far_actor_moves_ball_not_players():
+    """No keeper visible: for Ball Receipt* the event location is the rotated part."""
+    event = {"team": {"id": 1}, "location": [40.0, 30.0], "type": {"name": "Ball Receipt*"}}
+    freeze_frame = [
+        {"location": [80.0, 50.0], "teammate": True, "actor": True, "keeper": False},    # → (40, 30)
+        {"location": [85.0, 45.0], "teammate": False, "actor": False, "keeper": False},  # → (35, 35)
+    ]
+    ball_x, ball_y, players = normalize_frame(event, freeze_frame, defending_team_id=2)
+    by_actor = {p.actor: p for p in players}
+    assert (by_actor[True].x, by_actor[True].y) == pytest.approx((40.0, 30.0))
+    assert (by_actor[False].x, by_actor[False].y) == pytest.approx((35.0, 35.0))
+    assert (ball_x, ball_y) == pytest.approx((40.0, 30.0))
+
+
+def test_opponent_frame_type_rotated_without_actor_or_keeper():
+    """Dribbled Past is rotated by event type even when no actor/keeper is visible."""
+    event = {"team": {"id": 2}, "location": [30.0, 50.0], "type": {"name": "Dribbled Past"}}
+    freeze_frame = [
+        {"location": [100.0, 45.0], "teammate": True, "actor": False, "keeper": False},   # defender → (20, 35)
+        {"location": [80.0, 50.0], "teammate": False, "actor": False, "keeper": False},   # attacker → (40, 30)
+    ]
+    _, _, players = normalize_frame(event, freeze_frame, defending_team_id=2)
+    defender = next(p for p in players if not p.is_attacker)
+    attacker = next(p for p in players if p.is_attacker)
+    assert (defender.x, defender.y) == pytest.approx((20.0, 35.0))
+    assert (attacker.x, attacker.y) == pytest.approx((40.0, 30.0))
+
+
+def test_actor_on_rotated_ball_rotates_players_without_keeper():
+    """No keeper, generic type: actor standing on the rotated ball → positions are rotated."""
+    event = {"team": {"id": 1}, "location": [80.0, 50.0], "type": {"name": "Duel"}}  # → ball (40, 30)
+    freeze_frame = [
+        {"location": [40.0, 30.0], "teammate": True, "actor": True, "keeper": False},   # stored rotated
+        {"location": [35.0, 35.0], "teammate": False, "actor": False, "keeper": False},
+    ]
+    ball_x, ball_y, players = normalize_frame(event, freeze_frame, defending_team_id=2)
+    actor = next(p for p in players if p.actor)
+    other = next(p for p in players if not p.actor)
+    assert (ball_x, ball_y) == pytest.approx((40.0, 30.0))
+    assert (actor.x, actor.y) == pytest.approx((40.0, 30.0))
+    assert actor.is_attacker is True
+    assert (other.x, other.y) == pytest.approx((35.0, 35.0))
+    assert other.is_attacker is False
+
+
+def test_ambiguous_far_actor_left_alone():
+    """Actor far from the ball AND from the rotated ball: no evidence, change nothing."""
+    event = {"team": {"id": 1}, "location": [80.0, 40.0], "type": {"name": "Duel"}}  # → ball (40, 40)
+    freeze_frame = [{"location": [60.0, 75.0], "teammate": True, "actor": True, "keeper": False}]  # → (60, 5)
+    ball_x, ball_y, players = normalize_frame(event, freeze_frame, defending_team_id=2)
+    assert (ball_x, ball_y) == pytest.approx((40.0, 40.0))
+    assert (players[0].x, players[0].y) == pytest.approx((60.0, 5.0))
