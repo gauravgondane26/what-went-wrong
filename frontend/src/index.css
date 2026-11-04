@@ -1,26 +1,22 @@
-/* ── Reset & base ─────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+/*
+ * Page styles. Reset and document defaults now live in styles/base.css,
+ * tokens in styles/tokens.css (from DESIGN.md).
+ *
+ * LEGACY ALIASES: old variable names re-pointed at the new tokens so the
+ * existing screens render on the new system before each one is redesigned.
+ * Remove this block in redesign Step 5 once nothing references these names.
+ */
 :root {
-  --bg:        #0f1117;
-  --surface:   #1a1d27;
-  --surface2:  #22263a;
-  --border:    #2e3248;
-  --text:      #e2e6f0;
-  --muted:     #7a82a0;
-  --accent:    #3a86e8;
-  --danger:    #e05c2a;
-  --collapse:  #e05c2a;
-  --green:     #2d5a1b;
-  --radius:    6px;
-  --font:      'Inter', system-ui, sans-serif;
-  --mono:      'JetBrains Mono', 'Fira Code', monospace;
+  --surface2: var(--color-canvas-soft-2);
+  --muted:    var(--color-mute);
+  --accent:   var(--color-ink);
+  --danger:   var(--color-collapse);
+  --collapse: var(--color-collapse);
+  --green:    var(--color-pitch);
+  --radius:   var(--radius-sm);
+  --font:     var(--font-sans);
+  --mono:     var(--font-mono);
 }
-
-html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; }
-#root { height: 100%; }
-button { cursor: pointer; font: inherit; }
-ul { list-style: none; }
 
 /* ── App layout ───────────────────────────────────────────────── */
 .app {
