@@ -1,0 +1,857 @@
+<title>What Went Wrong</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: app shell (56px bar) over two views. Picker = one centred column of
+   matches that expand in place. Analysis = stage (pitch + shape timeline) | insight rail.
+   Tokens are DESIGN.md (light only, v1). Colour lives on data: blue = defence, red = collapse. */
+:root {
+  --ink: #171717; --body: #4d4d4d; --mute: #6b6b6b;
+  --hairline: #ebebeb; --hairline-strong: #a1a1a1;
+  --canvas: #ffffff; --canvas-soft: #fafafa; --canvas-soft-2: #f5f5f5;
+  --defence: #1d5fd0; --defence-soft: #dce8fb; --defence-deep: #174a9f;
+  --collapse: #c4261b; --collapse-soft: #fbe4e1; --collapse-deep: #9b1d14;
+  --warning: #b45309; --warning-soft: #fef3c7;
+  --pitch: #f7f8f7; --pitch-line: #c8c8c8;
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --r-sm: 6px; --r-md: 8px; --r-lg: 12px;
+  --shadow-1: inset 0 0 0 1px #00000014;
+  --shadow-5: 0 1px 1px #00000005, 0 8px 16px -4px #0000000a, 0 24px 32px -8px #0000000f, inset 0 0 0 1px #00000014;
+  --ring: 0 0 0 2px var(--canvas), 0 0 0 4px var(--ink);
+  --fast: 120ms; --ease: cubic-bezier(.2,0,0,1);
+  color-scheme: light;
+}
+@media (prefers-reduced-motion: reduce) { :root { --fast: 0ms; } }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { background: var(--canvas-soft); color: var(--ink); font: 400 14px/20px var(--sans); letter-spacing: -0.28px; -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; color: inherit; letter-spacing: inherit; }
+button { cursor: pointer; background: none; border: 0; }
+button:disabled { cursor: not-allowed; }
+ul, ol { list-style: none; }
+h1, h2, h3 { font-weight: 600; text-wrap: balance; }
+p { text-wrap: pretty; }
+:focus { outline: none; }
+:focus-visible { box-shadow: var(--ring); border-radius: var(--r-sm); }
+.tnum { font-variant-numeric: tabular-nums; }
+.mono, .num { font-family: var(--mono); font-variant-numeric: tabular-nums; letter-spacing: 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: 16px; top: 8px; z-index: 50; padding: 6px 12px; background: var(--ink); color: var(--canvas); border-radius: var(--r-sm); transform: translateY(-200%); text-decoration: none; }
+.skip:focus-visible { transform: none; }
+
+/* ── Shell ──────────────────────────────────────────── */
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  height: 56px; display: flex; align-items: center; gap: 16px;
+  padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px));
+  background: var(--canvas); box-shadow: inset 0 -1px 0 var(--hairline);
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 21; background: var(--canvas); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; white-space: nowrap; text-decoration: none; color: var(--ink); }
+.brand svg { width: 22px; height: 22px; }
+.crumbs { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--mute); }
+.crumbs span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crumbs .cur { color: var(--ink); font-weight: 500; }
+.bar-actions { margin-left: auto; display: flex; gap: 8px; }
+
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 0 12px; border-radius: var(--r-sm); font-weight: 500; white-space: nowrap; transition: background-color var(--fast) var(--ease); }
+.btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+.btn-primary { background: var(--ink); color: var(--canvas); }
+.btn-primary:hover:not(:disabled) { background: var(--body); }
+.btn-primary:disabled { background: var(--canvas-soft-2); color: var(--mute); }
+.btn-secondary { background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
+.btn-secondary:hover:not(:disabled) { background: var(--canvas-soft-2); box-shadow: inset 0 0 0 1px var(--hairline-strong); }
+.btn-ghost { color: var(--body); }
+.btn-ghost:hover { background: var(--canvas-soft-2); color: var(--ink); }
+.icon-btn { width: 32px; padding: 0; }
+.btn:focus-visible { box-shadow: var(--ring); }
+@media (pointer: coarse) { .btn::after { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%); } }
+
+.wrap { padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); padding-block: 24px 40px; }
+
+/* ── Picker ─────────────────────────────────────────── */
+.picker { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+.intro { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 32px; align-items: center; padding-block: 16px 8px; }
+.intro h1 { font-size: 32px; line-height: 40px; letter-spacing: -1.28px; }
+.intro p { margin-top: 12px; font-size: 16px; line-height: 24px; color: var(--body); max-width: 56ch; }
+.intro .cta { margin-top: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
+.intro-art { width: 100%; height: auto; aspect-ratio: 4 / 3; border-radius: var(--r-md); box-shadow: var(--shadow-1); }
+.finder { display: flex; flex-direction: column; background: var(--canvas); border-radius: var(--r-md); box-shadow: var(--shadow-1); }
+.finder-head { display: flex; gap: 8px; padding: 12px; flex-wrap: wrap; box-shadow: inset 0 -1px 0 var(--hairline); }
+.field { position: relative; display: flex; align-items: center; }
+.field svg { position: absolute; left: 10px; width: 16px; height: 16px; color: var(--mute); pointer-events: none; }
+.select, .search { height: 36px; border-radius: var(--r-sm); background: var(--canvas); color: var(--ink); box-shadow: inset 0 0 0 1px var(--hairline); border: 0; }
+.select { padding: 0 32px 0 12px; appearance: none; font-weight: 500; min-width: 200px; }
+.field-select svg { left: auto; right: 10px; }
+.search { padding: 0 12px 0 32px; width: 100%; }
+.field-search { flex: 1 1 220px; }
+.select:hover, .search:hover { box-shadow: inset 0 0 0 1px var(--hairline-strong); }
+.select:focus-visible, .search:focus-visible { box-shadow: inset 0 0 0 1px var(--ink), var(--ring); }
+.stage-tabs { display: flex; gap: 4px; flex-basis: 100%; overflow-x: auto; overscroll-behavior-x: contain; margin: 0 -4px; }
+.tab { height: 36px; padding: 0 12px; border-radius: var(--r-sm); color: var(--body); white-space: nowrap; }
+.tab:hover { background: var(--canvas-soft-2); color: var(--ink); }
+.tab[aria-pressed="true"] { background: var(--canvas-soft-2); color: var(--ink); font-weight: 500; }
+.tab:focus-visible { box-shadow: var(--ring); }
+
+.group-h { padding: 16px 16px 6px; font-size: 12px; line-height: 16px; color: var(--mute); font-weight: 500; }
+.match { box-shadow: inset 0 -1px 0 var(--hairline); }
+.match:last-child { box-shadow: none; }
+.match-row { width: 100%; display: grid; grid-template-columns: 64px minmax(0, 1fr) auto 20px; align-items: center; gap: 16px; padding: 12px 16px; text-align: left; min-height: 52px; transition: background-color var(--fast) var(--ease); }
+.match-row:hover { background: var(--canvas-soft); }
+.match-row:focus-visible { box-shadow: inset var(--ring); border-radius: 0; }
+.match-date { color: var(--mute); font-size: 12px; }
+.teams { display: flex; align-items: baseline; gap: 10px; min-width: 0; font-weight: 500; }
+.teams .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.teams .t.lost { color: var(--body); font-weight: 400; }
+.score { font-family: var(--mono); font-variant-numeric: tabular-nums; letter-spacing: 0; color: var(--ink); }
+.goal-count { color: var(--mute); font-size: 12px; white-space: nowrap; }
+.chev { width: 16px; height: 16px; color: var(--mute); transition: transform var(--fast) var(--ease); }
+.match[data-open="true"] .chev { transform: rotate(180deg); }
+.match[data-open="true"] .match-row { background: var(--canvas-soft); }
+.goals { padding: 4px 16px 16px 96px; display: flex; flex-direction: column; gap: 4px; background: var(--canvas-soft); }
+.goal { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 12px; align-items: center; min-height: 44px; padding: 8px 12px; border-radius: var(--r-sm); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); text-align: left; transition: box-shadow var(--fast) var(--ease); }
+.goal:hover:not(:disabled) { box-shadow: inset 0 0 0 1px var(--hairline-strong); }
+.goal:focus-visible { box-shadow: var(--ring); }
+.goal:disabled { background: transparent; color: var(--mute); }
+.goal .min { font-family: var(--mono); letter-spacing: 0; font-weight: 500; }
+.goal .who { min-width: 0; }
+.goal .who b { font-weight: 500; }
+.goal .meta { display: block; font-size: 12px; line-height: 16px; color: var(--mute); }
+.goal .go { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; color: var(--ink); white-space: nowrap; }
+.goal:disabled .go { color: var(--mute); font-weight: 400; font-size: 12px; }
+.goal .go svg { width: 16px; height: 16px; }
+.badge { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 500; background: var(--canvas-soft-2); color: var(--body); white-space: nowrap; }
+.badge-collapse { background: var(--collapse-soft); color: var(--collapse-deep); }
+.badge-defence { background: var(--defence-soft); color: var(--defence-deep); }
+.badge-warning { background: var(--warning-soft); color: var(--warning); }
+.empty { padding: 32px 16px; color: var(--mute); text-align: center; }
+.source { font-size: 12px; color: var(--mute); }
+
+/* ── Analysis ───────────────────────────────────────── */
+.analysis { display: flex; flex-direction: column; gap: 20px; max-width: 1440px; margin: 0 auto; }
+.title-row { display: flex; gap: 24px; align-items: flex-end; flex-wrap: wrap; }
+.title-row .tt { flex: 1 1 420px; min-width: 0; }
+.title-row h1 { font-size: 24px; line-height: 32px; letter-spacing: -0.96px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.finding { margin-top: 4px; font-size: 16px; line-height: 24px; color: var(--body); max-width: 78ch; }
+.finding b { color: var(--ink); font-weight: 500; }
+.title-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.goal-tabs { display: flex; gap: 2px; padding: 2px; border-radius: var(--r-sm); background: var(--canvas-soft-2); overflow-x: auto; max-width: 100%; }
+.goal-tab { height: 28px; padding: 0 10px; border-radius: 4px; font-size: 12px; color: var(--body); white-space: nowrap; display: inline-flex; gap: 6px; align-items: center; }
+.goal-tab .num { font-weight: 500; }
+.goal-tab:hover:not(:disabled) { color: var(--ink); }
+.goal-tab[aria-current="true"] { background: var(--canvas); color: var(--ink); box-shadow: var(--shadow-1); font-weight: 500; }
+.goal-tab:disabled { color: var(--hairline-strong); }
+.goal-tab:focus-visible { box-shadow: var(--ring); }
+
+.layout { display: grid; grid-template-columns: var(--stage-w) minmax(380px, 1fr); gap: 24px; align-items: start;
+  /* Pitch sized from the viewport: tall enough to fill a 900px screen under the title row,
+     never so wide that the rail drops under 380px. 128/86 = 1.488 is the pitch viewBox ratio. */
+  --stage-w: clamp(480px, min(calc((100dvh - 330px) * 1.488), calc(100vw - 476px)), 1000px); }
+.stage { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.pitch-card { position: relative; border-radius: var(--r-md); background: var(--canvas); box-shadow: var(--shadow-1); padding: 12px; display: flex; flex-direction: column; gap: 10px; transition: box-shadow var(--fast) var(--ease); }
+.pitch-card[data-collapse="true"] { box-shadow: inset 0 0 0 2px var(--collapse); }
+.pitch-caps { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; line-height: 16px; color: var(--body); }
+.pitch-caps span { display: inline-flex; align-items: center; gap: 6px; }
+.pitch-caps svg { width: 14px; height: 14px; }
+.pitch-wrap { position: relative; }
+#pitch { width: 100%; height: auto; aspect-ratio: 128 / 86; border-radius: 4px; }
+.pitch-flag { position: absolute; right: 10px; top: 10px; }
+.pitch-note { position: absolute; right: 10px; top: 10px; }
+.key { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 12px; line-height: 16px; color: var(--body); }
+.key li { display: inline-flex; align-items: center; gap: 6px; }
+.key svg { width: 18px; height: 14px; flex-shrink: 0; overflow: visible; }
+.key .sep { width: 1px; height: 16px; background: var(--hairline); }
+.chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px 0 8px; border-radius: 999px; font-size: 12px; color: var(--body); box-shadow: inset 0 0 0 1px var(--hairline); background: var(--canvas); position: relative; }
+.chip:hover { color: var(--ink); box-shadow: inset 0 0 0 1px var(--hairline-strong); }
+.chip[aria-pressed="false"] { color: var(--mute); }
+.chip[aria-pressed="false"] svg { opacity: .35; }
+.chip[aria-pressed="true"] { background: var(--canvas-soft-2); color: var(--ink); box-shadow: inset 0 0 0 1px var(--hairline-strong); }
+.chip:focus-visible { box-shadow: var(--ring); }
+@media (pointer: coarse) { .chip::after { content: ""; position: absolute; inset: -8px 0; } }
+
+.timeline-card { border-radius: var(--r-md); background: var(--canvas); box-shadow: var(--shadow-1); padding: 12px 16px 12px; display: flex; flex-direction: column; gap: 8px; }
+.tl-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tl-head h2 { font-size: 14px; line-height: 20px; font-weight: 500; margin-right: auto; }
+.tl-pos { color: var(--mute); font-size: 12px; }
+#timeline { width: 100%; height: 132px; display: block; cursor: pointer; touch-action: pan-y; }
+#timeline:focus-visible { box-shadow: var(--ring); border-radius: 4px; }
+.tl-tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--canvas); font-size: 12px; line-height: 16px; padding: 4px 8px; border-radius: 4px; white-space: nowrap; transform: translate(-50%, -100%); margin-top: -8px; }
+
+.rail { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.panel { border-radius: var(--r-md); background: var(--canvas); box-shadow: var(--shadow-1); padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.moment-head { display: flex; flex-direction: column; gap: 2px; }
+.moment-clock { font-size: 12px; color: var(--mute); }
+.moment-what { font-size: 16px; line-height: 24px; font-weight: 500; }
+.scorebox { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.big { font-family: var(--mono); font-size: 40px; line-height: 44px; font-weight: 500; letter-spacing: -1.2px; font-variant-numeric: tabular-nums; }
+.big small { font-size: 14px; letter-spacing: 0; color: var(--mute); font-weight: 400; margin-left: 2px; }
+.scorebox .sub { display: flex; flex-direction: column; gap: 4px; padding-bottom: 4px; }
+.delta { font-size: 12px; line-height: 16px; color: var(--body); }
+.delta.down { color: var(--collapse-deep); }
+.meters { display: flex; flex-direction: column; gap: 14px; }
+.meter-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.meter-l { font-weight: 500; }
+.meter-v { font-family: var(--mono); font-size: 12px; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+.meter-t { margin-top: 6px; height: 6px; border-radius: 999px; background: var(--canvas-soft-2); overflow: hidden; }
+.meter-f { height: 100%; width: 100%; background: var(--defence); transform-origin: left; transition: transform 250ms var(--ease); border-radius: 999px; }
+.meter[data-hot="true"] .meter-f { background: var(--collapse); }
+.meter-d { margin-top: 6px; font-size: 12px; line-height: 16px; color: var(--mute); }
+.meter-d b { color: var(--collapse-deep); font-weight: 500; }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--hairline); border-radius: var(--r-sm); overflow: hidden; box-shadow: inset 0 0 0 1px var(--hairline); }
+.fact { background: var(--canvas); padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.fact .k { font-size: 12px; line-height: 16px; color: var(--mute); }
+.fact .v { font-weight: 500; }
+.callout { display: flex; gap: 10px; padding: 10px 12px; border-radius: var(--r-sm); font-size: 13px; line-height: 18px; }
+.callout svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+.callout-warning { background: var(--warning-soft); }
+.callout-warning svg { color: var(--warning); }
+.callout-collapse { background: var(--collapse-soft); box-shadow: inset 3px 0 0 var(--collapse); }
+.callout-collapse svg { color: var(--collapse); }
+
+.pbp h2 { font-size: 14px; line-height: 20px; font-weight: 500; }
+.pbp-list { display: flex; flex-direction: column; max-height: 280px; overflow-y: auto; overscroll-behavior: contain; margin: -4px -8px -8px; padding: 4px 0 4px; }
+.pbp-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) 36px; gap: 10px; align-items: center; width: 100%; text-align: left; padding: 6px 8px; border-radius: var(--r-sm); font-size: 13px; line-height: 18px; }
+.pbp-row:hover { background: var(--canvas-soft); }
+.pbp-row[aria-current="true"] { background: var(--canvas-soft-2); }
+.pbp-row:focus-visible { box-shadow: var(--ring); }
+.pbp-row .c { color: var(--mute); font-size: 12px; }
+.pbp-row .e { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pbp-row .e i { font-style: normal; color: var(--mute); }
+.pbp-row .s { text-align: right; font-size: 12px; }
+.pbp-row[data-collapse="true"] .s { color: var(--collapse-deep); font-weight: 500; }
+.pbp-row[data-collapse="true"] .e::after { content: " \b7  collapse"; color: var(--collapse-deep); font-weight: 500; }
+
+dialog { margin: auto; max-width: 640px; width: calc(100% - 32px); max-height: calc(100dvh - 64px); border: 0; border-radius: var(--r-lg); box-shadow: var(--shadow-5); padding: 24px; background: var(--canvas); color: var(--ink); overscroll-behavior: contain; }
+dialog::backdrop { background: #1717172e; }
+dialog h2 { font-size: 20px; line-height: 28px; letter-spacing: -0.6px; }
+dialog .dl { margin-top: 16px; display: grid; grid-template-columns: 28px 1fr; gap: 12px 12px; align-items: start; }
+dialog .dl svg { width: 24px; height: 18px; overflow: visible; margin-top: 2px; }
+dialog .dl b { font-weight: 500; display: block; }
+dialog .dl span { color: var(--body); }
+dialog h3 { margin-top: 24px; font-size: 14px; font-weight: 600; }
+dialog p { margin-top: 6px; color: var(--body); }
+.dialog-close { position: absolute; right: 16px; top: 16px; }
+
+.foot { max-width: 1440px; margin: 0 auto; padding-top: 24px; }
+
+/* ── Responsive ─────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .layout { grid-template-columns: minmax(0, 1fr); --stage-w: auto; }
+  .rail { display: grid; grid-template-columns: 1fr 1fr; align-items: start; }
+  .rail > .timeline-card { grid-column: 1 / -1; }
+}
+@media (max-width: 1000px) { .crumbs span:nth-child(-n+2) { display: none; } }
+@media (max-width: 760px) {
+  .wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px 32px; }
+  .bar { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); gap: 10px; }
+  .crumbs { display: none; }
+  .brand .name { display: none; }
+  .bar[data-view="picker"] .brand .name { display: inline; }
+  .intro { grid-template-columns: 1fr; gap: 16px; }
+  .intro-art { display: none; }
+  .intro h1 { font-size: 24px; line-height: 32px; letter-spacing: -0.96px; }
+  .finder-head { flex-direction: column; align-items: stretch; }
+  .select, .search { width: 100%; }
+  .field-search { flex: none; }
+  .field { width: 100%; }
+  .field-select { width: 100%; }
+  .stage-tabs { margin-left: 0; }
+  .match-row { grid-template-columns: minmax(0, 1fr) auto 16px; gap: 10px; padding: 12px; }
+  .match-date { grid-column: 1 / -1; order: -1; margin-bottom: -6px; }
+  .goals { padding: 4px 12px 12px; }
+  .goal { grid-template-columns: 40px minmax(0, 1fr) auto; }
+  .goal .go .lbl { display: none; }
+  .title-row h1 { font-size: 20px; line-height: 28px; letter-spacing: -0.6px; }
+  .finding { font-size: 14px; line-height: 20px; }
+  .pitch-card { padding: 8px; margin-inline: -8px; }
+  .key { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
+  .key li { flex-shrink: 0; }
+  .rail { grid-template-columns: 1fr; }
+  .pbp-list { max-height: none; }
+  .bar-actions .btn .lbl { display: none; }
+  .bar-actions .btn { width: 32px; padding: 0; }
+}
+</style>
+
+<a class="skip" href="#main">Skip to content</a>
+<header class="bar" id="bar">
+  <a class="brand" href="#" id="home" aria-label="What Went Wrong, back to goal list">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7.5 12 3l7 4.5" fill="none" stroke="#1d5fd0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 7.5v8.5L12 21 5 16V7.5" fill="none" stroke="#1d5fd0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="0"/><path d="M19 12.5 21.5 11" stroke="#c4261b" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="12" r="2.2" fill="#171717"/></svg>
+    <span class="name">What Went Wrong</span>
+  </a>
+  <nav class="crumbs" id="crumbs" aria-label="Current goal"></nav>
+  <div class="bar-actions">
+    <button class="btn btn-ghost" id="howBtn" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="6.25"/><path d="M6.4 6.2a1.7 1.7 0 1 1 2.3 1.6c-.5.2-.7.6-.7 1.1v.3" stroke-linecap="round"/><circle cx="8" cy="11.3" r=".6" fill="currentColor" stroke="none"/></svg><span class="lbl">How to read it</span></button>
+    <button class="btn btn-secondary" id="changeBtn" type="button" hidden><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h7"/></svg><span class="lbl">All goals</span></button>
+  </div>
+</header>
+
+<main id="main" class="wrap" tabindex="-1">
+  <section id="pickerView" class="picker" aria-labelledby="pickerTitle">
+    <div class="intro">
+      <div>
+        <h1 id="pickerTitle">Find the moment a defence broke.</h1>
+        <p>Pick a goal. We replay every pass, carry and tackle that led to it, score the defending team's shape at each moment, and point to where it fell apart.</p>
+        <div class="cta"><button class="btn btn-primary" id="exampleBtn" type="button">Show an example goal</button></div>
+      </div>
+      <svg class="intro-art" id="introArt" viewBox="0 0 128 86" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Example: a defending shape stretched by a pass"></svg>
+    </div>
+    <div class="finder">
+      <div class="finder-head">
+        <label class="field field-select"><span class="sr-only">Competition</span>
+          <select class="select" id="compSel" name="competition" autocomplete="off"></select>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+        </label>
+        <label class="field field-search"><span class="sr-only">Find a team</span>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/></svg>
+          <input class="search" id="search" type="search" name="team" placeholder="Find a team…" autocomplete="off" spellcheck="false">
+        </label>
+        <div class="stage-tabs" id="stageTabs" role="group" aria-label="Stage"></div>
+      </div>
+      <div id="matchList" aria-live="polite"></div>
+    </div>
+    <p class="source">Data: StatsBomb open data with 360 freeze-frames. Only the players the broadcast camera could see are known at each moment.</p>
+  </section>
+
+  <section id="analysisView" class="analysis" hidden aria-labelledby="aTitle">
+    <div class="title-row">
+      <div class="tt">
+        <h1 id="aTitle"></h1>
+        <p class="finding" id="finding"></p>
+      </div>
+      <div class="title-actions">
+        <div class="goal-tabs" id="goalTabs" role="group" aria-label="Goals in this match"></div>
+        <button class="btn btn-primary" id="jumpBtn" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2.2"/></svg>Jump to the collapse</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="stage">
+        <div class="pitch-card" id="pitchCard">
+          <div class="pitch-caps"><span id="capDef"></span><span id="capAtt"></span></div>
+          <div class="pitch-wrap">
+            <svg id="pitch" viewBox="-4 -3 128 86" role="img" aria-labelledby="pitchDesc"><desc id="pitchDesc"></desc></svg>
+            <span class="pitch-flag badge badge-collapse" id="pitchFlag" hidden>Collapse moment</span>
+          </div>
+          <ul class="key" id="key" aria-label="Pitch key and layers"></ul>
+        </div>
+      </div>
+
+      <aside class="rail" aria-label="This moment">
+        <section class="timeline-card" aria-labelledby="tlTitle">
+          <div class="tl-head">
+            <h2 id="tlTitle">Shape score</h2>
+            <span class="tl-pos mono" id="tlPos" aria-live="polite"></span>
+            <button class="btn btn-secondary icon-btn" id="prevBtn" type="button" aria-label="Previous moment"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5"/></svg></button>
+            <button class="btn btn-primary icon-btn" id="playBtn" type="button" aria-label="Play"><svg viewBox="0 0 16 16" aria-hidden="true" id="playIcon"><path d="M5 3.5v9l7.5-4.5z" fill="currentColor"/></svg></button>
+            <button class="btn btn-secondary icon-btn" id="nextBtn" type="button" aria-label="Next moment"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5"/></svg></button>
+          </div>
+          <div style="position:relative">
+            <svg id="timeline" role="slider" tabindex="0" aria-labelledby="tlTitle" aria-valuemin="1"></svg>
+            <div class="tl-tip" id="tlTip" hidden></div>
+          </div>
+        </section>
+        <section class="panel" aria-labelledby="momentTitle">
+          <div class="moment-head">
+            <span class="moment-clock mono" id="mClock"></span>
+            <h2 class="moment-what" id="momentTitle"></h2>
+          </div>
+          <div class="scorebox">
+            <div class="big" id="mScore"></div>
+            <div class="sub"><span id="mBand"></span><span class="delta" id="mDelta"></span></div>
+          </div>
+          <div id="mCallout"></div>
+          <div class="meters" id="meters"></div>
+          <div class="facts" id="facts"></div>
+        </section>
+        <section class="panel pbp" aria-labelledby="pbpTitle">
+          <h2 id="pbpTitle">Play by play</h2>
+          <ol class="pbp-list" id="pbp"></ol>
+        </section>
+      </aside>
+    </div>
+  </section>
+  <p class="foot source" id="foot" hidden>Data: StatsBomb open data (360 freeze-frames). Shape score = 40% compactness + 30% goal-side + 30% lanes blocked. Moments with fewer than 6 defenders in view aren't scored.</p>
+</main>
+
+<dialog id="how" aria-labelledby="howTitle">
+  <button class="btn btn-ghost icon-btn dialog-close" type="button" aria-label="Close" id="howClose"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+  <h2 id="howTitle">How to read the pitch</h2>
+  <p>The defending team always defends the goal on the left, so every goal reads the same way. Blue is the defence. Red marks the moment its shape broke.</p>
+  <div class="dl" id="howKey"></div>
+  <h3>The shape score</h3>
+  <p>Each moment gets a score out of 100 built from three measures: how tight the defenders around the ball are (40%), how many are goal-side of the ball (30%), and how many passing lanes they cut off (30%). 70 and above is solid, 40 to 69 is stretched, under 40 is broken.</p>
+  <h3>The collapse</h3>
+  <p>The collapse is the biggest fall in the score across the move, comparing the two moments after each step with the two before it. Some goals have none: the shape held, or the camera showed too few defenders to judge.</p>
+  <h3>What the camera can't see</h3>
+  <p>Positions come from the broadcast picture, so players outside the frame are missing. When fewer than 6 defenders are in view, the moment isn't scored.</p>
+</dialog>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+/* ── Helpers ─────────────────────────────────────────── */
+const $ = (s) => document.querySelector(s);
+const NS = 'http://www.w3.org/2000/svg';
+const C = { ink: '#171717', body: '#4d4d4d', mute: '#6b6b6b', hair: '#ebebeb', hairS: '#a1a1a1', canvas: '#ffffff', def: '#1d5fd0', defSoft: '#dce8fb', col: '#c4261b', pitch: '#f7f8f7', line: '#c8c8c8' };
+const svgEl = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+const fmtDate = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
+const clock = (f) => f.p === 5 ? 'Shootout' : `${f.m}:${String(f.s).padStart(2, '0')}`;
+const pct = (v) => `${Math.round(v * 100)}%`;
+const band = (k) => k == null ? null : k >= 0.7 ? 'Solid' : k >= 0.4 ? 'Stretched' : 'Broken';
+const bandClass = { Solid: 'badge-defence', Stretched: 'badge', Broken: 'badge-collapse' };
+
+const EVENT = {
+  'Pass': (t) => `${t} play a pass`, 'Ball Receipt*': (t) => `${t} receive the ball`, 'Carry': (t) => `${t} carry the ball`,
+  'Pressure': (t) => `${t} close down the ball`, 'Shot': (t) => `${t} shoot`, 'Goal Keeper': (t) => `${t}'s keeper deals with it`,
+  'Ball Recovery': (t) => `${t} win the ball back`, 'Clearance': (t) => `${t} clear the ball`, 'Duel': (t) => `${t} win a duel`,
+  'Dribble': (t) => `${t} take a player on`, 'Interception': (t) => `${t} intercept`, 'Block': (t) => `${t} block`,
+  'Foul Committed': (t) => `${t} commit a foul`, 'Foul Won': (t) => `${t} win a foul`, 'Dispossessed': (t) => `${t} lose the ball`,
+  'Miscontrol': (t) => `${t} miscontrol the ball`, 'Dribbled Past': (t) => `${t} get dribbled past`,
+};
+const EVENT_SHORT = { 'Ball Receipt*': 'Receives', 'Goal Keeper': 'Keeper', 'Ball Recovery': 'Recovery', 'Foul Committed': 'Foul', 'Dribbled Past': 'Beaten' };
+
+/* Geometry mirrored from backend/app/services/scorer.py so the pitch draws exactly what the score counts. */
+const MAX_SHADOW_RANGE = 40, CARRIER_RADIUS = 2, COMPACT_UNIT = 6;
+function isShadowed(b, d, a) {
+  const dd = Math.hypot(d[0] - b[0], d[1] - b[1]); if (dd > MAX_SHADOW_RANGE) return false;
+  const L = Math.hypot(a[0] - b[0], a[1] - b[1]); if (L < 0.1) return false;
+  const t = ((d[0] - b[0]) * (a[0] - b[0]) + (d[1] - b[1]) * (a[1] - b[1])) / (L * L); if (!(t > 0.05 && t < 0.95)) return false;
+  const perp = Math.abs((d[0] - b[0]) * (a[1] - b[1]) - (d[1] - b[1]) * (a[0] - b[0])) / L;
+  return perp < Math.max(1.5, dd * 0.15);
+}
+function hull(pts) {
+  if (pts.length < 3) return pts;
+  const p = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lo = [], up = [];
+  for (const q of p) { while (lo.length >= 2 && cross(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+  for (const q of p.reverse()) { while (up.length >= 2 && cross(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+  return lo.slice(0, -1).concat(up.slice(0, -1));
+}
+function analyseFrame(f) {
+  const ball = [f.bx, f.by];
+  const players = f.pl.map(([x, y, fl]) => ({ x, y, att: !!(fl & 1), actor: !!(fl & 2), gk: !!(fl & 4) }));
+  const defs = players.filter((p) => !p.att && !p.gk);
+  const targets = players.filter((p) => p.att && !p.gk && !p.actor && Math.hypot(p.x - ball[0], p.y - ball[1]) > CARRIER_RADIUS);
+  const lanes = targets.map((a) => ({ a, blocked: defs.some((d) => isShadowed(ball, [d.x, d.y], [a.x, a.y])) }));
+  const unit = defs.slice().sort((p, q) => Math.hypot(p.x - ball[0], p.y - ball[1]) - Math.hypot(q.x - ball[0], q.y - ball[1])).slice(0, COMPACT_UNIT);
+  const actor = players.find((p) => p.actor);
+  return { ball, players, defs, lanes, unit, actor, beaten: defs.filter((d) => d.x >= f.bx) };
+}
+
+/* ── State (mirrors the store: competition → match → goal → frame) ── */
+function seqView(seq) {
+  let x0 = 0, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+  for (const f of seq.f) for (const [x, y] of f.pl.concat([[f.bx, f.by]])) { x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  const pad = 7, R = 128 / 86;
+  let w = Math.max(x1 - x0 + pad * 2, (y1 - y0 + pad * 2) * R, 56); w = Math.min(w, 128);
+  const h = w / R; let vx = x0 - 4, vy = (y0 + y1) / 2 - h / 2;
+  vx = Math.max(-4, Math.min(124 - w, vx)); vy = Math.max(-3, Math.min(83 - h, vy));
+  return `${vx.toFixed(2)} ${vy.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)}`;
+}
+const S = { comp: DATA.loaded, stage: 'All', q: '', openMatch: null, goal: null, seq: null, i: 0, playing: false, timer: null,
+  layers: { unit: true, lanes: true, line: true, pressure: false, whole: false } };
+const matchById = Object.fromEntries(DATA.matches.map((m) => [m.match_id, m]));
+const STAGE_ORDER = ['Final', 'Semi-finals', 'Quarter-finals', 'Round of 16', 'Group Stage'];
+
+/* ── Picker ───────────────────────────────────────────── */
+function renderPicker() {
+  const sel = $('#compSel');
+  if (!sel.options.length) {
+    sel.innerHTML = DATA.competitions.map((c) => `<option value="${c.competition_id}-${c.season_id}">${esc(c.competition_name)} ${esc(c.season_name)}</option>`).join('');
+    sel.value = `${S.comp.competition_id}-${S.comp.season_id}`;
+  }
+  const loaded = sel.value === `${DATA.loaded.competition_id}-${DATA.loaded.season_id}`;
+  const matches = loaded ? DATA.matches : [];
+  const stages = ['All', ...STAGE_ORDER.filter((s) => matches.some((m) => m.competition_stage === s))];
+  $('#stageTabs').innerHTML = stages.map((s) => `<button class="tab" type="button" aria-pressed="${s === S.stage}" data-stage="${esc(s)}">${s === 'Group Stage' ? 'Group stage' : esc(s)}</button>`).join('');
+  const q = S.q.trim().toLowerCase();
+  const shown = matches.filter((m) => (S.stage === 'All' || m.competition_stage === S.stage) && (!q || `${m.home_team_name} ${m.away_team_name}`.toLowerCase().includes(q)));
+  const list = $('#matchList');
+  if (!loaded) { list.innerHTML = `<p class="empty">This preview only includes Euro 2020. The full app lists every 360-tracked competition.</p>`; return; }
+  if (!shown.length) { list.innerHTML = `<p class="empty">No matches for “${esc(S.q)}”. Try a country name, like “Denmark”.</p>`; return; }
+  let html = '';
+  for (const st of STAGE_ORDER) {
+    const ms = shown.filter((m) => m.competition_stage === st).sort((a, b) => b.match_date.localeCompare(a.match_date));
+    if (!ms.length) continue;
+    html += `<h2 class="group-h">${st === 'Group Stage' ? 'Group stage' : st} · ${ms.length} ${ms.length === 1 ? 'match' : 'matches'}</h2><ul>`;
+    for (const m of ms) {
+      const open = S.openMatch === m.match_id;
+      const goals = DATA.goals[m.match_id] || [];
+      const hw = m.home_score > m.away_score, aw = m.away_score > m.home_score;
+      html += `<li class="match" data-open="${open}">
+        <button class="match-row" type="button" aria-expanded="${open}" aria-controls="g-${m.match_id}" data-match="${m.match_id}">
+          <span class="match-date">${fmtDate.format(new Date(m.match_date))}</span>
+          <span class="teams"><span class="t ${aw ? 'lost' : ''}">${esc(m.home_team_name)}</span><span class="score">${m.home_score}–${m.away_score}</span><span class="t ${hw ? 'lost' : ''}">${esc(m.away_team_name)}</span></span>
+          <span class="goal-count">${goals.length} ${goals.length === 1 ? 'goal' : 'goals'}</span>
+          <svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>
+        </button>
+        ${open ? `<div class="goals" id="g-${m.match_id}">${goals.length ? goals.map((g) => goalButton(m, g)).join('') : '<p class="empty">No goals in this match.</p>'}</div>` : ''}
+      </li>`;
+    }
+    html += '</ul>';
+  }
+  list.innerHTML = html;
+}
+function goalButton(m, g) {
+  const ok = !!DATA.seqs[g.goal_event_id];
+  const min = g.period === 5 ? 'Pens' : `${g.minute}'`;
+  const own = g.scoring_team_name;
+  const meta = [g.is_penalty ? 'Penalty' : null, g.xg != null ? `Chance quality ${Math.round(g.xg * 100)}%` : null].filter(Boolean).join(' · ');
+  return `<button class="goal" type="button" data-goal="${g.goal_event_id}" ${ok ? '' : 'disabled'}>
+    <span class="min">${min}</span>
+    <span class="who"><b>${esc(own)}</b> score against ${esc(g.conceding_team_name)}<span class="meta">${meta}</span></span>
+    <span class="go">${ok ? '<span class="lbl">See what went wrong</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>' : 'Not in this preview'}</span>
+  </button>`;
+}
+
+/* ── Analysis ────────────────────────────────────────── */
+function openGoal(gid, startAt) {
+  stop();
+  const seq = DATA.seqs[gid]; if (!seq) return;
+  S.goal = gid; S.seq = seq; S.openMatch = seq.mid; S.view = seqView(seq);
+  S.i = startAt != null ? startAt : 0;
+  location.hash = 'goal-' + gid.slice(0, 8);
+  show('analysis');
+  renderHeader(); renderKey(); renderFrame();
+  }
+function show(view) {
+  const a = view === 'analysis';
+  $('#pickerView').hidden = a; $('#analysisView').hidden = !a; $('#foot').hidden = !a;
+  $('#changeBtn').hidden = !a; $('#bar').dataset.view = view;
+  if (!a) { $('#crumbs').innerHTML = ''; history.replaceState(null, '', location.pathname + location.search); renderPicker(); }
+  window.scrollTo(0, 0);
+}
+function goalMeta() { const m = matchById[S.seq.mid]; const goals = DATA.goals[S.seq.mid]; const g = goals.find((x) => x.goal_event_id === S.goal); return { m, goals, g }; }
+
+function biggestDrop(seq, c) {
+  // compare the collapse moment with the previous scored moment
+  let p = c - 1; while (p >= 0 && !seq.f[p].sc.ok) p--;
+  if (p < 0) return null;
+  const a = seq.f[p].sc, b = seq.f[c].sc;
+  const parts = [['Compactness', 'c'], ['Goal-side', 'g'], ['Lanes blocked', 'cs']].map(([n, k]) => ({ n, k, from: a[k], to: b[k], d: b[k] - a[k] }));
+  parts.sort((x, y) => x.d - y.d);
+  return { prev: seq.f[p], parts };
+}
+
+function renderHeader() {
+  const { m, goals, g } = goalMeta(); const seq = S.seq;
+  $('#crumbs').innerHTML = `<span>Euro 2020</span><span aria-hidden="true">/</span><span>${esc(m.home_team_name)} ${m.home_score}–${m.away_score} ${esc(m.away_team_name)}</span><span aria-hidden="true">/</span><span class="cur">${esc(g.scoring_team_name)} ${g.minute}'</span>`;
+  const c = seq.col;
+  const scored = seq.f.filter((f) => f.sc.ok).length;
+  if (c != null) {
+    const f = seq.f[c]; const bd = biggestDrop(seq, c); const top = bd.parts[0];
+    $('#aTitle').innerHTML = `${esc(seq.def)}'s shape broke at <span class="tnum">${clock(f)}</span>`;
+    $('#finding').innerHTML = `${esc(g.scoring_team_name)} scored ${(seq.f.length - 1 - c) ? `${seq.f.length - 1 - c} ${seq.f.length - 1 - c === 1 ? 'moment' : 'moments'} later` : 'from this moment'}. The shape score fell from <b class="tnum">${Math.round(bd.prev.sc.k * 100)}</b> to <b class="tnum">${Math.round(f.sc.k * 100)}</b> as ${describe(f, analyseFrame(f))}. Biggest drop: <b>${top.n.toLowerCase()}</b>, ${pct(top.from)} → ${pct(top.to)}.`;
+  } else if (scored < 2) {
+    $('#aTitle').textContent = `Too little of ${seq.def}'s defence in view to judge`;
+    $('#finding').textContent = `The camera showed fewer than 6 ${seq.def} outfield players for most of this move, so ${scored === 0 ? 'no moment' : 'only one moment'} could be scored. You can still replay where everyone was.`;
+  } else {
+    const ks = seq.f.filter((f) => f.sc.ok).map((f) => Math.round(f.sc.k * 100));
+    const lo = Math.min(...ks), hi = Math.max(...ks), mean = ks.reduce((x, y) => x + y, 0) / ks.length;
+    const range = lo === hi ? `${lo}` : `${lo} and ${hi}`;
+    if (mean < 40) {
+      $('#aTitle').textContent = `${seq.def}'s shape was broken from the start`;
+      $('#finding').textContent = `There was no single collapse: the shape score stayed between ${range} out of 100 across the ${ks.length} scored moments, already in the broken range when this move began.`;
+    } else if (mean >= 70) {
+      $('#aTitle').textContent = `${seq.def}'s shape held until the goal`;
+      $('#finding').textContent = `The shape score stayed between ${range} out of 100 with no clear fall. ${g.scoring_team_name} found a way through a defence that was still in position.`;
+    } else {
+      $('#aTitle').textContent = `${seq.def}'s shape stayed stretched, with no single collapse`;
+      $('#finding').textContent = `The shape score moved between ${range} out of 100 across the ${ks.length} scored moments without one clear fall.`;
+    }
+  }
+  $('#jumpBtn').disabled = c == null;
+  $('#jumpBtn').title = c == null ? 'No collapse found in this move' : '';
+  $('#goalTabs').innerHTML = goals.map((x) => {
+    const has = !!DATA.seqs[x.goal_event_id];
+    return `<button class="goal-tab" type="button" data-goal="${x.goal_event_id}" aria-current="${x.goal_event_id === S.goal}" ${has ? '' : 'disabled title="Not in this preview"'}><span class="num">${x.period === 5 ? 'Pens' : x.minute + "'"}</span>${esc(x.scoring_team_name)}</button>`;
+  }).join('');
+  $('#capDef').innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5"/></svg>${esc(seq.def)} defend this goal`;
+  $('#capAtt').innerHTML = `${esc(seq.att)} attack this way<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5"/></svg>`;
+  $('#timeline').setAttribute('aria-valuemax', seq.f.length);
+}
+const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1);
+function teamOf(f, a) { if (!a.actor) return null; return a.actor.att ? S.seq.att : S.seq.def; }
+function describe(f, a) { const t = teamOf(f, a); const fn = EVENT[f.t]; if (!t) return `${f.t.replace('*', '')} (player out of shot)`; return fn ? fn(t) : `${t}: ${f.t.replace('*', '').toLowerCase()}`; }
+
+/* Key + layer toggles: each overlay's toggle is its own legend entry. */
+const KEY = {
+  def: `<svg viewBox="0 0 18 14"><circle cx="9" cy="7" r="5" fill="${C.def}" stroke="${C.canvas}" stroke-width="1.5"/></svg>`,
+  beaten: `<svg viewBox="0 0 18 14"><circle cx="9" cy="7" r="4.5" fill="${C.defSoft}" stroke="${C.def}" stroke-width="1.5"/></svg>`,
+  att: `<svg viewBox="0 0 18 14"><circle cx="9" cy="7" r="4.5" fill="${C.canvas}" stroke="${C.ink}" stroke-width="2"/></svg>`,
+  gk: `<svg viewBox="0 0 18 14"><rect x="4" y="2" width="10" height="10" rx="2.5" fill="${C.def}" stroke="${C.canvas}" stroke-width="1.5"/></svg>`,
+  actor: `<svg viewBox="0 0 18 14"><circle cx="9" cy="7" r="3.5" fill="${C.mute}"/><circle cx="9" cy="7" r="6" fill="none" stroke="${C.ink}" stroke-width="1.25"/></svg>`,
+  ball: `<svg viewBox="0 0 18 14"><circle cx="9" cy="7" r="3.5" fill="${C.canvas}" stroke="${C.ink}" stroke-width="1.5"/></svg>`,
+  unit: `<svg viewBox="0 0 18 14"><path d="M2 9 7 2l9 3-2 7H5z" fill="${C.def}" fill-opacity=".12" stroke="${C.def}" stroke-width="1.25" stroke-linejoin="round"/></svg>`,
+  lanes: `<svg viewBox="0 0 18 14"><path d="M1 11 17 3" stroke="${C.ink}" stroke-width="1.5" stroke-dasharray="3 2.5" stroke-linecap="round"/></svg>`,
+  blocked: `<svg viewBox="0 0 18 14"><path d="M1 11 17 3" stroke="${C.def}" stroke-width="1.5" stroke-opacity=".45" stroke-linecap="round"/></svg>`,
+  line: `<svg viewBox="0 0 18 14"><path d="M9 0v14" stroke="${C.def}" stroke-width="1.5" stroke-dasharray="2.5 2"/></svg>`,
+  whole: `<svg viewBox="0 0 18 14"><rect x="1" y="2" width="16" height="10" rx="1" fill="none" stroke="${C.mute}" stroke-width="1.25"/><path d="M9 2v10" stroke="${C.mute}" stroke-width="1.25"/></svg>`,
+  pressure: `<svg viewBox="0 0 18 14"><rect x="0" y="1" width="6" height="12" fill="${C.def}" fill-opacity=".08"/><rect x="6" y="1" width="6" height="12" fill="${C.def}" fill-opacity=".2"/><rect x="12" y="1" width="6" height="12" fill="${C.def}" fill-opacity=".34"/></svg>`,
+};
+function renderKey() {
+  const s = S.seq;
+  const item = (k, l) => `<li>${KEY[k]}<span>${l}</span></li>`;
+  const chip = (k, l, sw) => `<li><button class="chip" type="button" aria-pressed="${S.layers[k]}" data-layer="${k}">${sw}<span class="lbl">${l}</span></button></li>`;
+  $('#key').innerHTML = item('def', `${esc(s.def)}`) + item('beaten', 'Upfield of the ball') + item('att', `${esc(s.att)}`) + item('actor', 'On the ball') +
+    '<li class="sep" aria-hidden="true"></li>' +
+    chip('unit', 'Unit around the ball', KEY.unit) + chip('lanes', 'Passing lanes', KEY.lanes.replace('</svg>', '') + `<path d="M1 13 17 5" stroke="${C.def}" stroke-width="1.5" stroke-opacity=".45" stroke-linecap="round"/></svg>`) +
+    chip('line', 'Last line', KEY.line) + chip('pressure', 'Pressure', KEY.pressure) + chip('whole', 'Whole pitch', KEY.whole);
+  $('#howKey').innerHTML = [
+    ['def', `<b>Defender</b><span>A player on the defending team, in view of the camera.</span>`],
+    ['beaten', `<b>Upfield of the ball</b><span>A defender who is no longer between the ball and their goal.</span>`],
+    ['gk', `<b>Goalkeeper</b><span>Drawn as a square in their team's colour.</span>`],
+    ['att', `<b>Attacker</b><span>A player on the team that scored.</span>`],
+    ['actor', `<b>On the ball</b><span>The player making this pass, carry, tackle or save.</span>`],
+    ['unit', `<b>Unit around the ball</b><span>The 6 defenders nearest the ball. A small, tight outline means a compact unit.</span>`],
+    ['lanes', `<b>Open passing lane</b><span>A pass the player on the ball could make with no defender in the way.</span>`],
+    ['blocked', `<b>Blocked passing lane</b><span>A defender stands in the way of this pass.</span>`],
+    ['line', `<b>Last line</b><span>Average position of the 4 deepest defenders.</span>`],
+    ['pressure', `<b>Pressure</b><span>Ground the defence can reach quickly. Darker means more defenders close by.</span>`],
+  ].map(([k, t]) => `${KEY[k]}<div>${t}</div>`).join('');
+}
+
+/* Pitch: StatsBomb 120 × 80 yards, defending goal at x = 0. */
+function drawMarkings(svg) {
+  const g = svgEl('g', { fill: 'none', stroke: C.line, 'stroke-width': 1, 'vector-effect': 'non-scaling-stroke' }, svg);
+  const ln = (d) => svgEl('path', { d, 'vector-effect': 'non-scaling-stroke' }, g);
+  svgEl('rect', { x: -4, y: -3, width: 128, height: 86, fill: C.pitch, stroke: 'none' }, svg).parentNode.insertBefore(svg.lastChild, g);
+  ln('M0 0H120V80H0Z'); ln('M60 0V80');
+  svgEl('circle', { cx: 60, cy: 40, r: 10, 'vector-effect': 'non-scaling-stroke' }, g);
+  for (const s of [0, 1]) {
+    const X = (x) => s ? 120 - x : x;
+    ln(`M${X(0)} 18H${X(18)}V62H${X(0)}`); ln(`M${X(0)} 30H${X(6)}V50H${X(0)}`);
+    ln(`M${X(0)} 36H${X(-2)}V44H${X(0)}`);
+    svgEl('circle', { cx: X(12), cy: 40, r: 0.35, fill: C.line, stroke: 'none' }, g);
+    const a = s ? 'M102 32.7A10 10 0 0 0 102 47.3' : 'M18 32.7A10 10 0 0 1 18 47.3';
+    ln(a);
+  }
+  svgEl('circle', { cx: 60, cy: 40, r: 0.35, fill: C.line, stroke: 'none' }, g);
+}
+function renderPitch(svg, f, layers, opts = {}) {
+  [...svg.querySelectorAll(':scope > :not(desc)')].forEach((n) => n.remove());
+  drawMarkings(svg);
+  const a = analyseFrame(f);
+  if (layers.pressure) {
+    const g = svgEl('g', {}, svg);
+    f.pg.forEach((v, i) => { if (v < 0.04) return; svgEl('rect', { x: (i % 24) * 5, y: Math.floor(i / 24) * 5, width: 5, height: 5, fill: C.def, 'fill-opacity': (v * 0.38).toFixed(3) }, g); });
+  }
+  if (layers.line && a.defs.length >= 4) {
+    const x = f.sc.lh;
+    svgEl('path', { d: `M${x} 0V80`, stroke: C.def, 'stroke-width': 1.25, 'stroke-dasharray': '4 3', 'vector-effect': 'non-scaling-stroke', fill: 'none' }, svg);
+    const vb = svg.viewBox.baseVal; const fs = Math.max(2, vb.width / 48);
+    const t = svgEl('text', { x: x + fs * 0.5, y: Math.max(0, vb.y) + fs * 1.4, 'font-size': fs, fill: C.def, 'font-family': 'Inter, system-ui, sans-serif', 'font-weight': 500 }, svg);
+    t.textContent = `Last line · ${Math.round(x)} yd`;
+  }
+  if (layers.unit && a.unit.length >= 3) {
+    const h = hull(a.unit.map((p) => [p.x, p.y]));
+    svgEl('polygon', { points: h.map((p) => p.join(',')).join(' '), fill: C.def, 'fill-opacity': 0.1, stroke: C.def, 'stroke-width': 1.25, 'stroke-linejoin': 'round', 'vector-effect': 'non-scaling-stroke' }, svg);
+  }
+  if (layers.lanes) {
+    const g = svgEl('g', { 'stroke-linecap': 'round', fill: 'none' }, svg);
+    for (const l of a.lanes) {
+      svgEl('path', { d: `M${f.bx} ${f.by}L${l.a.x} ${l.a.y}`, stroke: l.blocked ? C.def : C.ink, 'stroke-opacity': l.blocked ? 0.4 : 0.9, 'stroke-width': 1.5, 'stroke-dasharray': l.blocked ? 'none' : '4 3', 'vector-effect': 'non-scaling-stroke' }, g);
+    }
+  }
+  const pg = svgEl('g', { class: 'players' }, svg);
+  const R = 1.55;
+  const sorted = a.players.slice().sort((p, q) => (p.actor - q.actor));
+  for (const p of sorted) {
+    const beaten = !p.att && !p.gk && p.x >= f.bx;
+    if (p.actor) svgEl('circle', { cx: p.x, cy: p.y, r: R + 1.1, fill: 'none', stroke: C.ink, 'stroke-width': 1.25, 'vector-effect': 'non-scaling-stroke' }, pg);
+    if (p.gk) {
+      svgEl('rect', { x: p.x - R, y: p.y - R, width: R * 2, height: R * 2, rx: 0.7, fill: p.att ? C.canvas : C.def, stroke: p.att ? C.ink : C.canvas, 'stroke-width': p.att ? 2 : 1.5, 'vector-effect': 'non-scaling-stroke' }, pg);
+    } else if (p.att) {
+      svgEl('circle', { cx: p.x, cy: p.y, r: R - 0.1, fill: C.canvas, stroke: C.ink, 'stroke-width': 2, 'vector-effect': 'non-scaling-stroke' }, pg);
+    } else {
+      svgEl('circle', { cx: p.x, cy: p.y, r: beaten ? R - 0.1 : R, fill: beaten ? C.defSoft : C.def, stroke: beaten ? C.def : C.canvas, 'stroke-width': 1.5, 'vector-effect': 'non-scaling-stroke' }, pg);
+    }
+  }
+  svgEl('circle', { cx: f.bx, cy: f.by, r: 0.95, fill: C.canvas, stroke: C.ink, 'stroke-width': 1.5, 'vector-effect': 'non-scaling-stroke' }, svg);
+  if (!opts.static && !reduced.matches) { pg.animate([{ opacity: 0.35 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' }); }
+  return a;
+}
+
+/* Timeline: shape score per moment, one series in the defence hue; the fall into the collapse in red. */
+let TL = null;
+function renderTimeline() {
+  const svg = $('#timeline'); const seq = S.seq; const n = seq.f.length;
+  const W = svg.clientWidth || 600, H = 132;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.innerHTML = '';
+  const m = { l: 34, r: 74, t: 14, b: 34 };
+  const x = (i) => m.l + (n === 1 ? (W - m.l - m.r) / 2 : i * (W - m.l - m.r) / (n - 1));
+  const y = (v) => m.t + (1 - v) * (H - m.t - m.b);
+  TL = { x, m, W, n };
+  const g = svgEl('g', { 'font-family': 'Inter, system-ui, sans-serif', 'font-size': 11 }, svg);
+  // bands
+  [[1, 0.7, 'Solid'], [0.7, 0.4, 'Stretched'], [0.4, 0, 'Broken']].forEach(([a, b, l]) => {
+    const t = svgEl('text', { x: W - m.r + 10, y: (y(a) + y(b)) / 2 + 4, fill: C.mute }, g); t.textContent = l;
+  });
+  [0, 0.4, 0.7, 1].forEach((v) => {
+    svgEl('path', { d: `M${m.l} ${y(v)}H${W - m.r}`, stroke: v === 0 ? C.hairS : C.hair, 'stroke-width': 1, 'stroke-dasharray': v === 0 || v === 1 ? 'none' : '3 3' }, g);
+    const t = svgEl('text', { x: m.l - 8, y: y(v) + 4, 'text-anchor': 'end', fill: C.mute, 'font-family': 'JetBrains Mono, monospace', 'font-size': 10 }, g); t.textContent = Math.round(v * 100);
+  });
+  // x labels: clock of first, collapse, last (+ middle if room)
+  const lab = new Set([0, n - 1]); if (seq.col != null) lab.add(seq.col); if (n > 6) lab.add(Math.round((n - 1) / 2));
+  [...lab].forEach((i) => { const t = svgEl('text', { x: x(i), y: H - 8, 'text-anchor': i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle', fill: C.mute, 'font-family': 'JetBrains Mono, monospace', 'font-size': 10 }, g); t.textContent = clock(seq.f[i]); });
+  // event ticks
+  seq.f.forEach((f, i) => svgEl('path', { d: `M${x(i)} ${H - m.b + 4}v5`, stroke: f.sc.ok ? C.hairS : C.hair, 'stroke-width': 1 }, g));
+  // line with gaps
+  let d = '', prev = false;
+  seq.f.forEach((f, i) => { const k = f.sc.k; if (k == null) { prev = false; return; } d += `${prev ? 'L' : 'M'}${x(i)} ${y(k)}`; prev = true; });
+  svgEl('path', { d, fill: 'none', stroke: C.def, 'stroke-width': 2, 'stroke-linejoin': 'round' }, g);
+  // isolated points
+  seq.f.forEach((f, i) => { const k = f.sc.k; if (k == null) return; const l = seq.f[i - 1]?.sc.k, r = seq.f[i + 1]?.sc.k; if (l == null && r == null) svgEl('circle', { cx: x(i), cy: y(k), r: 2.5, fill: C.def }, g); });
+  // unscored markers
+  seq.f.forEach((f, i) => { if (f.sc.k == null) svgEl('circle', { cx: x(i), cy: y(0), r: 2, fill: C.canvas, stroke: C.hairS, 'stroke-width': 1 }, g); });
+  // collapse
+  if (seq.col != null) {
+    const c = seq.col; let p = c - 1; while (p >= 0 && seq.f[p].sc.k == null) p--;
+    svgEl('path', { d: `M${x(c)} ${m.t - 6}V${H - m.b}`, stroke: C.col, 'stroke-width': 1.25, 'stroke-dasharray': '3 2' }, g);
+    if (p >= 0) svgEl('path', { d: `M${x(p)} ${y(seq.f[p].sc.k)}L${x(c)} ${y(seq.f[c].sc.k)}`, stroke: C.col, 'stroke-width': 2.5, 'stroke-linecap': 'round' }, g);
+    const t = svgEl('text', { x: x(c) + (c > n * 0.7 ? -5 : 5), y: m.t - 2, fill: C.col, 'font-weight': 500, 'text-anchor': c > n * 0.7 ? 'end' : 'start' }, g); t.textContent = 'Collapse';
+  }
+  // current
+  const cur = svgEl('g', { id: 'tlCur' }, g);
+  TL.cur = cur; TL.y = y;
+  moveCursor();
+}
+function moveCursor() {
+  if (!TL) return; const f = S.seq.f[S.i]; const cx = TL.x(S.i);
+  TL.cur.innerHTML = '';
+  svgEl('path', { d: `M${cx} ${TL.m.t}V${132 - TL.m.b}`, stroke: C.ink, 'stroke-width': 1 }, TL.cur);
+  svgEl('circle', { cx, cy: TL.y(f.sc.k ?? 0), r: 4.5, fill: f.sc.k == null ? C.canvas : C.ink, stroke: f.sc.k == null ? C.ink : C.canvas, 'stroke-width': 2 }, TL.cur);
+}
+
+function renderFrame() {
+  const seq = S.seq; const f = seq.f[S.i];
+  $('#pitch').setAttribute('viewBox', S.layers.whole ? '-4 -3 128 86' : S.view);
+  const a = renderPitch($('#pitch'), f, S.layers);
+  const isCol = S.i === seq.col;
+  $('#pitchCard').dataset.collapse = isCol; $('#pitchFlag').hidden = !isCol;
+  const what = describe(f, a);
+  $('#pitchDesc').textContent = `Moment ${S.i + 1} of ${seq.f.length}, ${clock(f)}. ${what}. ${f.sc.dv} ${seq.def} outfield players in view. ${f.sc.k == null ? 'Not scored.' : `Shape score ${Math.round(f.sc.k * 100)}.`} ${a.lanes.filter((l) => !l.blocked).length} open passing lanes.`;
+  $('#mClock').textContent = `${clock(f)} · moment ${S.i + 1} of ${seq.f.length}`;
+  $('#momentTitle').textContent = what;
+  if (f.sc.k == null) {
+    $('#mScore').innerHTML = `–<small>/100</small>`;
+    $('#mBand').innerHTML = `<span class="badge">Not scored</span>`; $('#mDelta').textContent = '';
+  } else {
+    const b = band(f.sc.k);
+    $('#mScore').innerHTML = `${Math.round(f.sc.k * 100)}<small>/100</small>`;
+    $('#mBand').innerHTML = `<span class="badge ${bandClass[b]}">${b}</span>`;
+    let p = S.i - 1; while (p >= 0 && seq.f[p].sc.k == null) p--;
+    if (p < 0) $('#mDelta').textContent = 'First scored moment';
+    else { const dv = Math.round(f.sc.k * 100) - Math.round(seq.f[p].sc.k * 100); $('#mDelta').textContent = dv === 0 ? `Same as the moment before` : `${dv > 0 ? 'Up' : 'Down'} ${Math.abs(dv)} from ${Math.round(seq.f[p].sc.k * 100)} the moment before`; $('#mDelta').className = 'delta' + (dv <= -10 ? ' down' : ''); }
+  }
+  let call = '';
+  if (isCol) { const bd = biggestDrop(seq, S.i); call = `<div class="callout callout-collapse"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2.2"/></svg><div><b>This is where it broke.</b> The biggest fall in shape score across the move, mostly from ${bd.parts[0].n.toLowerCase()} (${pct(bd.parts[0].from)} → ${pct(bd.parts[0].to)}).</div></div>`; }
+  if (!f.sc.ok) call += `<div class="callout callout-warning"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.75 14.75 13.5H1.25z"/><path d="M8 6.25v3.5" stroke-linecap="round"/></svg><div>Only ${f.sc.dv} of ${seq.def}'s outfield players are in camera view, so this moment isn't scored. Positions shown are still real.</div></div>`;
+  $('#mCallout').innerHTML = call;
+  const bd = isCol ? biggestDrop(seq, S.i) : null; const hot = bd ? bd.parts[0].k : null;
+  const unitN = Math.min(COMPACT_UNIT, a.defs.length);
+  const open = a.lanes.filter((l) => !l.blocked).length;
+  const meters = [
+    ['c', 'Compactness', `How tightly the ${unitN} defenders nearest the ball are grouped.`],
+    ['g', 'Goal-side', `${a.defs.length - a.beaten.length} of ${a.defs.length} defenders are between the ball and their goal.`],
+    ['cs', 'Lanes blocked', a.lanes.length ? `${a.lanes.length - open} of ${a.lanes.length} passes to a teammate are cut off.` : 'No attacker to pass to in view.'],
+  ];
+  $('#meters').innerHTML = meters.map(([k, l, d]) => {
+    const v = f.sc[k]; const isHot = hot === k;
+    return `<div class="meter" data-hot="${isHot}"><div class="meter-h"><span class="meter-l" id="ml-${k}">${l}</span><span class="meter-v">${pct(v)}</span></div>
+      <div class="meter-t" role="meter" aria-labelledby="ml-${k}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(v * 100)}"><div class="meter-f" style="transform:scaleX(${v})"></div></div>
+      <p class="meter-d">${d}${isHot ? ` <b>Down from ${pct(bd.parts[0].from)}.</b>` : ''}</p></div>`;
+  }).join('');
+  $('#facts').innerHTML = `<div class="fact"><span class="k">Last line</span><span class="v"><span class="mono">${Math.round(f.sc.lh)}</span> yd from goal</span></div><div class="fact"><span class="k">${esc(seq.def)} in view</span><span class="v"><span class="mono">${f.sc.dv}</span> of 10 outfield</span></div>`;
+  // play by play
+  $('#pbp').innerHTML = seq.f.map((x, i) => {
+    const ax = analyseFrame(x); const t = teamOf(x, ax);
+    return `<li><button class="pbp-row" type="button" data-i="${i}" aria-current="${i === S.i}" data-collapse="${i === seq.col}"><span class="c mono">${clock(x)}</span><span class="e">${esc(EVENT_SHORT[x.t] || x.t)} <i>${t ? esc(t) : ''}</i></span><span class="s mono">${x.sc.k == null ? '–' : Math.round(x.sc.k * 100)}</span></button></li>`;
+  }).join('');
+  const curRow = $('#pbp [aria-current="true"]'); if (curRow) { const L = $('#pbp'); const top = curRow.offsetTop - L.offsetTop; if (top < L.scrollTop || top > L.scrollTop + L.clientHeight - 40) L.scrollTop = top - 60; }
+  $('#tlPos').textContent = `${clock(f)} · ${S.i + 1}/${seq.f.length}`;
+  const tl = $('#timeline'); tl.setAttribute('aria-valuenow', S.i + 1); tl.setAttribute('aria-valuetext', `Moment ${S.i + 1} of ${seq.f.length}, ${clock(f)}, ${what}, ${f.sc.k == null ? 'not scored' : 'score ' + Math.round(f.sc.k * 100)}`);
+  $('#prevBtn').disabled = S.i === 0; $('#nextBtn').disabled = S.i === seq.f.length - 1 && !S.playing;
+  if (!TL || TL.n !== seq.f.length || TL.seq !== seq) { renderTimeline(); TL.seq = seq; } else moveCursor();
+}
+function go(i) { if (!S.seq) return; S.i = Math.max(0, Math.min(S.seq.f.length - 1, i)); renderFrame(); }
+function play() {
+  if (S.i >= S.seq.f.length - 1) S.i = 0;
+  S.playing = true; setPlayIcon();
+  S.timer = setInterval(() => { if (S.i >= S.seq.f.length - 1) { stop(); return; } go(S.i + 1); }, 900);
+}
+function stop() { clearInterval(S.timer); S.timer = null; S.playing = false; setPlayIcon(); }
+function setPlayIcon() { $('#playBtn').setAttribute('aria-label', S.playing ? 'Pause' : 'Play'); $('#playIcon').innerHTML = S.playing ? '<rect x="4" y="3.5" width="2.75" height="9" rx=".75" fill="currentColor"/><rect x="9.25" y="3.5" width="2.75" height="9" rx=".75" fill="currentColor"/>' : '<path d="M5 3.5v9l7.5-4.5z" fill="currentColor"/>'; }
+
+/* ── Intro art: one real moment, static ── */
+function renderIntroArt() {
+  const seq = DATA.seqs['3440b2d2-93e7-4ca4-9b31-cc5a0f762b7d'] || Object.values(DATA.seqs)[0];
+  const f = seq.f[seq.col ?? 0];
+  const a = renderPitch($('#introArt'), f, { unit: true, lanes: true, line: true, pressure: false }, { static: true });
+  const xs = a.players.map((p) => p.x).concat(f.bx), ys = a.players.map((p) => p.y).concat(f.by);
+  let x0 = Math.max(-4, Math.min(...xs) - 6), x1 = Math.min(124, Math.max(...xs) + 6), y0 = Math.max(-3, Math.min(...ys) - 6), y1 = Math.min(83, Math.max(...ys) + 6);
+  // keep a 4:3 window around the play
+  const w = Math.max(x1 - x0, (y1 - y0) * 4 / 3), h = w * 3 / 4; const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  $('#introArt').setAttribute('viewBox', `${Math.max(-4, cx - w / 2)} ${Math.max(-3, cy - h / 2)} ${w} ${h}`);
+}
+
+/* ── Events ──────────────────────────────────────────── */
+$('#compSel').addEventListener('change', () => { S.openMatch = null; S.stage = 'All'; renderPicker(); });
+$('#search').addEventListener('input', (e) => { S.q = e.target.value; renderPicker(); });
+$('#stageTabs').addEventListener('click', (e) => { const b = e.target.closest('[data-stage]'); if (!b) return; S.stage = b.dataset.stage; renderPicker(); });
+$('#matchList').addEventListener('click', (e) => {
+  const g = e.target.closest('[data-goal]'); if (g && !g.disabled) { openGoal(g.dataset.goal); return; }
+  const r = e.target.closest('[data-match]'); if (!r) return;
+  const id = +r.dataset.match; S.openMatch = S.openMatch === id ? null : id; renderPicker();
+  const btn = document.querySelector(`[data-match="${id}"]`); btn?.focus(); btn?.closest('.match')?.scrollIntoView({ block: 'nearest' });
+});
+$('#exampleBtn').addEventListener('click', () => openGoal('3440b2d2-93e7-4ca4-9b31-cc5a0f762b7d'));
+$('#home').addEventListener('click', (e) => { e.preventDefault(); stop(); show('picker'); });
+$('#changeBtn').addEventListener('click', () => { stop(); show('picker'); requestAnimationFrame(() => document.querySelector(`[data-match="${S.openMatch}"]`)?.closest('.match')?.scrollIntoView({ block: 'center' })); });
+$('#goalTabs').addEventListener('click', (e) => { const b = e.target.closest('[data-goal]'); if (b && !b.disabled && b.dataset.goal !== S.goal) openGoal(b.dataset.goal); });
+$('#jumpBtn').addEventListener('click', () => { stop(); if (S.seq.col != null) go(S.seq.col); });
+$('#prevBtn').addEventListener('click', () => { stop(); go(S.i - 1); });
+$('#nextBtn').addEventListener('click', () => { stop(); go(S.i + 1); });
+$('#playBtn').addEventListener('click', () => S.playing ? stop() : play());
+$('#key').addEventListener('click', (e) => { const b = e.target.closest('[data-layer]'); if (!b) return; S.layers[b.dataset.layer] = !S.layers[b.dataset.layer]; b.setAttribute('aria-pressed', S.layers[b.dataset.layer]); renderFrame(); });
+$('#pbp').addEventListener('click', (e) => { const b = e.target.closest('[data-i]'); if (b) { stop(); go(+b.dataset.i); } });
+const tl = $('#timeline');
+const tlIndex = (ev) => { const r = tl.getBoundingClientRect(); const px = (ev.clientX - r.left) * (TL.W / r.width); const step = (TL.W - TL.m.l - TL.m.r) / Math.max(1, TL.n - 1); return Math.round((px - TL.m.l) / step); };
+let dragging = false;
+tl.addEventListener('pointerdown', (e) => { dragging = true; tl.setPointerCapture(e.pointerId); stop(); go(tlIndex(e)); });
+tl.addEventListener('pointermove', (e) => {
+  const i = Math.max(0, Math.min(TL.n - 1, tlIndex(e))); if (dragging) go(i);
+  const f = S.seq.f[i]; const tip = $('#tlTip'); const r = tl.getBoundingClientRect();
+  tip.hidden = false; tip.style.left = `${TL.x(i) * r.width / TL.W}px`; tip.style.top = '0px';
+  tip.textContent = `${clock(f)} · ${EVENT_SHORT[f.t] || f.t} · ${f.sc.k == null ? 'not scored' : Math.round(f.sc.k * 100)}`;
+});
+tl.addEventListener('pointerup', () => { dragging = false; });
+tl.addEventListener('pointerleave', () => { $('#tlTip').hidden = true; });
+tl.addEventListener('keydown', (e) => {
+  const k = e.key; if (['ArrowRight', 'ArrowUp'].includes(k)) { e.preventDefault(); stop(); go(S.i + 1); }
+  else if (['ArrowLeft', 'ArrowDown'].includes(k)) { e.preventDefault(); stop(); go(S.i - 1); }
+  else if (k === 'Home') { e.preventDefault(); go(0); } else if (k === 'End') { e.preventDefault(); go(S.seq.f.length - 1); }
+});
+document.addEventListener('keydown', (e) => {
+  if ($('#analysisView').hidden || e.target.closest('input, select, textarea, button, [role="slider"], dialog') || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === ' ') { e.preventDefault(); S.playing ? stop() : play(); }
+  else if (e.key === 'ArrowRight') { stop(); go(S.i + 1); } else if (e.key === 'ArrowLeft') { stop(); go(S.i - 1); }
+  else if (e.key.toLowerCase() === 'c' && S.seq.col != null) { stop(); go(S.seq.col); }
+});
+$('#howBtn').addEventListener('click', () => { if (!$('#howKey').innerHTML) { S.seq = S.seq || Object.values(DATA.seqs)[0]; renderKey(); } $('#how').showModal(); });
+$('#howClose').addEventListener('click', () => $('#how').close());
+new ResizeObserver(() => { if (S.seq && !$('#analysisView').hidden) { TL = null; renderFrame(); } }).observe($('#timeline'));
+addEventListener('hashchange', () => { const h = location.hash.slice(1); if (!h) { if (!$('#analysisView').hidden) { stop(); show('picker'); } return; } const id = Object.keys(DATA.seqs).find((k) => 'goal-' + k.slice(0, 8) === h); if (id && id !== S.goal) openGoal(id); });
+
+renderPicker(); renderIntroArt();
+{ const h = location.hash.slice(1); const id = Object.keys(DATA.seqs).find((k) => 'goal-' + k.slice(0, 8) === h); if (id) openGoal(id); }
+</script>
