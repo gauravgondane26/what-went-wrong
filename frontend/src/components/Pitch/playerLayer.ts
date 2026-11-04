@@ -1,157 +1,74 @@
-import * as d3 from 'd3'
-import type { FrameData, PlayerPosition } from '../../types/frame'
-
-// Player dot colors
-const ATTACKER_COLOR = '#3a86e8'   // blue
-const DEFENDER_COLOR = '#e05c2a'   // orange-red
-const KEEPER_COLOR = '#f7c948'     // yellow
-const ACTOR_RING_COLOR = '#ffffff' // white ring on the actor
-
-const DOT_RADIUS = 5
-const KEEPER_RADIUS = 6
-const ACTOR_RING_WIDTH = 1.5
-const TRANSITION_MS = 300
-// When the ball jumps more than this many pitch units between frames (a clearance,
-// backward pass, or 360-lag frame), snap everything instead of animating.
-const SNAP_THRESHOLD = 30
-
-// Module-level state so we can detect large ball jumps across calls.
-// Reset to null on frame_index === 0 (new goal sequence loaded).
-let _prevBallX: number | null = null
-let _prevBallY: number | null = null
-
-const LOW_DEFENDER_WARNING_THRESHOLD = 6
-
 /**
- * Renders/updates player dots and the ball on the pitch.
- * Uses D3 enter/update/exit with transitions for smooth frame stepping.
+ * Players and ball. Pure D3, zero React imports.
+ *
+ * Encoding (DESIGN.md): defenders filled blue; defenders upfield of the ball pale with a blue ring;
+ * attackers hollow ink; keepers square in their team's style; the player on the ball gets an ink
+ * halo; the ball is white with an ink ring and sits on top.
+ *
+ * 360 freeze-frames have no player identities, so dots can't be tracked between frames. The
+ * group crossfades on each frame instead of sliding dots between unrelated players.
  */
-export function renderPlayerLayer(
-  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
-  frame: FrameData,
-  xScale: d3.ScaleLinear<number, number>,
-  yScale: d3.ScaleLinear<number, number>,
-) {
-  // Reset prev position at start of each new goal sequence so the first frame
-  // never triggers a spurious snap.
-  if (frame.frame_index === 0) {
-    _prevBallX = null
-    _prevBallY = null
+import type * as d3 from 'd3'
+import type { FrameData, PlayerPosition } from '../../types/frame'
+import { frameDuration, PITCH_THEME as T } from './theme'
+
+type G = d3.Selection<SVGGElement, unknown, null, undefined>
+
+const R = 1.55
+
+export function renderPlayers(g: G, frame: FrameData, animate: boolean) {
+  g.selectAll('*').remove()
+  // Actor last so its halo sits above neighbours.
+  const players = [...frame.players].sort((a, b) => Number(a.actor) - Number(b.actor))
+
+  for (const p of players) {
+    if (p.actor) {
+      g.append('circle')
+        .attr('cx', p.x).attr('cy', p.y).attr('r', R + 1.1)
+        .attr('fill', 'none').attr('stroke', T.ink).attr('stroke-width', 1.25)
+        .attr('vector-effect', 'non-scaling-stroke')
+    }
+    drawPlayer(g, p, frame.ball_x)
   }
 
-  const ballDist = _prevBallX !== null
-    ? Math.hypot(frame.ball_x - _prevBallX, frame.ball_y - (_prevBallY ?? 0))
-    : 0
-  const transitionMs = ballDist > SNAP_THRESHOLD ? 0 : TRANSITION_MS
+  g.append('circle')
+    .attr('cx', frame.ball_x).attr('cy', frame.ball_y).attr('r', 0.95)
+    .attr('fill', T.ball).attr('stroke', T.ink).attr('stroke-width', 1.5)
+    .attr('vector-effect', 'non-scaling-stroke')
 
-  _prevBallX = frame.ball_x
-  _prevBallY = frame.ball_y
-
-  // --- Player dots ---
-  let g = svg.select<SVGGElement>('g.player-layer')
-  if (g.empty()) {
-    g = svg.append('g').attr('class', 'player-layer').attr('pointer-events', 'none')
+  const ms = animate ? frameDuration() : 0
+  if (ms > 0) {
+    g.interrupt().attr('opacity', 0.35).transition().duration(ms).attr('opacity', 1)
+  } else {
+    g.interrupt().attr('opacity', 1)
   }
-
-  const dots = g
-    .selectAll<SVGCircleElement, PlayerPosition>('circle.player')
-    .data(frame.players, (_d, i) => String(i))
-
-  // Enter: appear at position but fade in
-  dots
-    .enter()
-    .append('circle')
-    .attr('class', 'player')
-    .attr('cx', d => xScale(d.x))
-    .attr('cy', d => yScale(d.y))
-    .attr('r', d => (d.keeper ? KEEPER_RADIUS : DOT_RADIUS))
-    .attr('fill', playerColor)
-    .attr('stroke', d => (d.actor ? ACTOR_RING_COLOR : 'none'))
-    .attr('stroke-width', d => (d.actor ? ACTOR_RING_WIDTH : 0))
-    .attr('opacity', 0)
-    .transition()
-    .duration(transitionMs)
-    .attr('opacity', 1)
-
-  // Update with transition
-  dots
-    .transition()
-    .duration(transitionMs)
-    .attr('cx', d => xScale(d.x))
-    .attr('cy', d => yScale(d.y))
-    .attr('r', d => (d.keeper ? KEEPER_RADIUS : DOT_RADIUS))
-    .attr('fill', playerColor)
-    .attr('stroke', d => (d.actor ? ACTOR_RING_COLOR : 'none'))
-    .attr('stroke-width', d => (d.actor ? ACTOR_RING_WIDTH : 0))
-    .attr('opacity', 1)
-
-  // Exit: fade out then remove
-  dots
-    .exit()
-    .transition()
-    .duration(transitionMs)
-    .attr('opacity', 0)
-    .remove()
-
-  // --- Ball ---
-  renderBall(svg, frame, xScale, yScale, transitionMs)
-
-  // --- Low defender count warning indicator ---
-  renderWarning(svg, frame)
 }
 
-function playerColor(d: PlayerPosition): string {
-  if (d.keeper) return KEEPER_COLOR
-  return d.is_attacker ? ATTACKER_COLOR : DEFENDER_COLOR
+function ring<E extends SVGElement>(sel: d3.Selection<E, unknown, null, undefined>, color: string, width: number) {
+  sel.attr('stroke', color).attr('stroke-width', width).attr('vector-effect', 'non-scaling-stroke')
 }
 
-function renderBall(
-  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
-  frame: FrameData,
-  xScale: d3.ScaleLinear<number, number>,
-  yScale: d3.ScaleLinear<number, number>,
-  transitionMs: number,
-) {
-  let ball = svg.select<SVGGElement>('g.ball-layer')
-  if (ball.empty()) {
-    ball = svg.append('g').attr('class', 'ball-layer').attr('pointer-events', 'none')
+function drawPlayer(g: G, p: PlayerPosition, ballX: number) {
+  if (p.keeper) {
+    ring(
+      g.append('rect')
+        .attr('x', p.x - R).attr('y', p.y - R).attr('width', R * 2).attr('height', R * 2).attr('rx', 0.7)
+        .attr('fill', p.is_attacker ? T.canvas : T.defence),
+      p.is_attacker ? T.ink : T.canvas,
+      p.is_attacker ? 2 : 1.5,
+    )
+    return
   }
-
-  // White circle with black outline
-  let circle = ball.select<SVGCircleElement>('circle.ball')
-  if (circle.empty()) {
-    circle = ball.append('circle').attr('class', 'ball').attr('r', 4)
+  if (p.is_attacker) {
+    ring(g.append('circle').attr('cx', p.x).attr('cy', p.y).attr('r', R - 0.1).attr('fill', T.canvas), T.ink, 2)
+    return
   }
-
-  circle
-    .transition()
-    .duration(transitionMs)
-    .attr('cx', xScale(frame.ball_x))
-    .attr('cy', yScale(frame.ball_y))
-    .attr('fill', '#ffffff')
-    .attr('stroke', '#222222')
-    .attr('stroke-width', 1)
-}
-
-function renderWarning(
-  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
-  frame: FrameData,
-) {
-  svg.select('g.warning-layer').remove()
-
-  const defenderCount = frame.players.filter(
-    p => !p.is_attacker && !p.keeper,
-  ).length
-
-  if (defenderCount >= LOW_DEFENDER_WARNING_THRESHOLD) return
-
-  const g = svg.append('g').attr('class', 'warning-layer')
-
-  g.append('text')
-    .attr('x', 8)
-    .attr('y', 16)
-    .attr('fill', '#f7c948')
-    .attr('font-size', '11px')
-    .attr('font-family', 'monospace')
-    .text(`only ${defenderCount} defenders visible`)
+  const upfield = p.x >= ballX
+  ring(
+    g.append('circle')
+      .attr('cx', p.x).attr('cy', p.y).attr('r', upfield ? R - 0.1 : R)
+      .attr('fill', upfield ? T.defenceSoft : T.defence),
+    upfield ? T.defence : T.canvas,
+    1.5,
+  )
 }

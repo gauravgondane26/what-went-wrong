@@ -1,49 +1,62 @@
 /**
- * Pure D3 orchestrator — zero React imports.
- * Called from PitchContainer via the useD3 hook whenever the frame changes.
+ * Pure D3 orchestrator, zero React imports. Called from PitchContainer.
  *
- * Layer order (bottom → top):
- *   1. pitch-markings  (static, drawn once)
- *   2. pressure-layer  (heatmap)
- *   3. shadow-layer    (cover shadow cones)
- *   4. player-layer    (dots + ball)
- *   5. warning-layer   (low defender count badge, inside playerLayer)
+ * Layer order (bottom → top), created once and updated per frame:
+ *   markings · pressure · last line · unit around the ball · passing lanes · players + ball
+ *
+ * The SVG works in pitch units (viewBox), so zooming to the move is just a viewBox change.
  */
 import * as d3 from 'd3'
 import type { FrameData } from '../../types/frame'
+import { frameGeometry, type ViewBox } from '../../lib/geometry'
 import { drawPitchMarkings } from './pitchMarkings'
-import { renderPlayerLayer } from './playerLayer'
 import { renderPressureLayer } from './pressureLayer'
-import { renderShadowLayer } from './shadowLayer'
+import { renderLanes, renderLastLine, renderUnit } from './shapeLayers'
+import { renderPlayers } from './playerLayer'
 
-export function renderPitchFrame(
-  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
-  frame: FrameData,
-  svgWidth: number,
-  svgHeight: number,
-) {
-  const xScale = d3.scaleLinear([0, 120], [0, svgWidth])
-  const yScale = d3.scaleLinear([0, 80], [0, svgHeight])
-
-  // Draw markings once — skip if already present
-  if (svg.select('g.pitch-markings').empty()) {
-    drawPitchMarkings(svg, xScale, yScale)
-  }
-
-  renderPressureLayer(svg, frame, xScale, yScale)
-  renderShadowLayer(svg, frame, xScale, yScale)
-  renderPlayerLayer(svg, frame, xScale, yScale)
+export interface PitchLayers {
+  unit: boolean
+  lanes: boolean
+  line: boolean
+  pressure: boolean
 }
 
-/**
- * Called on initial mount to draw a blank pitch with no frame data.
- */
-export function renderEmptyPitch(
-  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
-  svgWidth: number,
-  svgHeight: number,
+export const DEFAULT_LAYERS: PitchLayers = { unit: true, lanes: true, line: true, pressure: false }
+
+type Svg = d3.Selection<SVGSVGElement, unknown, null, undefined>
+const ORDER = ['markings', 'pressure', 'line', 'unit', 'lanes', 'players'] as const
+
+function layer(svg: Svg, name: (typeof ORDER)[number]) {
+  return svg.select<SVGGElement>(`g.layer-${name}`)
+}
+
+function ensureLayers(svg: Svg) {
+  if (!svg.select('g.layer-markings').empty()) return
+  for (const name of ORDER) svg.append('g').attr('class', `layer-${name}`).attr('pointer-events', 'none')
+  drawPitchMarkings(layer(svg, 'markings'))
+}
+
+export function setView(svg: Svg, view: ViewBox) {
+  svg.attr('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`)
+}
+
+export function renderPitchFrame(
+  svg: Svg,
+  frame: FrameData | null,
+  view: ViewBox,
+  layers: PitchLayers,
+  animate: boolean,
 ) {
-  const xScale = d3.scaleLinear([0, 120], [0, svgWidth])
-  const yScale = d3.scaleLinear([0, 80], [0, svgHeight])
-  drawPitchMarkings(svg, xScale, yScale)
+  ensureLayers(svg)
+  setView(svg, view)
+  if (!frame) {
+    for (const name of ORDER.slice(1)) layer(svg, name).selectAll('*').remove()
+    return
+  }
+  const geo = frameGeometry(frame)
+  renderPressureLayer(layer(svg, 'pressure'), frame, layers.pressure)
+  renderLastLine(layer(svg, 'line'), frame, geo, view, layers.line)
+  renderUnit(layer(svg, 'unit'), geo, layers.unit)
+  renderLanes(layer(svg, 'lanes'), frame, geo, layers.lanes)
+  renderPlayers(layer(svg, 'players'), frame, animate)
 }

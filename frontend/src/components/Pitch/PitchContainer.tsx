@@ -1,46 +1,38 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useId, useRef } from 'react'
 import * as d3 from 'd3'
 import type { FrameData } from '../../types/frame'
-import { renderEmptyPitch, renderPitchFrame } from './pitchRenderer'
-
-// Maintain a 120:80 (3:2) aspect ratio matching StatsBomb pitch dimensions
-const ASPECT = 80 / 120
+import type { ViewBox } from '../../lib/geometry'
+import { renderPitchFrame, type PitchLayers } from './pitchRenderer'
 
 interface Props {
   frame: FrameData | null
-  width: number
+  view: ViewBox
+  layers: PitchLayers
+  /** Accessible description of what the pitch shows right now. */
+  description: string
+  animate?: boolean
+  className?: string
 }
 
-export function PitchContainer({ frame, width }: Props) {
-  const height = Math.round(width * ASPECT)
+/** React owns the <svg>; D3 owns everything inside it. */
+export function PitchContainer({ frame, view, layers, description, animate = true, className }: Props) {
   const svgRef = useRef<SVGSVGElement>(null)
+  const descId = useId()
 
-  // Draw empty pitch on mount
   useEffect(() => {
     if (!svgRef.current) return
-    const svg = d3.select(svgRef.current)
-    renderEmptyPitch(svg, width, height)
-  }, [width, height])
-
-  // Re-render when frame changes
-  useEffect(() => {
-    if (!svgRef.current || !frame) return
-    const svg = d3.select(svgRef.current)
-    renderPitchFrame(svg, frame, width, height)
-  }, [frame, width, height])
+    renderPitchFrame(d3.select(svgRef.current), frame, view, layers, animate)
+  }, [frame, view, layers, animate])
 
   return (
     <svg
       ref={svgRef}
-      width={width}
-      height={height}
-      style={{
-        display: 'block',
-        background: '#2d5a1b',
-        borderRadius: '4px',
-        border: '1px solid #1a3d0f',
-        overflow: 'hidden',
-      }}
-    />
+      className={className}
+      role="img"
+      aria-describedby={descId}
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <desc id={descId}>{description}</desc>
+    </svg>
   )
 }

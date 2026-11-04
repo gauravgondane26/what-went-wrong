@@ -85,9 +85,15 @@ StatsBomb coordinate system: `0–120` (length) × `0–80` (width). Data fetche
 
 React 18 + TypeScript + Vite. State managed by Zustand in `stores/analysisStore.ts`. All backend calls go through `api/client.ts` — the typed fetch wrapper for the API.
 
-**D3 integration pattern**: React owns the `<svg>` element via `useRef`; D3 exclusively owns everything rendered inside it. `hooks/useD3.ts` is the escape hatch. All files under `components/Pitch/` except `PitchContainer.tsx` have **zero React imports** — pure D3 functions called from the container. Player dot transitions use `d3.transition().duration(200)`.
+Visual rules live in `DESIGN.md` (tokens in `styles/tokens.css`, mirrored for D3 in `components/Pitch/theme.ts`). Shared primitives are in `components/ui/`. The app has two views, chosen by UI state in `App.tsx` (the store is unchanged):
+- **Picker** (`components/Picker/`): competition select, team search and stage tabs; a match row opens in place to list its goals (`selectCompetition` → `selectMatch` → `selectGoal`).
+- **Analysis** (`components/Analysis/`): the finding as the title (`lib/copy.ts → finding()`), goal tabs, the pitch with its key/layer toggles, and a rail with the shape-score timeline (`components/Timeline/`), the moment panel and play-by-play. Playback and keyboard shortcuts are in `hooks/usePlayback.ts`.
 
-Pitch rendering is orchestrated by `pitchRenderer.ts`, which composes four layers in order (bottom to top): `pitchMarkings.ts` (static, drawn once) → `pressureLayer.ts` (24×16 heatmap) → `shadowLayer.ts` (cover shadow cones) → `playerLayer.ts` (dots + ball).
+**D3 integration pattern**: React owns the `<svg>` element via `useRef`; D3 exclusively owns everything rendered inside it. All files under `components/Pitch/` and `components/Timeline/` except the `.tsx` containers have **zero React imports**: pure D3 functions called from the container.
+
+Pitch rendering is orchestrated by `pitchRenderer.ts`. The SVG works in pitch units, and the camera is a viewBox (`lib/geometry.ts → sequenceView()`, fixed per goal and always including the defended goal). Layers in order (bottom to top): `pitchMarkings.ts` → `pressureLayer.ts` (off by default) → `shapeLayers.ts` (last line, the hull of the 6 defenders nearest the ball, passing lanes: open = dashed ink, blocked = faint blue) → `playerLayer.ts` (defenders blue, defenders upfield of the ball pale, attackers hollow ink, keepers square, actor halo, ball).
+
+The passing-lane test in `lib/geometry.ts` mirrors `scorer.py`'s `_is_shadowed` / `shadow_targets`, so the pitch draws exactly what `cover_shadow_coverage` counts. **Change both together.** The backend's `cover_shadows` cones are no longer drawn. Freeze frames have no player identities, so the player layer crossfades between frames rather than sliding dots.
 
 ### Core Data Model
 

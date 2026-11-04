@@ -10,6 +10,7 @@ export const PITCH_THEME = {
   line: '#c8c8c8',
   defence: '#1d5fd0',
   defenceDeep: '#174a9f',
+  defenceSoft: '#dce8fb',
   attack: '#171717',
   collapse: '#c4261b',
   ball: '#ffffff',

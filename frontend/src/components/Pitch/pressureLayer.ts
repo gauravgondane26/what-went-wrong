@@ -1,73 +1,33 @@
-import * as d3 from 'd3'
-import type { FrameData } from '../../types/frame'
-
-const GRID_COLS = 24
-const GRID_ROWS = 16
-const TRANSITION_MS = 300
-
-// Color scale: transparent → deep blue
-const colorScale = d3
-  .scaleSequential(d3.interpolateBlues)
-  .domain([0, 1])
-
 /**
- * Renders/updates the 24×16 defensive pressure heatmap.
- * Each cell's opacity is driven by the pressure_grid value for that cell.
- * Low pressure = transparent; high pressure = opaque blue.
+ * Defensive pressure field: the backend's 24 × 16 grid (5-yard cells), drawn as a single-hue
+ * ramp in the defence colour. Off by default; it's context, not the story. Zero React imports.
  */
-export function renderPressureLayer(
-  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
-  frame: FrameData,
-  xScale: d3.ScaleLinear<number, number>,
-  yScale: d3.ScaleLinear<number, number>,
-) {
-  let g = svg.select<SVGGElement>('g.pressure-layer')
-  if (g.empty()) {
-    // Insert pressure layer below player layer
-    const playerLayer = svg.select('g.player-layer')
-    if (!playerLayer.empty()) {
-      g = playerLayer.insert<SVGGElement>('g', ':first-child')
-    } else {
-      g = svg.append('g')
-    }
-    g.attr('class', 'pressure-layer').attr('pointer-events', 'none')
-  }
+import type * as d3 from 'd3'
+import type { FrameData } from '../../types/frame'
+import { PITCH_THEME as T } from './theme'
 
-  const pitchW = 120
-  const pitchH = 80
-  const cellW = pitchW / GRID_COLS
-  const cellH = pitchH / GRID_ROWS
+type G = d3.Selection<SVGGElement, unknown, null, undefined>
 
-  // Build cell data: {col, row, value}
-  interface Cell { col: number; row: number; value: number }
-  const cells: Cell[] = frame.pressure_grid.map((value, i) => ({
-    col: i % GRID_COLS,
-    row: Math.floor(i / GRID_COLS),
-    value,
-  }))
+const COLS = 24
+const CELL = 5
+const MAX_OPACITY = 0.38
 
-  const rects = g
-    .selectAll<SVGRectElement, Cell>('rect.pressure-cell')
-    .data(cells, d => `${d.col}-${d.row}`)
+interface Cell { col: number; row: number; value: number }
 
-  // Enter
-  rects
-    .enter()
-    .append('rect')
-    .attr('class', 'pressure-cell')
-    .attr('x', d => xScale(d.col * cellW))
-    .attr('y', d => yScale(d.row * cellH))
-    .attr('width', Math.abs(xScale(cellW) - xScale(0)))
-    .attr('height', Math.abs(yScale(cellH) - yScale(0)))
-    .attr('fill', d => colorScale(d.value))
-    .attr('opacity', d => d.value * 0.45)
+export function renderPressureLayer(g: G, frame: FrameData, visible: boolean) {
+  const cells: Cell[] = visible
+    ? frame.pressure_grid
+        .map((value, i) => ({ col: i % COLS, row: Math.floor(i / COLS), value }))
+        .filter((c) => c.value >= 0.04)
+    : []
 
-  // Update with transition
-  rects
-    .transition()
-    .duration(TRANSITION_MS)
-    .attr('fill', d => colorScale(d.value))
-    .attr('opacity', d => d.value * 0.45)
-
-  // No exit needed — grid size is always 384
+  g.selectAll<SVGRectElement, Cell>('rect')
+    .data(cells, (d) => `${d.col}-${d.row}`)
+    .join('rect')
+    .attr('x', (d) => d.col * CELL)
+    .attr('y', (d) => d.row * CELL)
+    .attr('width', CELL)
+    .attr('height', CELL)
+    .attr('fill', T.defence)
+    .attr('fill-opacity', (d) => (d.value * MAX_OPACITY).toFixed(3))
 }

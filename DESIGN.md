@@ -89,7 +89,7 @@ components:
   button-secondary: { backgroundColor: "{colors.canvas}", textColor: "{colors.ink}", border: "{colors.hairline}", typography: "{typography.button-md}", rounded: "{rounded.sm}", height: 32px, padding: "0 {spacing.sm}" }
   icon-button:     { backgroundColor: "{colors.canvas}", textColor: "{colors.ink}", border: "{colors.hairline}", rounded: "{rounded.sm}", size: 32px, hitArea: 44px }
   toggle-chip:     { backgroundColor: "{colors.canvas}", onBackground: "{colors.canvas-soft-2}", textColor: "{colors.body}", onTextColor: "{colors.ink}", border: "{colors.hairline}", rounded: "{rounded.full}", height: 28px, padding: "0 {spacing.sm}" }
-  card:            { backgroundColor: "{colors.canvas}", rounded: "{rounded.md}", padding: "{spacing.md}", shadow: "{elevation.level-2}" }
+  card:            { backgroundColor: "{colors.canvas}", rounded: "{rounded.md}", padding: "{spacing.md}", shadow: "{elevation.level-1}" }   # panels are flat: inset hairline only
   badge:           { backgroundColor: "{colors.canvas-soft-2}", textColor: "{colors.body}", typography: "{typography.caption}", rounded: "{rounded.full}", padding: "0 {spacing.xs}" }
   badge-collapse:  { backgroundColor: "{colors.collapse-soft}", textColor: "{colors.collapse-deep}", typography: "{typography.caption}", rounded: "{rounded.full}" }
   callout-collapse: { backgroundColor: "{colors.collapse-soft}", borderLeft: "3px {colors.collapse}", textColor: "{colors.ink}", rounded: "{rounded.sm}", padding: "{spacing.sm} {spacing.md}" }
@@ -117,10 +117,11 @@ The visual system comes from Vercel's DESIGN.md: an ink-on-near-white surface, a
 Inherited from the source system: `ink` #171717 (headings, primary buttons, attacking players), `body` #4d4d4d (secondary text), `mute` #6b6b6b (captions, hints; darkened from the source's #888888 to pass WCAG AA), `hairline` #ebebeb (borders and dividers), `canvas` #ffffff (cards), `canvas-soft` #fafafa (page), `canvas-soft-2` #f5f5f5 (hover, selected rows, tracks).
 
 ### Data colours (ours)
-- **Defence** `#1d5fd0`: defending outfield players, cover-shadow cones (at low alpha), the pressure field (a sequential ramp from transparent to defence), metric meter fills. `defence-soft` #dce8fb for tints, `defence-deep` #174a9f for hover.
-- **Attack** `#171717` (ink): attacking players. They're neutral on purpose; the app is about the defence.
+- **Defence** `#1d5fd0`: defending outfield players, the unit hull and blocked passing lanes (at low alpha), the pressure field (a sequential ramp from transparent to defence), metric meter fills. `defence-soft` #dce8fb for tints, `defence-deep` #174a9f for hover.
+- **Attack** `#171717` (ink): attacking players, drawn hollow (white fill, 2px ink ring). They're neutral on purpose; the app is about the defence.
+- **Defender upfield of the ball** (not goal-side): `defence-soft` fill with a `defence` ring, so the goal-side measure is visible on the pitch.
 - **Collapse** `#c4261b`: the collapse frame marker, the collapse callout, the drop in the score. Reserved: never for errors, never for decoration. `collapse-soft` #fbe4e1, `collapse-deep` #9b1d14.
-- **Keeper**: same team colour as their side, drawn larger with an ink outline ring. Keepers are not given a third hue.
+- **Keeper**: a rounded square in their team's style (filled blue for the defence, hollow ink for the attack). Shape, not a third hue, marks the keeper.
 - **Ball**: white with a 1.5px ink stroke, drawn on top of everything.
 - **Player on the ball**: a 2px ink halo ring offset 3px from the dot.
 
@@ -180,7 +181,7 @@ Stacked shadows from the source system, unchanged:
 | Level | Use |
 |---|---|
 | level-1: inset hairline | Pitch frame, list groups |
-| level-2: subtle drop | Cards in the insight panel |
+| level-2: subtle drop | Reserved; panels use level-1 (flat, per the app-screen rules) |
 | level-3: soft stack | Selection drawer on tablet |
 | level-5: modal | "How it works" dialog, mobile sheet |
 
@@ -195,7 +196,7 @@ Never a single heavy drop shadow.
 - **Step rows** (competition, match, goal): full-width `<button>`s at 44px minimum; selected state is a `canvas-soft-2` background plus a 2px ink left indicator plus `aria-current`. Groups are numbered "1 Competition · 2 Match · 3 Goal" and collapse to a one-line summary once chosen.
 - **Buttons**: primary (ink fill) and secondary (canvas + hairline). Icon buttons are 32px visual with a 44px hit area and SVG icons (no emoji glyphs).
 - **Toggle chips**: switch pitch overlays (cover shadows, pressure) on and off. `aria-pressed`.
-- **Legend**: always visible under the pitch. Swatch plus plain words: "Defending team", "Attacking team", "Ball", "On the ball", "Passing lane blocked", "Defensive pressure".
+- **Legend**: always visible under the pitch. Swatch plus plain words: the two team names, "Upfield of the ball", "On the ball"; then each overlay as a toggle chip that is its own legend entry ("Unit around the ball", "Passing lanes", "Last line", "Pressure", "Whole pitch").
 - **Shape timeline** (the hero chart): full stage width, about 120px tall. Line of the shape score per frame, with gaps where it can't be scored. A dashed red vertical marker labelled "Collapse" and a filled ink marker for the current frame. Click or arrow-key any point to jump there. It replaces the separate slider, dot row and sparkline.
 - **Shape score card**: the score in data-xl with a verbal band ("Solid" ≥ 70, "Stretched" 40–69, "Broken" < 40) and the change since the previous frame.
 - **Metric meters**: label, a one-sentence visible explanation, value, and `role="meter"`. No hover-only explanations.

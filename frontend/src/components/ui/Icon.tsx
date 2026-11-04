@@ -34,6 +34,21 @@ const PATHS = {
     </>
   ),
   check: <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />,
+  help: (
+    <>
+      <circle cx="8" cy="8" r="6.25" />
+      <path d="M6.4 6.2a1.7 1.7 0 1 1 2.3 1.6c-.5.2-.7.6-.7 1.1v.3" />
+      <circle cx="8" cy="11.3" r="0.6" fill="currentColor" stroke="none" />
+    </>
+  ),
+  list: <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h7" />,
+  search: (
+    <>
+      <circle cx="7" cy="7" r="4.5" />
+      <path d="m10.5 10.5 3 3" />
+    </>
+  ),
+  arrowRight: <path d="M3 8h10M9 4l4 4-4 4" />,
   target: (
     <>
       <circle cx="8" cy="8" r="6.25" />
