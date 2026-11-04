@@ -5,7 +5,9 @@ from app.services.data_loader import load_competitions
 
 router = APIRouter(tags=["competitions"])
 
-_EXCLUDED_COMPETITIONS = {"La Liga", "Ligue 1", "Major League Soccer"}
+# MLS 2023 stays hidden: 3 of its 6 matches have no 360 file in the open-data repo (re-checked 2026-11-04).
+# La Liga 2020/21 and Ligue 1 2021/22 + 2022/23 were re-enabled after every sampled goal loaded with full frames.
+_EXCLUDED_COMPETITIONS = {"Major League Soccer"}
 
 # Cache competitions list in module memory (static data, never changes)
 _competitions_cache: list[dict] | None = None
