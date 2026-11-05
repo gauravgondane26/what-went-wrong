@@ -4,7 +4,7 @@ What Went Wrong is moving from **one goal at a time** to finding patterns, compa
 
 - When a task is done, its box is ticked in that task's last commit.
 - Commit messages start with the task id (e.g. `P1.5`), so `git log --oneline` reads in the same order as this list, and `git log --oneline --grep P1.5` finds one task's commits.
-- Each phase has its own branch off `redesign` and its own draft PR.
+- Each phase has its own branch and a PR into **`staging`**, which deploys to the test site (`staging--whatwentwrong-app.netlify.app`). `main` is the live site: it gets a `staging → main` PR only when a whole feature is done and checked on staging.
 
 The order is foundations → detection → reports → compare. Reports and compare both rely on the collapse frame and its cause, so detection has to be settled first.
 
@@ -21,6 +21,7 @@ The backend stays **one containerised FastAPI service** (Docker plus compose, de
 - [x] **P0.6** Root `docker-compose.yml`, with the Vite proxy target set by an env var
 - [x] **P0.7** Docs: Docker usage and the switch to Render's Docker runtime
 - [x] **P0.8** `scripts/eval_collapse.py`, plus a baseline in `docs/eval/collapse-baseline.md`
+- [x] **P0.9** Staging environment: API URL per Netlify context, `CORS_ORIGIN_REGEX`, `staging` branch flow (see CLAUDE.md → Environments)
 
 ## Phase 1: Smarter detection and "what broke it" · `feat/p1-detection`
 - [ ] **P1.1** `FrameAction` model (kind, end location, cross / through ball / cut-back / switch, under pressure) and a helper that normalises the end location

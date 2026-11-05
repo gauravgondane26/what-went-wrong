@@ -134,7 +134,33 @@ The passing-lane test in `lib/geometry.ts` mirrors `scorer.py`'s `_is_shadowed` 
   - Until it is switched, it uses the Python runtime: root `backend/`, `uvicorn main:app --host 0.0.0.0 --port $PORT`.
   - **To move it onto the Dockerfile** (a manual dashboard step): Settings → Runtime: Docker, Root Directory `backend`, Dockerfile Path `./Dockerfile`, health check path `/api/v1/health`, and clear the start command. The image reads `$PORT`.
 - **Frontend**: Netlify via `netlify.toml` (base `frontend`, SPA redirect to `index.html`).
-- In production builds, `api/client.ts` **hard-codes** the Render URL. `VITE_API_URL` in `frontend/.env.production` is currently unused. In dev, the client uses the relative `/api/v1` through the Vite proxy.
+- Production builds call `VITE_API_URL` (`api/client.ts`), falling back to the live Render URL. Netlify sets it per build context in `netlify.toml`. In dev, the client uses the relative `/api/v1` through the Vite proxy.
+
+### Environments: production and staging
+The site is live, so **`main` is production and only receives finished features**. Work flows through `staging`:
+
+```
+feat/* branch ──PR──▶ staging ──(feature complete) PR──▶ main
+                         │                                 │
+   staging--whatwentwrong-app.netlify.app      whatwentwrong-app.netlify.app
+   what-went-wrong-staging.onrender.com        what-went-wrong.onrender.com
+```
+
+| | Production | Staging |
+|---|---|---|
+| Branch | `main` | `staging` |
+| Frontend | `https://whatwentwrong-app.netlify.app` | `https://staging--whatwentwrong-app.netlify.app`; PR previews at `deploy-preview-N--whatwentwrong-app.netlify.app` |
+| Backend | `https://what-went-wrong.onrender.com` | `https://what-went-wrong-staging.onrender.com` (free tier; sleeps when idle, so the first request is slow) |
+| Backend CORS | `CORS_ORIGINS=https://whatwentwrong-app.netlify.app` | `CORS_ORIGINS=https://whatwentwrong-app.netlify.app`, `CORS_ORIGIN_REGEX=https://(staging\|deploy-preview-\d+)--whatwentwrong-app\.netlify\.app` |
+
+Rules:
+- Phase/feature PRs target `staging`, never `main`.
+- Release means a PR from `staging` to `main`, made only when a whole feature is done and checked on staging.
+- Never push directly to `main`.
+
+One-time dashboard setup:
+- **Render:** a second web service named `what-went-wrong-staging`. Branch `staging`, Docker runtime, root `backend`, health check `/api/v1/health`, and the CORS variables above.
+- **Netlify:** Site configuration → Build & deploy → Branches and deploy contexts → Branch deploys: add `staging`. The production branch stays `main`.
 - `.github/workflows/keep-alive.yml` pings `/api/v1/health` every 10 minutes so the Render free tier doesn't sleep.
 
 ## Environment notes
