@@ -17,7 +17,7 @@ The backend stays **one containerised FastAPI service** (Docker plus compose, de
 - [x] **P0.2** Move the pipeline out of the route into `services/sequence_builder.py` (no behaviour change)
 - [x] **P0.3** Golden fixture of 12 real sequences, plus invariant and collapse snapshot tests
 - [x] **P0.4** Wire `CACHE_MAX_SIZE` / `CACHE_TTL_SECONDS` into the caches
-- [ ] **P0.5** Backend `Dockerfile` + `.dockerignore`
+- [x] **P0.5** Backend `Dockerfile` + `.dockerignore`
 - [ ] **P0.6** Root `docker-compose.yml`, with the Vite proxy target set by an env var
 - [ ] **P0.7** Docs: Docker usage and the switch to Render's Docker runtime
 - [ ] **P0.8** `scripts/eval_collapse.py`, plus a baseline in `docs/eval/collapse-baseline.md`
