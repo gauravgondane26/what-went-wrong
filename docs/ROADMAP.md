@@ -20,7 +20,7 @@ The backend stays **one containerised FastAPI service** (Docker plus compose, de
 - [x] **P0.5** Backend `Dockerfile` + `.dockerignore`
 - [x] **P0.6** Root `docker-compose.yml`, with the Vite proxy target set by an env var
 - [x] **P0.7** Docs: Docker usage and the switch to Render's Docker runtime
-- [ ] **P0.8** `scripts/eval_collapse.py`, plus a baseline in `docs/eval/collapse-baseline.md`
+- [x] **P0.8** `scripts/eval_collapse.py`, plus a baseline in `docs/eval/collapse-baseline.md`
 
 ## Phase 1: Smarter detection and "what broke it" · `feat/p1-detection`
 - [ ] **P1.1** `FrameAction` model (kind, end location, cross / through ball / cut-back / switch, under pressure) and a helper that normalises the end location
