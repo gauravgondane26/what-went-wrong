@@ -29,6 +29,10 @@ class DefensiveScores(BaseModel):
     composite: float | None
     defenders_visible: int  # visible outfield defenders (keeper excluded)
     reliable: bool  # defenders_visible >= MIN_RELIABLE_DEFENDERS
+    # Box marking (display + collapse detection, not in composite): outfield
+    # attackers in the defended penalty area, and those with no defender within 2 units.
+    attackers_in_box: int = 0
+    unmarked_in_box: int = 0
 
 
 class FrameAction(BaseModel):

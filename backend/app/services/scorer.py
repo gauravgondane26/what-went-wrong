@@ -51,6 +51,17 @@ PRESSURE_SATURATION = 2.0
 # cones when 360 freeze-frame player positions lag behind ball movement.
 MAX_SHADOW_RANGE = 40.0
 
+# Box marking: the composite reads a packed penalty area as "compact" even when
+# runners are free, which is how crosses and set pieces beat it. An attacker in
+# the defended penalty area with no defender (keeper included) within
+# MARK_RADIUS is unmarked. On EURO 2020 goals the count jumps from ~0.6 on
+# earlier frames to ~2.3 on the final frame of crossed goals while the
+# composite stays ~0.57. Display and collapse detection only; not in composite.
+BOX_DEPTH = 18.0
+BOX_Y_MIN = 18.0
+BOX_Y_MAX = 62.0
+MARK_RADIUS = 2.0
+
 
 def score_compactness(
     defenders: list[tuple[float, float]], ball: tuple[float, float]
@@ -204,6 +215,25 @@ def shadow_targets(
     ]
 
 
+def in_box(x: float, y: float) -> bool:
+    return x <= BOX_DEPTH and BOX_Y_MIN <= y <= BOX_Y_MAX
+
+
+def box_marking(players: list[PlayerPosition]) -> tuple[int, int]:
+    """(attackers in the defended box, how many of them are unmarked).
+
+    Outfield attackers only; the ball carrier counts (a free shooter is the
+    point). Any visible defender, keeper included, within MARK_RADIUS marks.
+    """
+    markers = [(p.x, p.y) for p in players if not p.is_attacker]
+    in_area = [p for p in players if p.is_attacker and not p.keeper and in_box(p.x, p.y)]
+    unmarked = sum(
+        all(math.hypot(p.x - mx, p.y - my) > MARK_RADIUS for mx, my in markers)
+        for p in in_area
+    )
+    return len(in_area), unmarked
+
+
 def compute_composite(
     compactness: float, goal_side: float, shadow_coverage: float
 ) -> float:
@@ -264,8 +294,11 @@ def score_frame(
         compute_composite(compactness, goal_side, shadow_coverage) if reliable else None
     )
     pressure_grid = compute_pressure_grid(defenders)
+    attackers_in_box, unmarked_in_box = box_marking(players)
 
     scores = DefensiveScores(
+        attackers_in_box=attackers_in_box,
+        unmarked_in_box=unmarked_in_box,
         compactness=compactness,
         line_height=line_height,
         goal_side_share=goal_side,

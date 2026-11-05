@@ -86,6 +86,7 @@ Other services: `possession.py` (extract events for one possession sequence), `s
 | Goal-side share | Fraction of outfield defenders with `x < ball_x` |
 | Cover shadows | Fraction of attackers (excluding carrier and keeper) with a defender on the ball→attacker ray; 1.0 if none |
 | Line height | Average x of the 4 deepest defenders. Display only, not in the composite |
+| Box marking | `attackers_in_box`: outfield attackers with x ≤ 18 and 18 ≤ y ≤ 62. `unmarked_in_box`: those with no defender (keeper included) within 2 units. **Not in the composite**: a packed box reads as compact even when runners are free, which is how crosses and set pieces beat the composite. Used for display and for collapse detection |
 | Composite | `0.4 × compactness + 0.3 × goal_side + 0.3 × shadows`; `null` when fewer than 6 outfield defenders are visible (`reliable = false`) |
 | Pressure grid | Summed Gaussians / 2.0, clipped to 1 (fixed scale, comparable across frames) |
 | Collapse frame | Over reliable frames: largest drop of mean(next 2) − mean(previous 2) composite; steps where visible defenders change by ≥3 are skipped and windows don't cross them. `null` if nothing drops |

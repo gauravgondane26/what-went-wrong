@@ -26,6 +26,8 @@ export interface DefensiveScores {
   composite: number | null        // weighted combined score; null when not reliable
   defenders_visible: number       // visible outfield defenders (keeper excluded)
   reliable: boolean               // enough defenders visible to score the shape
+  attackers_in_box: number        // outfield attackers in the defended penalty area
+  unmarked_in_box: number         // of those, with no defender within 2 units (not in composite)
 }
 
 export type ActionKind = 'Pass' | 'Carry' | 'Shot' | 'Dribble'

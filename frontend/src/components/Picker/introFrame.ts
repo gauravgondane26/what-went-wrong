@@ -104,7 +104,9 @@ export const INTRO_FRAME: FrameData = {
     "cover_shadow_coverage": 0.5,
     "composite": 0.4359,
     "defenders_visible": 6,
-    "reliable": true
+    "reliable": true,
+    "attackers_in_box": 4,
+    "unmarked_in_box": 2
   },
   "cover_shadows": [],
   "pressure_grid": [],
