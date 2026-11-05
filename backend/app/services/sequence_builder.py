@@ -13,7 +13,7 @@ eval script share one implementation.
 from __future__ import annotations
 
 from app.models.frame import FrameData, GoalSequenceResponse
-from app.services import collapse, normalizer, possession, scorer
+from app.services import actions, collapse, normalizer, possession, scorer
 
 
 class GoalNotFoundError(LookupError):
@@ -78,9 +78,14 @@ def build_goal_sequence(
             event, freeze_frame, defending_team_id, copied_labels
         )
 
+        action = actions.event_action(event, defending_team_id)
+
         # Consecutive events often carry the same snapshot (a Carry repeats the
-        # Ball Receipt* before it); keep only the first so every frame is new.
+        # Ball Receipt* before it); keep only the first so every frame is new,
+        # but keep the ball-moving action if the kept frame has none.
         if frames and normalizer.same_snapshot(frames[-1].players, players):
+            if frames[-1].action is None and action is not None:
+                frames[-1].action = action
             continue
 
         scores, shadows, pressure_grid = scorer.score_frame(players, ball_x, ball_y)
@@ -103,6 +108,7 @@ def build_goal_sequence(
                 pressure_grid=pressure_grid,
                 is_collapse_frame=False,  # filled by collapse.detect_collapse
                 score_delta=0.0,          # filled by collapse.detect_collapse
+                action=action,
             )
         )
 
@@ -117,4 +123,5 @@ def build_goal_sequence(
         attacking_team_name=scoring["name"],
         collapse_frame_index=collapse.collapse_frame_index(frames),
         frames=frames,
+        play_pattern=(goal_event.get("play_pattern") or {}).get("name"),
     )

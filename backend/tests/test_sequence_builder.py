@@ -16,7 +16,7 @@ import pytest
 
 from app.models.frame import GoalSequenceResponse
 from app.services import collapse
-from app.services.sequence_builder import parse_timestamp
+from app.services.sequence_builder import build_goal_sequence, parse_timestamp
 
 FIXTURE = Path(__file__).parent / "fixtures" / "golden_sequences.json"
 
@@ -121,3 +121,60 @@ def test_frames_are_indexed_and_ordered(seq: GoalSequenceResponse):
 )
 def test_parse_timestamp(ts: str, expected: float):
     assert parse_timestamp(ts) == expected
+
+
+# ---------------------------------------------------------------------------
+# Actions and play pattern (built from a small synthetic match)
+# ---------------------------------------------------------------------------
+
+DEF_TEAM = {"id": 1, "name": "Defenders"}
+ATT_TEAM = {"id": 2, "name": "Attackers"}
+
+
+def _ff(shift: float = 0.0) -> list[dict]:
+    """Attacker-relative freeze frame: 7 defenders + 3 attackers, actor on the ball."""
+    defenders = [
+        {"location": [100.0 + shift, 10.0 + 9 * i], "teammate": False, "actor": False, "keeper": False}
+        for i in range(7)
+    ]
+    attackers = [
+        {"location": [90.0 + shift, 40.0], "teammate": True, "actor": True, "keeper": False},
+        {"location": [95.0 + shift, 20.0], "teammate": True, "actor": False, "keeper": False},
+        {"location": [95.0 + shift, 60.0], "teammate": True, "actor": False, "keeper": False},
+    ]
+    return defenders + attackers
+
+
+def _ev(i: int, kind: str, detail: dict | None = None, x: float = 90.0) -> dict:
+    e = {
+        "id": f"e{i}", "index": i, "possession": 7, "period": 1, "minute": 10, "second": i,
+        "timestamp": f"00:10:{i:02d}.000", "type": {"name": kind}, "team": ATT_TEAM,
+        "location": [x, 40.0], "play_pattern": {"name": "From Corner"},
+    }
+    if detail is not None:
+        e[kind.lower()] = detail
+    return e
+
+
+def test_actions_attach_and_survive_duplicate_snapshots():
+    events = [
+        _ev(0, "Pass", {"end_location": [110.0, 40.0], "cross": True, "height": {"name": "High Pass"}}),
+        _ev(1, "Ball Receipt*", x=105.0),
+        _ev(2, "Carry", {"end_location": [112.0, 38.0]}, x=105.0),  # same snapshot as e1
+        _ev(3, "Shot", {"end_location": [120.0, 40.0, 0.5], "outcome": {"name": "Goal"}}, x=108.0),
+        # An opposition event so goal_teams can name both teams.
+        {"id": "d0", "index": 99, "possession": 8, "period": 1, "type": {"name": "Pass"},
+         "team": DEF_TEAM, "location": [10.0, 40.0]},
+    ]
+    frames360 = {"e0": _ff(0.0), "e1": _ff(15.0), "e2": _ff(15.0), "e3": _ff(18.0)}
+
+    seq = build_goal_sequence(42, events, frames360, events[3])
+
+    assert seq.play_pattern == "From Corner"
+    assert [f.event_type for f in seq.frames] == ["Pass", "Ball Receipt*", "Shot"]
+    cross, receipt, shot = (f.action for f in seq.frames)
+    assert cross.kind == "Pass" and cross.cross and cross.height == "High Pass"
+    assert (cross.end_x, cross.end_y) == (10.0, 40.0)  # attacker actor: flipped toward x=0
+    # The receipt has no action of its own; it adopts the Carry that repeated its snapshot.
+    assert receipt.kind == "Carry" and (receipt.end_x, receipt.end_y) == (8.0, 42.0)
+    assert shot.kind == "Shot" and (shot.end_x, shot.end_y) == (0.0, 40.0)

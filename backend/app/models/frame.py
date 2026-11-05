@@ -73,6 +73,11 @@ class FrameData(BaseModel):
     # composite minus the previous reliable frame's; None if unreliable or first reliable
     score_delta: float | None
 
+    # The ball-moving action on this frame's event. When later events repeat this
+    # frame's snapshot (e.g. a Carry after its Ball Receipt*), the first of their
+    # actions is adopted if this event has none. None if no event moved the ball.
+    action: FrameAction | None = None
+
 
 class GoalSequenceResponse(BaseModel):
     match_id: int
@@ -83,6 +88,9 @@ class GoalSequenceResponse(BaseModel):
     attacking_team_name: str
     collapse_frame_index: int | None  # None when no reliable drop was found
     frames: list[FrameData]
+    # StatsBomb play pattern of the goal's possession: "Regular Play", "From Corner",
+    # "From Free Kick", "From Throw In", "From Counter", "From Goal Kick", ...
+    play_pattern: str | None = None
 
 
 class GoalSummary(BaseModel):
