@@ -37,7 +37,7 @@ The backend stays **one containerised FastAPI service** (Docker plus compose, de
 - [x] **P1.9** Expose `collapse_cause` on the response, plus frontend types
 - [x] **P1.10** The finding text names the cause
 - [x] **P1.11** Arrow layer for the action, with a key chip and a how-to-read entry
-- [ ] **P1.12** Show box marking: a moment-panel line, plus rings on unmarked attackers (a toggle chip)
+- [x] **P1.12** Show box marking: a moment-panel line, plus rings on unmarked attackers (a toggle chip)
 - [ ] **P1.13** Manual check on a cross and a corner goal on staging, then the PR into `staging`
 
 ## Phase 2: Match and team reports · `feat/p2-reports`
