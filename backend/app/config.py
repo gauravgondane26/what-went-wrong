@@ -13,5 +13,8 @@ CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
 HTTP_TIMEOUT_SECONDS = float(os.getenv("HTTP_TIMEOUT_SECONDS", "30"))
 HTTP_MAX_RETRIES = int(os.getenv("HTTP_MAX_RETRIES", "3"))
 
+# Matches kept in memory (events and 360 caches each; 360 files are several MB).
 CACHE_MAX_SIZE = int(os.getenv("CACHE_MAX_SIZE", "20"))
+# Built goal sequences kept in memory (small; one per goal).
+SEQUENCE_CACHE_MAX_SIZE = int(os.getenv("SEQUENCE_CACHE_MAX_SIZE", "50"))
 CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", "3600"))
