@@ -7,6 +7,7 @@ import { usePlayback } from '../../hooks/usePlayback'
 import { useSlowFlag } from '../../hooks/useSlowFlag'
 import { PitchContainer } from '../Pitch/PitchContainer'
 import { DEFAULT_LAYERS, type PitchLayers } from '../Pitch/pitchRenderer'
+import type { IncomingAction } from '../Pitch/actionLayer'
 import { ShapeTimeline } from '../Timeline/ShapeTimeline'
 import { Badge, Button, Callout, Icon } from '../ui'
 import { MomentPanel } from './MomentPanel'
@@ -25,6 +26,13 @@ export function AnalysisView({ onPickGoal, onBack }: Props) {
   const [wholePitch, setWholePitch] = useState(false)
   const slow = useSlowFlag(loading)
   const view = useMemo(() => (sequence ? sequenceView(sequence) : FULL_VIEW), [sequence])
+  // The move that broke the defence, drawn on the collapse frame from where it started.
+  const cause = useMemo<IncomingAction | null>(() => {
+    const c = sequence?.collapse_cause
+    if (!sequence || !c?.action || c.action_frame_index === null) return null
+    const from = sequence.frames[c.action_frame_index]
+    return { action: c.action, fromX: from.ball_x, fromY: from.ball_y }
+  }, [sequence])
 
   if (!sequence || !selectedGoal) {
     return (
@@ -105,6 +113,7 @@ export function AnalysisView({ onPickGoal, onBack }: Props) {
                 layers={layers}
                 description={frameSummary(sequence, currentFrameIndex)}
                 className="pitch"
+                incoming={isCollapse ? cause : null}
               />
               {isCollapse && <Badge tone="collapse" className="pitch-flag">Collapse moment</Badge>}
             </div>

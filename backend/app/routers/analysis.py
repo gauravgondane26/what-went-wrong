@@ -1,29 +1,22 @@
 """
-Main analysis endpoint: assembles the full GoalSequenceResponse.
+Main analysis endpoint: load match data, build the GoalSequenceResponse, cache it.
 
-Pipeline:
-  load events + 360 → find goal event → extract possession sequence
-  → for each event: normalize coords + build FrameData with scores
-  → detect collapse frame → return GoalSequenceResponse
+The pipeline itself lives in app/services/sequence_builder.py.
 """
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Request
 
-from app.models.frame import FrameData, GoalSequenceResponse
-from app.services import cache, collapse, data_loader, normalizer, possession, scorer
+from app.models.frame import GoalSequenceResponse
+from app.services import cache, data_loader
+from app.services.sequence_builder import (
+    GoalNotFoundError,
+    No360DataError,
+    build_goal_sequence,
+    find_goal_event,
+)
 
 router = APIRouter(tags=["analysis"])
-
-
-def _parse_timestamp(ts: str) -> float:
-    """Convert "HH:MM:SS.mmm" to total seconds."""
-    try:
-        parts = ts.split(":")
-        h, m, s = int(parts[0]), int(parts[1]), float(parts[2])
-        return h * 3600 + m * 60 + s
-    except Exception:
-        return 0.0
 
 
 @router.get(
@@ -35,12 +28,10 @@ async def get_goal_sequence(
     goal_event_id: str,
     request: Request,
 ) -> GoalSequenceResponse:
-    # Check sequence cache first
     cached = cache.get_sequence(match_id, goal_event_id)
     if cached is not None:
         return cached
 
-    # Load raw data
     try:
         events = await data_loader.load_events(request.app.state.http_client, match_id)
     except Exception as exc:
@@ -51,93 +42,11 @@ async def get_goal_sequence(
     except Exception:
         frames360 = {}  # 360 file missing or unavailable — proceed with no player positions
 
-    # Find the goal event
-    goal_event = next((e for e in events if e["id"] == goal_event_id), None)
-    if goal_event is None:
-        raise HTTPException(status_code=404, detail=f"Goal event {goal_event_id} not found")
-
-    # Identify teams: attacking = the team the goal counts for
-    scoring, conceding = possession.goal_teams(events, goal_event)
-    attacking_team_id: int = scoring["id"]
-    attacking_team_name: str = scoring["name"]
-    defending_team_id: int = conceding["id"]
-    defending_team_name: str = conceding["name"]
-
-    # Extract possession sequence
-    sequence = possession.extract_goal_possession_sequence(events, goal_event)
-
-    # Build frames from every sequence event that has a 360 freeze frame
-    frames: list[FrameData] = []
-    events_with_360 = possession.frame_events(sequence, frames360)
-
-    if not events_with_360:
-        raise HTTPException(
-            status_code=404,
-            detail=(
-                "No 360 freeze-frame data is available for this match. "
-                "The match is listed in StatsBomb metadata with 360 coverage "
-                "but the data file has not been published to the open-data repository."
-            ),
-        )
-
-    events_by_id = {e["id"]: e for e in events}
-
-    for event in events_with_360:
-        event_id = event["id"]
-        freeze_frame = frames360[event_id]
-
-        copied_labels = normalizer.copied_labels_hint(
-            event, freeze_frame, events_by_id, frames360
-        )
-        ball_x, ball_y, players = normalizer.normalize_frame(
-            event, freeze_frame, defending_team_id, copied_labels
-        )
-
-        # Consecutive events often carry the same snapshot (a Carry repeats the
-        # Ball Receipt* before it); keep only the first so every frame is new.
-        if frames and normalizer.same_snapshot(frames[-1].players, players):
-            continue
-        i = len(frames)
-
-        scores, shadows, pressure_grid = scorer.score_frame(players, ball_x, ball_y)
-
-        defender_count = sum(1 for p in players if not p.is_attacker and not p.keeper)
-
-        frames.append(
-            FrameData(
-                frame_index=i,
-                event_id=event_id,
-                event_type=event.get("type", {}).get("name", "Unknown"),
-                minute=event.get("minute", 0),
-                second=event.get("second", 0),
-                period=event.get("period", 1),
-                timestamp_seconds=_parse_timestamp(event.get("timestamp", "00:00:00.000")),
-                ball_x=round(ball_x, 3),
-                ball_y=round(ball_y, 3),
-                players=players,
-                player_count=len(players),
-                scores=scores,
-                cover_shadows=shadows,
-                pressure_grid=pressure_grid,
-                is_collapse_frame=False,  # filled by collapse.detect_collapse
-                score_delta=0.0,          # filled by collapse.detect_collapse
-            )
-        )
-
-    # Annotate collapse frame
-    collapse.detect_collapse(frames)
-    collapse_idx = collapse.collapse_frame_index(frames)
-
-    response = GoalSequenceResponse(
-        match_id=match_id,
-        goal_event_id=goal_event_id,
-        defending_team_id=defending_team_id,
-        defending_team_name=defending_team_name,
-        attacking_team_id=attacking_team_id,
-        attacking_team_name=attacking_team_name,
-        collapse_frame_index=collapse_idx,
-        frames=frames,
-    )
+    try:
+        goal_event = find_goal_event(events, goal_event_id)
+        response = build_goal_sequence(match_id, events, frames360, goal_event)
+    except (GoalNotFoundError, No360DataError) as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
 
     cache.set_sequence(match_id, goal_event_id, response)
     return response

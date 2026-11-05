@@ -4,6 +4,7 @@
  *   - unit:       hull of the 6 defenders nearest the ball (compactness)
  *   - lanes:      ball → each receivable attacker; dashed ink when open, faint blue when blocked
  *                 (cover shadows, same test as the backend)
+ *   - unmarked:   dashed ring on attackers free in the box (box marking, same test as the backend)
  */
 import type * as d3 from 'd3'
 import type { FrameData } from '../../types/frame'
@@ -60,5 +61,21 @@ export function renderLanes(g: G, frame: FrameData, geo: FrameGeometry, visible:
     .attr('stroke-width', 1.5)
     .attr('stroke-dasharray', (l) => (l.blocked ? null : '4 3'))
     .attr('stroke-linecap', 'round')
+    .attr('vector-effect', 'non-scaling-stroke')
+}
+
+/** Dashed ink ring around each attacker in the box with no defender within 2 yards (box marking). */
+export function renderUnmarked(g: G, geo: FrameGeometry, visible: boolean) {
+  const free = visible ? geo.unmarked : []
+  g.selectAll<SVGCircleElement, (typeof free)[number]>('circle')
+    .data(free)
+    .join('circle')
+    .attr('cx', (p) => p.x)
+    .attr('cy', (p) => p.y)
+    .attr('r', 3.1)
+    .attr('fill', 'none')
+    .attr('stroke', T.ink)
+    .attr('stroke-width', 1.25)
+    .attr('stroke-dasharray', '2 2')
     .attr('vector-effect', 'non-scaling-stroke')
 }

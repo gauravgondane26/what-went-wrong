@@ -11,6 +11,8 @@ from collections import OrderedDict
 from time import time
 from typing import Any
 
+from app.config import CACHE_MAX_SIZE, CACHE_TTL_SECONDS, SEQUENCE_CACHE_MAX_SIZE
+
 
 class TTLLRUCache:
     def __init__(self, max_size: int = 20, ttl_seconds: int = 3600) -> None:
@@ -39,9 +41,9 @@ class TTLLRUCache:
         return len(self._cache)
 
 
-_events_cache = TTLLRUCache(max_size=20, ttl_seconds=3600)
-_frames360_cache = TTLLRUCache(max_size=20, ttl_seconds=3600)
-_sequence_cache = TTLLRUCache(max_size=50, ttl_seconds=3600)
+_events_cache = TTLLRUCache(max_size=CACHE_MAX_SIZE, ttl_seconds=CACHE_TTL_SECONDS)
+_frames360_cache = TTLLRUCache(max_size=CACHE_MAX_SIZE, ttl_seconds=CACHE_TTL_SECONDS)
+_sequence_cache = TTLLRUCache(max_size=SEQUENCE_CACHE_MAX_SIZE, ttl_seconds=CACHE_TTL_SECONDS)
 
 # Per-key asyncio locks to prevent duplicate concurrent fetches
 _fetch_locks: dict[str, asyncio.Lock] = {}

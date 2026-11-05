@@ -5,8 +5,12 @@ import type {
   MatchSummary,
 } from '../types/frame'
 
+// Production builds call the API named by VITE_API_URL. It is set per Netlify
+// context (netlify.toml): the live API on main, the staging API on the staging
+// branch and on deploy previews. Dev uses the Vite proxy.
+const PROD_API = 'https://what-went-wrong.onrender.com'
 const BASE = import.meta.env.PROD
-  ? 'https://what-went-wrong.onrender.com/api/v1'
+  ? `${(import.meta.env.VITE_API_URL || PROD_API).replace(/\/+$/, '')}/api/v1`
   : '/api/v1'
 
 async function get<T>(path: string): Promise<T> {

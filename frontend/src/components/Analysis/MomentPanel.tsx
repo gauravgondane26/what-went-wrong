@@ -16,7 +16,9 @@ export function MomentPanel({ sequence: seq, index }: Props) {
   const s = f.scores
   const geo = frameGeometry(f)
   const isCollapse = index === seq.collapse_frame_index
-  const bd = isCollapse ? biggestDrop(seq, index) : null
+  const markingCollapse = isCollapse && seq.collapse_kind === 'marking'
+  const bd = isCollapse && !markingCollapse ? biggestDrop(seq, index) : null
+  const cause = isCollapse ? seq.collapse_cause : null
   const b = band(s.composite)
   const prev = previousScored(seq, index)
 
@@ -65,6 +67,13 @@ export function MomentPanel({ sequence: seq, index }: Props) {
           The biggest fall in shape score across the move, mostly from {bd.drop.label.toLowerCase()} ({pct(bd.drop.from)} → {pct(bd.drop.to)}).
         </Callout>
       )}
+      {markingCollapse && (
+        <Callout tone="collapse" title="This is where it broke.">
+          {s.unmarked_in_box} {seq.attacking_team_name} {s.unmarked_in_box === 1 ? 'player is' : 'players are'} free in the box
+          {cause?.metric_from !== null && cause?.metric_from !== undefined ? `, up from ${cause.metric_from}` : ''}.
+          {' '}The shape score didn't fall: a crowded box looks compact even when runners are unmarked.
+        </Callout>
+      )}
       {!s.reliable && (
         <Callout tone="warning">
           Only {s.defenders_visible} of {seq.defending_team_name}'s outfield players are in camera view, so this
@@ -90,6 +99,14 @@ export function MomentPanel({ sequence: seq, index }: Props) {
       <dl className="facts">
         <div className="fact"><dt>Last line</dt><dd><span className="mono">{Math.round(s.line_height)}</span> yd from goal</dd></div>
         <div className="fact"><dt>{seq.defending_team_name} in view</dt><dd><span className="mono">{s.defenders_visible}</span> of 10 outfield</dd></div>
+        <div className="fact fact--wide">
+          <dt>Free in the box</dt>
+          <dd>
+            {s.attackers_in_box === 0
+              ? `No ${seq.attacking_team_name} player in the box`
+              : <><span className="mono">{s.unmarked_in_box}</span> of {s.attackers_in_box} with no defender within 2 yd</>}
+          </dd>
+        </div>
       </dl>
     </section>
   )

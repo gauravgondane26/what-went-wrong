@@ -2,7 +2,14 @@
  * Words for the analysis screen: plain-language events, score bands and the headline finding.
  * Pure functions over the existing DTOs; nothing here fetches or stores anything.
  */
-import type { FrameData, GoalSequenceResponse, GoalSummary } from '../types/frame'
+import type {
+  CauseMetric,
+  CollapseCause,
+  FrameAction,
+  FrameData,
+  GoalSequenceResponse,
+  GoalSummary,
+} from '../types/frame'
 import { frameGeometry } from './geometry'
 
 export type Band = 'Solid' | 'Stretched' | 'Broken'
@@ -103,6 +110,36 @@ export function biggestDrop(seq: GoalSequenceResponse, index: number): { prevInd
   return { prevIndex: p, drop: drops[0] }
 }
 
+/** "A cross", "A through ball", "A corner", "A run with the ball", ... */
+export function actionPhrase(a: FrameAction): string {
+  if (a.kind === 'Pass') {
+    if (a.set_piece) return a.set_piece === 'Kick Off' ? 'The kick-off' : `A ${a.set_piece.toLowerCase()}`
+    if (a.cross) return 'A cross'
+    if (a.through_ball) return 'A through ball'
+    if (a.cut_back) return 'A cut-back'
+    if (a.switch) return 'A switch of play'
+    if (a.height === 'High Pass') return 'A high ball'
+    return 'A pass'
+  }
+  if (a.kind === 'Carry') return 'A run with the ball'
+  if (a.kind === 'Dribble') return 'A take-on'
+  return 'A shot'
+}
+
+const SHAPE_CONSEQUENCE: Record<Exclude<CauseMetric, 'unmarked_in_box'>, { effect: (def: string) => string; label: string }> = {
+  goal_side_share: { effect: (def) => `left ${def} defenders on the wrong side of the ball`, label: 'goal-side' },
+  cover_shadow_coverage: { effect: () => 'opened up passing lanes', label: 'lanes blocked' },
+  compactness: { effect: (def) => `pulled ${def}'s unit apart`, label: 'compactness' },
+}
+
+/** "A cross from Denmark", or just "A cross" when the passer is out of shot. */
+function causeSubject(cause: CollapseCause, seq: GoalSequenceResponse): string | null {
+  if (!cause.action || cause.action_frame_index === null) return null
+  const team = eventTeam(seq.frames[cause.action_frame_index], seq)
+  const phrase = actionPhrase(cause.action)
+  return team ? `${phrase} from ${team}` : phrase
+}
+
 export interface Finding {
   /** Headline text; `clock` is set when the headline ends in a match time. */
   title: string
@@ -117,11 +154,48 @@ export function finding(seq: GoalSequenceResponse, scorer: string): Finding {
   const n = seq.frames.length
   if (c !== null) {
     const f = seq.frames[c]
-    const bd = biggestDrop(seq, c)
     const after = n - 1 - c
     const body: Finding['body'] = [
       { text: `${scorer} scored ${after === 0 ? 'from this moment' : `${after} ${after === 1 ? 'moment' : 'moments'} later`}. ` },
     ]
+    const cause = seq.collapse_cause
+    const subject = cause ? causeSubject(cause, seq) : null
+
+    if (cause?.kind === 'marking') {
+      const to = cause.metric_to ?? f.scores.unmarked_in_box
+      const from = cause.metric_from
+      body.push(
+        { text: `${subject ?? 'The move'} left ` }, { text: String(to), strong: true },
+        { text: ` ${seq.attacking_team_name} ${to === 1 ? 'player' : 'players'} unmarked in the box, with no ${def} defender within 2 yards` },
+        { text: from === null ? '.' : `, up from ${from}.` },
+      )
+      if (f.scores.composite !== null) {
+        body.push(
+          { text: ' The shape score held at ' }, { text: String(score100(f.scores.composite)), strong: true },
+          { text: ': a crowded box looks compact even when runners are free.' },
+        )
+      }
+      return { title: `${def} lost the runners in the box at`, clock: clock(f), body }
+    }
+
+    if (subject && cause?.metric && cause.metric !== 'unmarked_in_box' && cause.metric_from !== null && cause.metric_to !== null) {
+      const m = SHAPE_CONSEQUENCE[cause.metric]
+      body.push(
+        { text: `${subject} ${m.effect(def)} (${m.label} ` },
+        { text: `${pct(cause.metric_from)} → ${pct(cause.metric_to)}`, strong: true },
+        { text: '). ' },
+      )
+      if (cause.compared_to_index !== null && f.scores.composite !== null) {
+        const prev = seq.frames[cause.compared_to_index].scores.composite as number
+        body.push(
+          { text: 'The shape score fell from ' }, { text: String(score100(prev)), strong: true },
+          { text: ' to ' }, { text: String(score100(f.scores.composite)), strong: true }, { text: '.' },
+        )
+      }
+      return { title: `${def}'s shape broke at`, clock: clock(f), body }
+    }
+
+    const bd = biggestDrop(seq, c)
     if (bd && f.scores.composite !== null) {
       const prev = seq.frames[bd.prevIndex].scores.composite as number
       body.push(

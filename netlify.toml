@@ -3,6 +3,16 @@
   command = "npm run build"
   publish = "dist"
 
+# Which API each build talks to (read by src/api/client.ts).
+# Production (main → whatwentwrong-app.netlify.app) uses the live API from
+# frontend/.env.production. Everything else uses the staging API, so nothing
+# being tested ever touches production.
+[context.staging.environment]
+  VITE_API_URL = "https://what-went-wrong-staging.onrender.com"
+
+[context.deploy-preview.environment]
+  VITE_API_URL = "https://what-went-wrong-staging.onrender.com"
+
 [[redirects]]
   from   = "/*"
   to     = "/index.html"
