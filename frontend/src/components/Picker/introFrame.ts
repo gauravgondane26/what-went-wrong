@@ -107,5 +107,6 @@ export const INTRO_FRAME: FrameData = {
     "reliable": true
   },
   "cover_shadows": [],
-  "pressure_grid": []
+  "pressure_grid": [],
+  "action": null
 }

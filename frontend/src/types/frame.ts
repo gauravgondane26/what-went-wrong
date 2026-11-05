@@ -28,6 +28,23 @@ export interface DefensiveScores {
   reliable: boolean               // enough defenders visible to score the shape
 }
 
+export type ActionKind = 'Pass' | 'Carry' | 'Shot' | 'Dribble'
+
+// What the event's actor did with the ball. End coordinates are normalized
+// like the ball; null when the event has no end location (Dribble).
+export interface FrameAction {
+  kind: ActionKind
+  end_x: number | null
+  end_y: number | null
+  cross: boolean
+  through_ball: boolean
+  cut_back: boolean
+  switch: boolean
+  height: 'Ground Pass' | 'Low Pass' | 'High Pass' | null       // passes only
+  set_piece: 'Corner' | 'Free Kick' | 'Throw-in' | 'Goal Kick' | 'Kick Off' | null
+  under_pressure: boolean
+}
+
 export interface FrameData {
   frame_index: number
   event_id: string
@@ -49,6 +66,10 @@ export interface FrameData {
 
   is_collapse_frame: boolean
   score_delta: number | null  // composite minus previous reliable frame's; null if unreliable/first
+
+  // Ball-moving action on this frame's event (or on a later event that repeated
+  // this snapshot); null when no event moved the ball.
+  action: FrameAction | null
 }
 
 export interface GoalSequenceResponse {
@@ -60,6 +81,7 @@ export interface GoalSequenceResponse {
   attacking_team_name: string
   collapse_frame_index: number | null  // null when no reliable drop was found
   frames: FrameData[]
+  play_pattern: string | null  // "Regular Play" | "From Corner" | "From Counter" | ...
 }
 
 export interface GoalSummary {

@@ -26,7 +26,7 @@ The backend stays **one containerised FastAPI service** (Docker plus compose, de
 ## Phase 1: Smarter detection and "what broke it" · `feat/p1-detection`
 - [x] **P1.1** `FrameAction` model (kind, end location, cross / through ball / cut-back / switch, under pressure) and a helper that normalises the end location
 - [x] **P1.2** Fill `FrameData.action` and `GoalSequenceResponse.play_pattern`
-- [ ] **P1.3** Mirror the new fields in the frontend types
+- [x] **P1.3** Mirror the new fields in the frontend types
 - [ ] **P1.4** Eval breakdown by play pattern and by whether the last pass was a cross; refresh the baseline
 - [ ] **P1.5** Late-collapse rule: a one-sided window at the end of the sequence
 - [ ] **P1.6** *Only if still needed:* use the shot's own freeze frame as the final frame
