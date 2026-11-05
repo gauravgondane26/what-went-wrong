@@ -54,6 +54,7 @@ class GoalRow:
     frames: int = 0
     reliable_frames: int = 0
     collapse_index: int | None = None
+    collapse_kind: str | None = None           # "shape" | "marking"
     frames_after_collapse: int | None = None   # 0 = collapse on the last frame
     seconds_before_end: float | None = None    # last frame time - collapse frame time
     collapse_delta: float | None = None        # score_delta on the collapse frame
@@ -78,8 +79,11 @@ def _row(seq: GoalSequenceResponse, base: dict) -> GoalRow:
             row.seconds_before_end = round(last.timestamp_seconds - cf.timestamp_seconds, 2)
         row.collapse_delta = cf.score_delta
 
+    row.collapse_kind = seq.collapse_kind
     late_drop = row.end_delta is not None and row.end_delta <= -LATE_DROP
-    collapse_on_last_reliable = idx is not None and frames[idx].frame_index == reliable[-1].frame_index
+    collapse_on_last_reliable = (
+        idx is not None and bool(reliable) and frames[idx].frame_index == reliable[-1].frame_index
+    )
     row.late_drop_missed = late_drop and not collapse_on_last_reliable
     return row
 
@@ -153,6 +157,8 @@ def summarise(rows: list[GoalRow], title: str) -> str:
         f"| Penalties (with frames) | {len(ok) - len(open_play)} |",
         f"| **Open-play goals analysed** | **{len(open_play)}** |",
         f"| Collapse found | {pct(len(found), len(open_play))} |",
+        f"| … by the shape score | {pct(sum(r.collapse_kind == 'shape' for r in found), len(open_play))} |",
+        f"| … by box marking | {pct(sum(r.collapse_kind == 'marking' for r in found), len(open_play))} |",
         f"| No collapse (null) | {pct(len(open_play) - len(found), len(open_play))} |",
         f"| Late drop missed (last reliable step ≤ −{LATE_DROP:.2f}, collapse elsewhere) | "
         f"{pct(sum(r.late_drop_missed for r in open_play), len(open_play))} |",
@@ -202,15 +208,17 @@ def _group_table(rows: list[GoalRow], key) -> list[str]:
     for r in rows:
         groups.setdefault(key(r), []).append(r)
     out = [
-        "| Group | Goals | No collapse | Collapse in last 2 frames | Late drop missed | Median frames before end |",
-        "|---|---|---|---|---|---|",
+        "| Group | Goals | No collapse | By marking | Collapse in last 2 frames | Late drop missed "
+        "| Median frames before end |",
+        "|---|---|---|---|---|---|---|",
     ]
     for name, rs in sorted(groups.items(), key=lambda kv: -len(kv[1])):
         found = [r for r in rs if r.collapse_index is not None]
         late = sum(r.frames_after_collapse <= 1 for r in found)
         median = f"{statistics.median(r.frames_after_collapse for r in found):.0f}" if found else "–"
         out.append(
-            f"| {name} | {len(rs)} | {len(rs) - len(found)} | {late} | "
+            f"| {name} | {len(rs)} | {len(rs) - len(found)} | "
+            f"{sum(r.collapse_kind == 'marking' for r in found)} | {late} | "
             f"{sum(r.late_drop_missed for r in rs)} | {median} |"
         )
     return out

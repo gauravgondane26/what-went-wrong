@@ -31,7 +31,7 @@ The backend stays **one containerised FastAPI service** (Docker plus compose, de
 > **Changed after P1.4 (decided 2026-11-05).** The eval showed that crosses and corners aren't missed because of windowing. The shape score holds or rises when the ball goes into the box (a packed box looks "compact"), while attackers go unmarked: about 2.3 unmarked in the box at the final frame of crossed goals, versus about 0.6 earlier. The old P1.5 (end-of-sequence window) and P1.6 (shot freeze frame) are replaced by a separate **box marking** signal. The shape-score formula is unchanged.
 
 - [x] **P1.5** Box marking measure: `attackers_in_box` / `unmarked_in_box` per frame (scorer + types), not part of the composite
-- [ ] **P1.6** Detection falls back to a marking breakdown when the shape score has no real drop, plus `collapse_kind` (`shape` / `marking`); thresholds chosen with the eval
+- [x] **P1.6** Detection falls back to a marking breakdown when the shape score has no real drop, plus `collapse_kind` (`shape` / `marking`); thresholds chosen with the eval
 - [ ] **P1.7** Update the golden snapshot; write `docs/eval/collapse-after.md`
 - [ ] **P1.8** `collapse.attribute()`: the action into the collapse, plus the metric that dropped most (or the marking change)
 - [ ] **P1.9** Expose `collapse_cause` on the response, plus frontend types
