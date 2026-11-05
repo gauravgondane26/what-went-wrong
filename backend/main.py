@@ -4,7 +4,7 @@ import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import CORS_ORIGINS, HTTP_TIMEOUT_SECONDS
+from app.config import CORS_ORIGIN_REGEX, CORS_ORIGINS, HTTP_TIMEOUT_SECONDS
 from app.routers import analysis, competitions, matches
 from app.services import cache
 
@@ -25,6 +25,7 @@ app = FastAPI(title="What Went Wrong", version="0.1.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
+    allow_origin_regex=CORS_ORIGIN_REGEX,
     allow_methods=["GET"],
     allow_headers=["*"],
 )

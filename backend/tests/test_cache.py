@@ -84,3 +84,31 @@ def test_sequence_cache_roundtrip():
     set_sequence(99997, "goal-test-abc", {"frames": [], "collapse_frame_index": 0})
     assert get_sequence(99997, "goal-test-abc") == {"frames": [], "collapse_frame_index": 0}
     assert get_sequence(99997, "goal-test-xyz") is None
+
+
+def test_module_caches_read_size_and_ttl_from_env(monkeypatch):
+    import importlib
+
+    from app import config
+    from app.services import cache as cache_mod
+
+    monkeypatch.setenv("CACHE_MAX_SIZE", "3")
+    monkeypatch.setenv("SEQUENCE_CACHE_MAX_SIZE", "7")
+    monkeypatch.setenv("CACHE_TTL_SECONDS", "60")
+    try:
+        importlib.reload(config)
+        importlib.reload(cache_mod)
+        assert cache_mod._events_cache._max_size == 3
+        assert cache_mod._frames360_cache._max_size == 3
+        assert cache_mod._sequence_cache._max_size == 7
+        assert cache_mod._events_cache._ttl == 60
+        assert cache_mod._sequence_cache._ttl == 60
+    finally:
+        monkeypatch.undo()
+        importlib.reload(config)
+        importlib.reload(cache_mod)
+
+    # Settings are restored once the env overrides are gone.
+    assert cache_mod._events_cache._max_size == config.CACHE_MAX_SIZE
+    assert cache_mod._sequence_cache._max_size == config.SEQUENCE_CACHE_MAX_SIZE
+    assert cache_mod._events_cache._ttl == config.CACHE_TTL_SECONDS
