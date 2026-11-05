@@ -8,6 +8,28 @@
    "attacking_team_id": 914,
    "attacking_team_name": "Italy",
    "collapse_frame_index": 7,
+   "collapse_kind": "shape",
+   "collapse_cause": {
+    "kind": "shape",
+    "frame_index": 7,
+    "compared_to_index": 4,
+    "metric": "cover_shadow_coverage",
+    "metric_from": 1.0,
+    "metric_to": 0.5,
+    "action": {
+     "kind": "Pass",
+     "end_x": 23.9,
+     "end_y": 52.9,
+     "cross": false,
+     "through_ball": true,
+     "cut_back": false,
+     "switch": false,
+     "height": "Ground Pass",
+     "set_piece": null,
+     "under_pressure": false
+    },
+    "action_frame_index": 4
+   },
    "frames": [
     {
      "frame_index": 0,
@@ -134,12 +156,27 @@
       "cover_shadow_coverage": 0.25,
       "composite": 0.4492,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Carry",
+      "end_x": 103.9,
+      "end_y": 45.8,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 1,
@@ -231,12 +268,27 @@
       "cover_shadow_coverage": 0.0,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Carry",
+      "end_x": 85.5,
+      "end_y": 57.6,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 2,
@@ -328,12 +380,27 @@
       "cover_shadow_coverage": 0.0,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Pass",
+      "end_x": 57.3,
+      "end_y": 78.4,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 3,
@@ -425,12 +492,27 @@
       "cover_shadow_coverage": 0.6667,
       "composite": 0.4411,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.0081
+     "collapse_kind": null,
+     "score_delta": -0.0081,
+     "action": {
+      "kind": "Carry",
+      "end_x": 49.1,
+      "end_y": 77.5,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 4,
@@ -522,12 +604,27 @@
       "cover_shadow_coverage": 1.0,
       "composite": 0.5838,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.1427
+     "collapse_kind": null,
+     "score_delta": 0.1427,
+     "action": {
+      "kind": "Pass",
+      "end_x": 23.9,
+      "end_y": 52.9,
+      "cross": false,
+      "through_ball": true,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 5,
@@ -584,12 +681,16 @@
       "cover_shadow_coverage": 0.0,
       "composite": null,
       "defenders_visible": 3,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": null
     },
     {
      "frame_index": 6,
@@ -646,12 +747,16 @@
       "cover_shadow_coverage": 0.0,
       "composite": null,
       "defenders_visible": 3,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": null
     },
     {
      "frame_index": 7,
@@ -736,12 +841,27 @@
       "cover_shadow_coverage": 0.5,
       "composite": 0.3803,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 2,
+      "unmarked_in_box": 1
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": true,
-     "score_delta": -0.2035
+     "collapse_kind": "shape",
+     "score_delta": -0.2035,
+     "action": {
+      "kind": "Carry",
+      "end_x": 14.8,
+      "end_y": 51.5,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 8,
@@ -826,14 +946,30 @@
       "cover_shadow_coverage": 0.0,
       "composite": 0.3649,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 2,
+      "unmarked_in_box": 1
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.0154
+     "collapse_kind": null,
+     "score_delta": -0.0154,
+     "action": {
+      "kind": "Shot",
+      "end_x": 0.0,
+      "end_y": 36.7,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     }
-   ]
+   ],
+   "play_pattern": "From Keeper"
   },
   {
    "match_id": 3795220,
@@ -843,6 +979,28 @@
    "attacking_team_id": 772,
    "attacking_team_name": "Spain",
    "collapse_frame_index": 1,
+   "collapse_kind": "shape",
+   "collapse_cause": {
+    "kind": "shape",
+    "frame_index": 1,
+    "compared_to_index": 0,
+    "metric": "goal_side_share",
+    "metric_from": 1.0,
+    "metric_to": 0.5,
+    "action": {
+     "kind": "Pass",
+     "end_x": 67.8,
+     "end_y": 66.4,
+     "cross": false,
+     "through_ball": false,
+     "cut_back": false,
+     "switch": false,
+     "height": "Ground Pass",
+     "set_piece": null,
+     "under_pressure": false
+    },
+    "action_frame_index": 0
+   },
    "frames": [
     {
      "frame_index": 0,
@@ -955,12 +1113,27 @@
       "cover_shadow_coverage": 0.3333,
       "composite": 0.4596,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Pass",
+      "end_x": 67.8,
+      "end_y": 66.4,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 1,
@@ -1080,12 +1253,27 @@
       "cover_shadow_coverage": 0.4286,
       "composite": 0.3033,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": true,
-     "score_delta": -0.1563
+     "collapse_kind": "shape",
+     "score_delta": -0.1563,
+     "action": {
+      "kind": "Carry",
+      "end_x": 65.6,
+      "end_y": 67.0,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 2,
@@ -1205,12 +1393,27 @@
       "cover_shadow_coverage": 0.4286,
       "composite": 0.3033,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0
+     "collapse_kind": null,
+     "score_delta": 0.0,
+     "action": {
+      "kind": "Pass",
+      "end_x": 73.3,
+      "end_y": 58.2,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 3,
@@ -1330,12 +1533,27 @@
       "cover_shadow_coverage": 0.1429,
       "composite": 0.3589,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0556
+     "collapse_kind": null,
+     "score_delta": 0.0556,
+     "action": {
+      "kind": "Carry",
+      "end_x": 66.1,
+      "end_y": 58.0,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 4,
@@ -1462,12 +1680,27 @@
       "cover_shadow_coverage": 0.2857,
       "composite": 0.3857,
       "defenders_visible": 7,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0268
+     "collapse_kind": null,
+     "score_delta": 0.0268,
+     "action": {
+      "kind": "Pass",
+      "end_x": 48.5,
+      "end_y": 45.6,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 5,
@@ -1594,12 +1827,27 @@
       "cover_shadow_coverage": 0.4286,
       "composite": 0.2946,
       "defenders_visible": 7,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.0911
+     "collapse_kind": null,
+     "score_delta": -0.0911,
+     "action": {
+      "kind": "Carry",
+      "end_x": 32.0,
+      "end_y": 35.8,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 6,
@@ -1726,12 +1974,27 @@
       "cover_shadow_coverage": 0.2,
       "composite": 0.4598,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.1652
+     "collapse_kind": null,
+     "score_delta": 0.1652,
+     "action": {
+      "kind": "Pass",
+      "end_x": 23.5,
+      "end_y": 46.0,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 7,
@@ -1851,12 +2114,27 @@
       "cover_shadow_coverage": 0.6,
       "composite": 0.6129,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.1531
+     "collapse_kind": null,
+     "score_delta": 0.1531,
+     "action": {
+      "kind": "Carry",
+      "end_x": 23.9,
+      "end_y": 44.3,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": true
+     }
     },
     {
      "frame_index": 8,
@@ -1976,12 +2254,16 @@
       "cover_shadow_coverage": 0.6667,
       "composite": 0.5358,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.0771
+     "collapse_kind": null,
+     "score_delta": -0.0771,
+     "action": null
     },
     {
      "frame_index": 9,
@@ -2094,12 +2376,27 @@
       "cover_shadow_coverage": 0.8,
       "composite": 0.7074,
       "defenders_visible": 7,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.1716
+     "collapse_kind": null,
+     "score_delta": 0.1716,
+     "action": {
+      "kind": "Pass",
+      "end_x": 14.7,
+      "end_y": 35.3,
+      "cross": false,
+      "through_ball": true,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 10,
@@ -2205,12 +2502,27 @@
       "cover_shadow_coverage": 0.6,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 1,
+      "unmarked_in_box": 1
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Carry",
+      "end_x": 12.2,
+      "end_y": 43.1,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 11,
@@ -2309,14 +2621,30 @@
       "cover_shadow_coverage": 0.6667,
       "composite": 0.65,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 1,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.0574
+     "collapse_kind": null,
+     "score_delta": -0.0574,
+     "action": {
+      "kind": "Shot",
+      "end_x": 0.0,
+      "end_y": 42.7,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     }
-   ]
+   ],
+   "play_pattern": "From Keeper"
   },
   {
    "match_id": 3795506,
@@ -2326,6 +2654,28 @@
    "attacking_team_id": 768,
    "attacking_team_name": "England",
    "collapse_frame_index": 7,
+   "collapse_kind": "shape",
+   "collapse_cause": {
+    "kind": "shape",
+    "frame_index": 7,
+    "compared_to_index": 3,
+    "metric": "compactness",
+    "metric_from": 0.9131,
+    "metric_to": 0.4687,
+    "action": {
+     "kind": "Carry",
+     "end_x": 60.2,
+     "end_y": 52.9,
+     "cross": false,
+     "through_ball": false,
+     "cut_back": false,
+     "switch": false,
+     "height": null,
+     "set_piece": null,
+     "under_pressure": false
+    },
+    "action_frame_index": 6
+   },
    "frames": [
     {
      "frame_index": 0,
@@ -2445,12 +2795,27 @@
       "cover_shadow_coverage": 0.6667,
       "composite": 0.2857,
       "defenders_visible": 7,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Pass",
+      "end_x": 77.3,
+      "end_y": 74.8,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "High Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 1,
@@ -2584,12 +2949,16 @@
       "cover_shadow_coverage": 0.6667,
       "composite": 0.3216,
       "defenders_visible": 7,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0359
+     "collapse_kind": null,
+     "score_delta": 0.0359,
+     "action": null
     },
     {
      "frame_index": 2,
@@ -2744,12 +3113,27 @@
       "cover_shadow_coverage": 0.7778,
       "composite": 0.5303,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.2087
+     "collapse_kind": null,
+     "score_delta": 0.2087,
+     "action": {
+      "kind": "Carry",
+      "end_x": 77.6,
+      "end_y": 74.9,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": true
+     }
     },
     {
      "frame_index": 3,
@@ -2890,12 +3274,27 @@
       "cover_shadow_coverage": 0.4286,
       "composite": 0.6271,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0968
+     "collapse_kind": null,
+     "score_delta": 0.0968,
+     "action": {
+      "kind": "Pass",
+      "end_x": 94.2,
+      "end_y": 73.7,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Low Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 4,
@@ -3008,12 +3407,27 @@
       "cover_shadow_coverage": 0.1429,
       "composite": null,
       "defenders_visible": 4,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Carry",
+      "end_x": 84.0,
+      "end_y": 77.2,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": true
+     }
     },
     {
      "frame_index": 5,
@@ -3119,12 +3533,27 @@
       "cover_shadow_coverage": 0.7143,
       "composite": null,
       "defenders_visible": 4,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Pass",
+      "end_x": 74.5,
+      "end_y": 69.0,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 6,
@@ -3237,12 +3666,27 @@
       "cover_shadow_coverage": 0.2857,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Carry",
+      "end_x": 60.2,
+      "end_y": 52.9,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 7,
@@ -3369,12 +3813,27 @@
       "cover_shadow_coverage": 0.0,
       "composite": 0.4125,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": true,
-     "score_delta": -0.2146
+     "collapse_kind": "shape",
+     "score_delta": -0.2146,
+     "action": {
+      "kind": "Pass",
+      "end_x": 27.9,
+      "end_y": 9.0,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": true,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 8,
@@ -3494,12 +3953,27 @@
       "cover_shadow_coverage": 0.6,
       "composite": 0.4889,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0764
+     "collapse_kind": null,
+     "score_delta": 0.0764,
+     "action": {
+      "kind": "Carry",
+      "end_x": 18.3,
+      "end_y": 17.6,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 9,
@@ -3619,12 +4093,27 @@
       "cover_shadow_coverage": 0.4,
       "composite": 0.6494,
       "defenders_visible": 7,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 3,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.1605
+     "collapse_kind": null,
+     "score_delta": 0.1605,
+     "action": {
+      "kind": "Pass",
+      "end_x": 7.6,
+      "end_y": 46.1,
+      "cross": true,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "High Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 10,
@@ -3730,12 +4219,16 @@
       "cover_shadow_coverage": 0.75,
       "composite": 0.636,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 4,
+      "unmarked_in_box": 3
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.0134
+     "collapse_kind": null,
+     "score_delta": -0.0134,
+     "action": null
     },
     {
      "frame_index": 11,
@@ -3841,14 +4334,30 @@
       "cover_shadow_coverage": 0.75,
       "composite": 0.636,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 5,
+      "unmarked_in_box": 4
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0
+     "collapse_kind": null,
+     "score_delta": 0.0,
+     "action": {
+      "kind": "Shot",
+      "end_x": 0.0,
+      "end_y": 43.0,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     }
-   ]
+   ],
+   "play_pattern": "Regular Play"
   },
   {
    "match_id": 3795506,
@@ -3858,6 +4367,17 @@
    "attacking_team_id": 914,
    "attacking_team_name": "Italy",
    "collapse_frame_index": 4,
+   "collapse_kind": "shape",
+   "collapse_cause": {
+    "kind": "shape",
+    "frame_index": 4,
+    "compared_to_index": 3,
+    "metric": "goal_side_share",
+    "metric_from": 0.75,
+    "metric_to": 0.4444,
+    "action": null,
+    "action_frame_index": null
+   },
    "frames": [
     {
      "frame_index": 0,
@@ -4005,12 +4525,27 @@
       "cover_shadow_coverage": 0.4286,
       "composite": 0.5286,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 5,
+      "unmarked_in_box": 1
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Pass",
+      "end_x": 7.1,
+      "end_y": 29.4,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "High Pass",
+      "set_piece": "Corner",
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 1,
@@ -4151,12 +4686,16 @@
       "cover_shadow_coverage": 0.5,
       "composite": 0.7833,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 5,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.2547
+     "collapse_kind": null,
+     "score_delta": 0.2547,
+     "action": null
     },
     {
      "frame_index": 2,
@@ -4297,12 +4836,27 @@
       "cover_shadow_coverage": 0.5,
       "composite": 0.7833,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 5,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0
+     "collapse_kind": null,
+     "score_delta": 0.0,
+     "action": {
+      "kind": "Pass",
+      "end_x": 5.7,
+      "end_y": 44.2,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Low Pass",
+      "set_piece": null,
+      "under_pressure": true
+     }
     },
     {
      "frame_index": 3,
@@ -4415,12 +4969,16 @@
       "cover_shadow_coverage": 0.6667,
       "composite": 0.8153,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 4,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.032
+     "collapse_kind": null,
+     "score_delta": 0.032,
+     "action": null
     },
     {
      "frame_index": 4,
@@ -4561,12 +5119,16 @@
       "cover_shadow_coverage": 0.5,
       "composite": 0.6833,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 5,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": true,
-     "score_delta": -0.132
+     "collapse_kind": "shape",
+     "score_delta": -0.132,
+     "action": null
     },
     {
      "frame_index": 5,
@@ -4679,12 +5241,16 @@
       "cover_shadow_coverage": 0.75,
       "composite": 0.6625,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 4,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.0208
+     "collapse_kind": null,
+     "score_delta": -0.0208,
+     "action": null
     },
     {
      "frame_index": 6,
@@ -4797,12 +5363,16 @@
       "cover_shadow_coverage": 0.6667,
       "composite": 0.6,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 4,
+      "unmarked_in_box": 1
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.0625
+     "collapse_kind": null,
+     "score_delta": -0.0625,
+     "action": null
     },
     {
      "frame_index": 7,
@@ -4915,12 +5485,16 @@
       "cover_shadow_coverage": 1.0,
       "composite": 0.7375,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 4,
+      "unmarked_in_box": 1
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.1375
+     "collapse_kind": null,
+     "score_delta": 0.1375,
+     "action": null
     },
     {
      "frame_index": 8,
@@ -5033,14 +5607,30 @@
       "cover_shadow_coverage": 1.0,
       "composite": 0.7375,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 4,
+      "unmarked_in_box": 1
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0
+     "collapse_kind": null,
+     "score_delta": 0.0,
+     "action": {
+      "kind": "Shot",
+      "end_x": 0.0,
+      "end_y": 42.8,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": true
+     }
     }
-   ]
+   ],
+   "play_pattern": "From Corner"
   },
   {
    "match_id": 3788769,
@@ -5050,6 +5640,28 @@
    "attacking_team_id": 776,
    "attacking_team_name": "Denmark",
    "collapse_frame_index": 3,
+   "collapse_kind": "shape",
+   "collapse_cause": {
+    "kind": "shape",
+    "frame_index": 3,
+    "compared_to_index": 2,
+    "metric": "goal_side_share",
+    "metric_from": 0.875,
+    "metric_to": 0.25,
+    "action": {
+     "kind": "Pass",
+     "end_x": 29.4,
+     "end_y": 10.4,
+     "cross": false,
+     "through_ball": false,
+     "cut_back": false,
+     "switch": false,
+     "height": "Ground Pass",
+     "set_piece": null,
+     "under_pressure": false
+    },
+    "action_frame_index": 2
+   },
    "frames": [
     {
      "frame_index": 0,
@@ -5183,12 +5795,27 @@
       "cover_shadow_coverage": 0.5714,
       "composite": 0.5619,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Pass",
+      "end_x": 42.4,
+      "end_y": 2.9,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Low Pass",
+      "set_piece": "Throw-in",
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 1,
@@ -5322,12 +5949,27 @@
       "cover_shadow_coverage": 0.5714,
       "composite": 0.594,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0321
+     "collapse_kind": null,
+     "score_delta": 0.0321,
+     "action": {
+      "kind": "Carry",
+      "end_x": 37.4,
+      "end_y": 3.1,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 2,
@@ -5468,12 +6110,27 @@
       "cover_shadow_coverage": 0.5714,
       "composite": 0.6289,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0349
+     "collapse_kind": null,
+     "score_delta": 0.0349,
+     "action": {
+      "kind": "Pass",
+      "end_x": 29.4,
+      "end_y": 10.4,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 3,
@@ -5607,12 +6264,16 @@
       "cover_shadow_coverage": 0.4286,
       "composite": 0.406,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": true,
-     "score_delta": -0.2229
+     "collapse_kind": "shape",
+     "score_delta": -0.2229,
+     "action": null
     },
     {
      "frame_index": 4,
@@ -5753,12 +6414,27 @@
       "cover_shadow_coverage": 0.625,
       "composite": 0.575,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.169
+     "collapse_kind": null,
+     "score_delta": 0.169,
+     "action": {
+      "kind": "Carry",
+      "end_x": 28.7,
+      "end_y": 10.0,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 5,
@@ -5899,12 +6575,27 @@
       "cover_shadow_coverage": 0.625,
       "composite": 0.575,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0
+     "collapse_kind": null,
+     "score_delta": 0.0,
+     "action": {
+      "kind": "Pass",
+      "end_x": 42.0,
+      "end_y": 12.5,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Low Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 6,
@@ -6045,12 +6736,27 @@
       "cover_shadow_coverage": 0.125,
       "composite": 0.496,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.079
+     "collapse_kind": null,
+     "score_delta": -0.079,
+     "action": {
+      "kind": "Carry",
+      "end_x": 40.2,
+      "end_y": 21.0,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 7,
@@ -6198,12 +6904,27 @@
       "cover_shadow_coverage": 0.375,
       "composite": 0.629,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.133
+     "collapse_kind": null,
+     "score_delta": 0.133,
+     "action": {
+      "kind": "Pass",
+      "end_x": 28.0,
+      "end_y": 44.6,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 8,
@@ -6351,12 +7072,27 @@
       "cover_shadow_coverage": 0.375,
       "composite": 0.5473,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.0817
+     "collapse_kind": null,
+     "score_delta": -0.0817,
+     "action": {
+      "kind": "Carry",
+      "end_x": 24.9,
+      "end_y": 41.3,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 9,
@@ -6490,14 +7226,30 @@
       "cover_shadow_coverage": 0.2,
       "composite": 0.5759,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0286
+     "collapse_kind": null,
+     "score_delta": 0.0286,
+     "action": {
+      "kind": "Shot",
+      "end_x": 0.0,
+      "end_y": 36.6,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     }
-   ]
+   ],
+   "play_pattern": "From Throw In"
   },
   {
    "match_id": 3788769,
@@ -6507,6 +7259,8 @@
    "attacking_team_id": 776,
    "attacking_team_name": "Denmark",
    "collapse_frame_index": null,
+   "collapse_kind": null,
+   "collapse_cause": null,
    "frames": [
     {
      "frame_index": 0,
@@ -6591,12 +7345,27 @@
       "cover_shadow_coverage": 0.3333,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 2,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Carry",
+      "end_x": 15.3,
+      "end_y": 52.4,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 1,
@@ -6688,12 +7457,27 @@
       "cover_shadow_coverage": 0.0,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 1,
+      "unmarked_in_box": 1
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Carry",
+      "end_x": 47.5,
+      "end_y": 7.0,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 2,
@@ -6855,12 +7639,27 @@
       "cover_shadow_coverage": 0.3,
       "composite": 0.21,
       "defenders_visible": 10,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Pass",
+      "end_x": 42.6,
+      "end_y": 20.2,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 3,
@@ -7022,12 +7821,27 @@
       "cover_shadow_coverage": 0.5,
       "composite": 0.24,
       "defenders_visible": 10,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.03
+     "collapse_kind": null,
+     "score_delta": 0.03,
+     "action": {
+      "kind": "Carry",
+      "end_x": 38.3,
+      "end_y": 8.5,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 4,
@@ -7168,12 +7982,27 @@
       "cover_shadow_coverage": 0.5,
       "composite": 0.25,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.01
+     "collapse_kind": null,
+     "score_delta": 0.01,
+     "action": {
+      "kind": "Pass",
+      "end_x": 13.4,
+      "end_y": 45.9,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 5,
@@ -7244,12 +8073,16 @@
       "cover_shadow_coverage": 0.0,
       "composite": null,
       "defenders_visible": 4,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 1,
+      "unmarked_in_box": 1
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": null
     },
     {
      "frame_index": 6,
@@ -7306,14 +8139,30 @@
       "cover_shadow_coverage": 0.0,
       "composite": null,
       "defenders_visible": 2,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 1,
+      "unmarked_in_box": 1
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Shot",
+      "end_x": 0.0,
+      "end_y": 41.6,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     }
-   ]
+   ],
+   "play_pattern": "From Keeper"
   },
   {
    "match_id": 3788769,
@@ -7323,6 +8172,8 @@
    "attacking_team_id": 796,
    "attacking_team_name": "Russia",
    "collapse_frame_index": null,
+   "collapse_kind": null,
+   "collapse_cause": null,
    "frames": [
     {
      "frame_index": 0,
@@ -7463,14 +8314,30 @@
       "cover_shadow_coverage": 0.5,
       "composite": 0.4605,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 2,
+      "unmarked_in_box": 1
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Shot",
+      "end_x": 0.0,
+      "end_y": 39.7,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     }
-   ]
+   ],
+   "play_pattern": "Other"
   },
   {
    "match_id": 3788769,
@@ -7480,6 +8347,28 @@
    "attacking_team_id": 776,
    "attacking_team_name": "Denmark",
    "collapse_frame_index": 9,
+   "collapse_kind": "shape",
+   "collapse_cause": {
+    "kind": "shape",
+    "frame_index": 9,
+    "compared_to_index": 8,
+    "metric": "goal_side_share",
+    "metric_from": 0.5,
+    "metric_to": 0.0,
+    "action": {
+     "kind": "Shot",
+     "end_x": 1.6,
+     "end_y": 40.0,
+     "cross": false,
+     "through_ball": false,
+     "cut_back": false,
+     "switch": false,
+     "height": null,
+     "set_piece": null,
+     "under_pressure": false
+    },
+    "action_frame_index": 8
+   },
    "frames": [
     {
      "frame_index": 0,
@@ -7634,12 +8523,16 @@
       "cover_shadow_coverage": 0.5,
       "composite": 0.5068,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 3,
+      "unmarked_in_box": 3
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": null
     },
     {
      "frame_index": 1,
@@ -7794,12 +8687,27 @@
       "cover_shadow_coverage": 0.5,
       "composite": 0.4891,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 3,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.0177
+     "collapse_kind": null,
+     "score_delta": -0.0177,
+     "action": {
+      "kind": "Pass",
+      "end_x": 11.0,
+      "end_y": 78.1,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Low Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 2,
@@ -7954,12 +8862,27 @@
       "cover_shadow_coverage": 1.0,
       "composite": 0.5581,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 3,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.069
+     "collapse_kind": null,
+     "score_delta": 0.069,
+     "action": {
+      "kind": "Carry",
+      "end_x": 11.0,
+      "end_y": 78.1,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 3,
@@ -8114,12 +9037,27 @@
       "cover_shadow_coverage": 1.0,
       "composite": 0.5781,
       "defenders_visible": 10,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 2,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.02
+     "collapse_kind": null,
+     "score_delta": 0.02,
+     "action": {
+      "kind": "Pass",
+      "end_x": 17.4,
+      "end_y": 76.4,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 4,
@@ -8260,12 +9198,27 @@
       "cover_shadow_coverage": 0.7143,
       "composite": 0.532,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 3,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.0461
+     "collapse_kind": null,
+     "score_delta": -0.0461,
+     "action": {
+      "kind": "Carry",
+      "end_x": 10.3,
+      "end_y": 76.9,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": true
+     }
     },
     {
      "frame_index": 5,
@@ -8399,12 +9352,16 @@
       "cover_shadow_coverage": 0.7143,
       "composite": 0.5044,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 3,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.0276
+     "collapse_kind": null,
+     "score_delta": -0.0276,
+     "action": null
     },
     {
      "frame_index": 6,
@@ -8531,12 +9488,27 @@
       "cover_shadow_coverage": 1.0,
       "composite": 0.5587,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 4,
+      "unmarked_in_box": 3
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0543
+     "collapse_kind": null,
+     "score_delta": 0.0543,
+     "action": {
+      "kind": "Pass",
+      "end_x": 8.6,
+      "end_y": 44.0,
+      "cross": true,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "High Pass",
+      "set_piece": null,
+      "under_pressure": true
+     }
     },
     {
      "frame_index": 7,
@@ -8663,12 +9635,16 @@
       "cover_shadow_coverage": 0.6,
       "composite": 0.594,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 5,
+      "unmarked_in_box": 5
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0353
+     "collapse_kind": null,
+     "score_delta": 0.0353,
+     "action": null
     },
     {
      "frame_index": 8,
@@ -8795,12 +9771,27 @@
       "cover_shadow_coverage": 0.6,
       "composite": 0.594,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 5,
+      "unmarked_in_box": 5
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0
+     "collapse_kind": null,
+     "score_delta": 0.0,
+     "action": {
+      "kind": "Shot",
+      "end_x": 1.6,
+      "end_y": 40.0,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 9,
@@ -8899,12 +9890,16 @@
       "cover_shadow_coverage": 0.5,
       "composite": 0.4359,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 4,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": true,
-     "score_delta": -0.1581
+     "collapse_kind": "shape",
+     "score_delta": -0.1581,
+     "action": null
     },
     {
      "frame_index": 10,
@@ -8961,12 +9956,27 @@
       "cover_shadow_coverage": 0.0,
       "composite": null,
       "defenders_visible": 2,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 2,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Carry",
+      "end_x": 3.8,
+      "end_y": 26.9,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 11,
@@ -9065,12 +10075,27 @@
       "cover_shadow_coverage": 0.6667,
       "composite": 0.5429,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 4,
+      "unmarked_in_box": 4
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.107
+     "collapse_kind": null,
+     "score_delta": 0.107,
+     "action": {
+      "kind": "Pass",
+      "end_x": 7.1,
+      "end_y": 37.0,
+      "cross": true,
+      "through_ball": false,
+      "cut_back": true,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 12,
@@ -9183,12 +10208,16 @@
       "cover_shadow_coverage": 0.75,
       "composite": 0.6791,
       "defenders_visible": 7,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 5,
+      "unmarked_in_box": 5
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.1362
+     "collapse_kind": null,
+     "score_delta": 0.1362,
+     "action": null
     },
     {
      "frame_index": 13,
@@ -9301,12 +10330,27 @@
       "cover_shadow_coverage": 0.75,
       "composite": 0.6791,
       "defenders_visible": 7,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 5,
+      "unmarked_in_box": 5
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0
+     "collapse_kind": null,
+     "score_delta": 0.0,
+     "action": {
+      "kind": "Shot",
+      "end_x": 3.7,
+      "end_y": 36.7,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 14,
@@ -9419,12 +10463,16 @@
       "cover_shadow_coverage": 0.75,
       "composite": 0.571,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 4,
+      "unmarked_in_box": 4
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.1081
+     "collapse_kind": null,
+     "score_delta": -0.1081,
+     "action": null
     },
     {
      "frame_index": 15,
@@ -9530,12 +10578,16 @@
       "cover_shadow_coverage": 0.2,
       "composite": 0.5984,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 5,
+      "unmarked_in_box": 3
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0274
+     "collapse_kind": null,
+     "score_delta": 0.0274,
+     "action": null
     },
     {
      "frame_index": 16,
@@ -9669,12 +10721,16 @@
       "cover_shadow_coverage": 0.6667,
       "composite": 0.8839,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 5,
+      "unmarked_in_box": 4
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.2855
+     "collapse_kind": null,
+     "score_delta": 0.2855,
+     "action": null
     },
     {
      "frame_index": 17,
@@ -9808,14 +10864,30 @@
       "cover_shadow_coverage": 0.8333,
       "composite": 0.95,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 4,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0661
+     "collapse_kind": null,
+     "score_delta": 0.0661,
+     "action": {
+      "kind": "Shot",
+      "end_x": 0.0,
+      "end_y": 42.0,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     }
-   ]
+   ],
+   "play_pattern": "From Throw In"
   },
   {
    "match_id": 3788769,
@@ -9824,7 +10896,29 @@
    "defending_team_name": "Russia",
    "attacking_team_id": 776,
    "attacking_team_name": "Denmark",
-   "collapse_frame_index": null,
+   "collapse_frame_index": 3,
+   "collapse_kind": "marking",
+   "collapse_cause": {
+    "kind": "marking",
+    "frame_index": 3,
+    "compared_to_index": 2,
+    "metric": "unmarked_in_box",
+    "metric_from": 0.0,
+    "metric_to": 3.0,
+    "action": {
+     "kind": "Carry",
+     "end_x": 17.9,
+     "end_y": 46.3,
+     "cross": false,
+     "through_ball": false,
+     "cut_back": false,
+     "switch": false,
+     "height": null,
+     "set_piece": null,
+     "under_pressure": false
+    },
+    "action_frame_index": 2
+   },
    "frames": [
     {
      "frame_index": 0,
@@ -9972,12 +11066,27 @@
       "cover_shadow_coverage": 0.625,
       "composite": 0.4697,
       "defenders_visible": 9,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Carry",
+      "end_x": 64.1,
+      "end_y": 44.8,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 1,
@@ -10076,12 +11185,27 @@
       "cover_shadow_coverage": 0.25,
       "composite": 0.2458,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.2239
+     "collapse_kind": null,
+     "score_delta": -0.2239,
+     "action": {
+      "kind": "Pass",
+      "end_x": 44.6,
+      "end_y": 59.4,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 2,
@@ -10166,12 +11290,27 @@
       "cover_shadow_coverage": 0.0,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Carry",
+      "end_x": 17.9,
+      "end_y": 46.3,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 3,
@@ -10263,14 +11402,30 @@
       "cover_shadow_coverage": 0.0,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 3,
+      "unmarked_in_box": 3
      },
      "cover_shadows": [],
      "pressure_grid": [],
-     "is_collapse_frame": false,
-     "score_delta": null
+     "is_collapse_frame": true,
+     "collapse_kind": "marking",
+     "score_delta": null,
+     "action": {
+      "kind": "Shot",
+      "end_x": 0.0,
+      "end_y": 43.3,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     }
-   ]
+   ],
+   "play_pattern": "From Counter"
   },
   {
    "match_id": 3795221,
@@ -10280,6 +11435,8 @@
    "attacking_team_id": 776,
    "attacking_team_name": "Denmark",
    "collapse_frame_index": null,
+   "collapse_kind": null,
+   "collapse_cause": null,
    "frames": [
     {
      "frame_index": 0,
@@ -10420,14 +11577,30 @@
       "cover_shadow_coverage": 0.375,
       "composite": 0.8125,
       "defenders_visible": 7,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 7,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Shot",
+      "end_x": 0.0,
+      "end_y": 43.1,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     }
-   ]
+   ],
+   "play_pattern": "From Free Kick"
   },
   {
    "match_id": 3795221,
@@ -10437,6 +11610,28 @@
    "attacking_team_id": 768,
    "attacking_team_name": "England",
    "collapse_frame_index": 17,
+   "collapse_kind": "shape",
+   "collapse_cause": {
+    "kind": "shape",
+    "frame_index": 17,
+    "compared_to_index": 14,
+    "metric": "cover_shadow_coverage",
+    "metric_from": 0.8,
+    "metric_to": 0.3333,
+    "action": {
+     "kind": "Pass",
+     "end_x": 37.5,
+     "end_y": 22.2,
+     "cross": false,
+     "through_ball": false,
+     "cut_back": false,
+     "switch": false,
+     "height": "Ground Pass",
+     "set_piece": null,
+     "under_pressure": false
+    },
+    "action_frame_index": 16
+   },
    "frames": [
     {
      "frame_index": 0,
@@ -10486,12 +11681,27 @@
       "cover_shadow_coverage": 0.0,
       "composite": null,
       "defenders_visible": 1,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Pass",
+      "end_x": 106.3,
+      "end_y": 28.3,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Low Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 1,
@@ -10534,12 +11744,16 @@
       "cover_shadow_coverage": 0.0,
       "composite": null,
       "defenders_visible": 0,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": null
     },
     {
      "frame_index": 2,
@@ -10617,12 +11831,27 @@
       "cover_shadow_coverage": 0.25,
       "composite": null,
       "defenders_visible": 3,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Pass",
+      "end_x": 79.9,
+      "end_y": 52.4,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 3,
@@ -10700,12 +11929,27 @@
       "cover_shadow_coverage": 0.0,
       "composite": null,
       "defenders_visible": 3,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Carry",
+      "end_x": 68.1,
+      "end_y": 50.6,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 4,
@@ -10797,12 +12041,27 @@
       "cover_shadow_coverage": 0.0,
       "composite": null,
       "defenders_visible": 4,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Pass",
+      "end_x": 62.5,
+      "end_y": 60.6,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 5,
@@ -10908,12 +12167,27 @@
       "cover_shadow_coverage": 0.1667,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Carry",
+      "end_x": 62.6,
+      "end_y": 60.7,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 6,
@@ -11019,12 +12293,27 @@
       "cover_shadow_coverage": 0.1667,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Pass",
+      "end_x": 51.4,
+      "end_y": 74.0,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 7,
@@ -11158,12 +12447,27 @@
       "cover_shadow_coverage": 0.5,
       "composite": 0.4802,
       "defenders_visible": 7,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Carry",
+      "end_x": 51.4,
+      "end_y": 74.1,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 8,
@@ -11304,12 +12608,27 @@
       "cover_shadow_coverage": 0.5,
       "composite": 0.4875,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0073
+     "collapse_kind": null,
+     "score_delta": 0.0073,
+     "action": {
+      "kind": "Pass",
+      "end_x": 60.2,
+      "end_y": 61.4,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 9,
@@ -11450,12 +12769,27 @@
       "cover_shadow_coverage": 0.375,
       "composite": 0.4886,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0011
+     "collapse_kind": null,
+     "score_delta": 0.0011,
+     "action": {
+      "kind": "Carry",
+      "end_x": 59.2,
+      "end_y": 55.9,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 10,
@@ -11589,12 +12923,27 @@
       "cover_shadow_coverage": 0.375,
       "composite": 0.5356,
       "defenders_visible": 7,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.047
+     "collapse_kind": null,
+     "score_delta": 0.047,
+     "action": {
+      "kind": "Pass",
+      "end_x": 62.0,
+      "end_y": 31.6,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 11,
@@ -11714,12 +13063,27 @@
       "cover_shadow_coverage": 0.1429,
       "composite": 0.4389,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.0967
+     "collapse_kind": null,
+     "score_delta": -0.0967,
+     "action": {
+      "kind": "Carry",
+      "end_x": 56.0,
+      "end_y": 25.6,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 12,
@@ -11832,12 +13196,27 @@
       "cover_shadow_coverage": 0.1667,
       "composite": 0.4246,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.0143
+     "collapse_kind": null,
+     "score_delta": -0.0143,
+     "action": {
+      "kind": "Pass",
+      "end_x": 43.1,
+      "end_y": 1.9,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 13,
@@ -11971,12 +13350,27 @@
       "cover_shadow_coverage": 0.5,
       "composite": 0.46,
       "defenders_visible": 7,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.0354
+     "collapse_kind": null,
+     "score_delta": 0.0354,
+     "action": {
+      "kind": "Carry",
+      "end_x": 40.3,
+      "end_y": 2.4,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 14,
@@ -12089,12 +13483,27 @@
       "cover_shadow_coverage": 0.8,
       "composite": 0.516,
       "defenders_visible": 7,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.056
+     "collapse_kind": null,
+     "score_delta": 0.056,
+     "action": {
+      "kind": "Pass",
+      "end_x": 55.3,
+      "end_y": 7.9,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 15,
@@ -12193,12 +13602,27 @@
       "cover_shadow_coverage": 0.2,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Carry",
+      "end_x": 55.7,
+      "end_y": 8.4,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 16,
@@ -12297,12 +13721,27 @@
       "cover_shadow_coverage": 0.2,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Pass",
+      "end_x": 37.5,
+      "end_y": 22.2,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 17,
@@ -12415,12 +13854,27 @@
       "cover_shadow_coverage": 0.3333,
       "composite": 0.3337,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": true,
-     "score_delta": -0.1823
+     "collapse_kind": "shape",
+     "score_delta": -0.1823,
+     "action": {
+      "kind": "Carry",
+      "end_x": 37.5,
+      "end_y": 21.5,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": true
+     }
     },
     {
      "frame_index": 18,
@@ -12533,12 +13987,16 @@
       "cover_shadow_coverage": 0.1429,
       "composite": 0.1766,
       "defenders_visible": 6,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": -0.1571
+     "collapse_kind": null,
+     "score_delta": -0.1571,
+     "action": null
     },
     {
      "frame_index": 19,
@@ -12651,12 +14109,27 @@
       "cover_shadow_coverage": 0.4,
       "composite": 0.5017,
       "defenders_visible": 7,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 0,
+      "unmarked_in_box": 0
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.3251
+     "collapse_kind": null,
+     "score_delta": 0.3251,
+     "action": {
+      "kind": "Pass",
+      "end_x": 11.2,
+      "end_y": 21.9,
+      "cross": false,
+      "through_ball": true,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": true
+     }
     },
     {
      "frame_index": 20,
@@ -12748,12 +14221,27 @@
       "cover_shadow_coverage": 0.6667,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 2,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Carry",
+      "end_x": 2.9,
+      "end_y": 26.9,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 21,
@@ -12838,12 +14326,27 @@
       "cover_shadow_coverage": 0.5,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 2,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Pass",
+      "end_x": 2.5,
+      "end_y": 40.8,
+      "cross": true,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": "Ground Pass",
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 22,
@@ -12921,12 +14424,16 @@
       "cover_shadow_coverage": 1.0,
       "composite": null,
       "defenders_visible": 4,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 3,
+      "unmarked_in_box": 3
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": null
     },
     {
      "frame_index": 23,
@@ -13011,12 +14518,16 @@
       "cover_shadow_coverage": 1.0,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 3,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": null
     },
     {
      "frame_index": 24,
@@ -13101,14 +14612,19 @@
       "cover_shadow_coverage": 0.6667,
       "composite": null,
       "defenders_visible": 5,
-      "reliable": false
+      "reliable": false,
+      "attackers_in_box": 3,
+      "unmarked_in_box": 3
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": null
     }
-   ]
+   ],
+   "play_pattern": "Regular Play"
   },
   {
    "match_id": 3795221,
@@ -13118,6 +14634,28 @@
    "attacking_team_id": 768,
    "attacking_team_name": "England",
    "collapse_frame_index": 1,
+   "collapse_kind": "marking",
+   "collapse_cause": {
+    "kind": "marking",
+    "frame_index": 1,
+    "compared_to_index": 0,
+    "metric": "unmarked_in_box",
+    "metric_from": 1.0,
+    "metric_to": 2.0,
+    "action": {
+     "kind": "Shot",
+     "end_x": 0.8,
+     "end_y": 37.3,
+     "cross": false,
+     "through_ball": false,
+     "cut_back": false,
+     "switch": false,
+     "height": null,
+     "set_piece": null,
+     "under_pressure": false
+    },
+    "action_frame_index": 0
+   },
    "frames": [
     {
      "frame_index": 0,
@@ -13258,12 +14796,27 @@
       "cover_shadow_coverage": 0.8,
       "composite": 0.5904,
       "defenders_visible": 10,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 2,
+      "unmarked_in_box": 1
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": null
+     "collapse_kind": null,
+     "score_delta": null,
+     "action": {
+      "kind": "Shot",
+      "end_x": 0.8,
+      "end_y": 37.3,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     },
     {
      "frame_index": 1,
@@ -13390,12 +14943,16 @@
       "cover_shadow_coverage": 0.3333,
       "composite": 0.4743,
       "defenders_visible": 8,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 2,
+      "unmarked_in_box": 2
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": true,
-     "score_delta": -0.1161
+     "collapse_kind": "marking",
+     "score_delta": -0.1161,
+     "action": null
     },
     {
      "frame_index": 2,
@@ -13536,12 +15093,16 @@
       "cover_shadow_coverage": 0.8,
       "composite": 0.64,
       "defenders_visible": 10,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 5,
+      "unmarked_in_box": 4
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.1657
+     "collapse_kind": null,
+     "score_delta": 0.1657,
+     "action": null
     },
     {
      "frame_index": 3,
@@ -13689,14 +15250,30 @@
       "cover_shadow_coverage": 0.8333,
       "composite": 0.65,
       "defenders_visible": 10,
-      "reliable": true
+      "reliable": true,
+      "attackers_in_box": 5,
+      "unmarked_in_box": 3
      },
      "cover_shadows": [],
      "pressure_grid": [],
      "is_collapse_frame": false,
-     "score_delta": 0.01
+     "collapse_kind": null,
+     "score_delta": 0.01,
+     "action": {
+      "kind": "Shot",
+      "end_x": 0.0,
+      "end_y": 41.0,
+      "cross": false,
+      "through_ball": false,
+      "cut_back": false,
+      "switch": false,
+      "height": null,
+      "set_piece": null,
+      "under_pressure": false
+     }
     }
-   ]
+   ],
+   "play_pattern": "Other"
   }
  ]
 }

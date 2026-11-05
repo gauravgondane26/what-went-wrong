@@ -86,9 +86,10 @@ Other services: `possession.py` (extract events for one possession sequence), `s
 | Goal-side share | Fraction of outfield defenders with `x < ball_x` |
 | Cover shadows | Fraction of attackers (excluding carrier and keeper) with a defender on the ball→attacker ray; 1.0 if none |
 | Line height | Average x of the 4 deepest defenders. Display only, not in the composite |
+| Box marking | `attackers_in_box`: outfield attackers with x ≤ 18 and 18 ≤ y ≤ 62. `unmarked_in_box`: those with no defender (keeper included) within 2 units. **Not in the composite**: a packed box reads as compact even when runners are free, which is how crosses and set pieces beat the composite. Used for display and for collapse detection |
 | Composite | `0.4 × compactness + 0.3 × goal_side + 0.3 × shadows`; `null` when fewer than 6 outfield defenders are visible (`reliable = false`) |
 | Pressure grid | Summed Gaussians / 2.0, clipped to 1 (fixed scale, comparable across frames) |
-| Collapse frame | Over reliable frames: largest drop of mean(next 2) − mean(previous 2) composite; steps where visible defenders change by ≥3 are skipped and windows don't cross them. `null` if nothing drops |
+| Collapse frame | **Shape:** over reliable frames, the largest drop of mean(next 2) − mean(previous 2) composite. Steps where visible defenders change by ≥3 are skipped and windows don't cross them. If that drop is ≥ 0.05, it is the collapse (`collapse_kind = "shape"`). **Else marking:** over all frames, the largest rise of mean(next 2) − mean(previous 2) `unmarked_in_box`, under the same segment rule. If that rise is ≥ 1, it is the collapse (`"marking"`). Otherwise any smaller shape drop counts (`"shape"`). `null` if nothing drops and no marking rises. Thresholds are from `docs/eval/collapse-after.md` |
 
 Earlier definitions (absolute line height, bounding-box compactness, raw single-step drop) tracked ball position and camera framing instead of shape; see `docs/preprocessing-audit-2026-11-03.md` C1–C4, D1.
 
@@ -126,7 +127,7 @@ The passing-lane test in `lib/geometry.ts` mirrors `scorer.py`'s `_is_shadowed` 
 4. **Missing 360 files**: Some matches report `match_status_360='available'` in StatsBomb metadata but have no corresponding file on GitHub. `load_frames360` handles this by catching the 404 and caching an empty dict — these matches will silently return no frame data.
 5. **Excluded competitions**: `routers/competitions.py` hard-codes `_EXCLUDED_COMPETITIONS` (MLS only). MLS 2023 is flagged 360-enabled, but 3 of its 6 matches have no 360 file, so their goals 404. La Liga 2020/21 and Ligue 1 2021/22–2022/23 were re-enabled on 2026-11-04 after a probe of every goal in 5 sampled matches each loaded full frames. The competitions list is also cached in module memory for the lifetime of the process.
 6. **No cache-clear endpoint**: All caches are in-process. Restart the backend to clear them.
-7. **Collapse detection weakness**: The collapse rule works for build-up goals but can miss instant collapses on cross-and-header goals. There, the Duel and Shot at the goal moment share an identical freeze frame, so the biggest drop lands earlier in the sequence. This is an open problem.
+7. **Collapse detection on crosses and set pieces**: the composite holds or rises when the ball enters a packed box, so these goals used to get no collapse, or one far earlier in the move. The box-marking fallback (Phase 1, P1.6) cut the open-play goals with no collapse on EURO 2020 from 22 to 9, and corners from 9/17 to 5/17. It was never a windowing problem (`docs/eval/`). What's still open: about half of crossed goals still collapse before the cross, because a real earlier shape drop takes priority. 5 corners have neither a drop nor a marking rise.
 
 ## Deployment
 

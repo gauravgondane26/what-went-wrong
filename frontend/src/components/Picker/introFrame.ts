@@ -17,6 +17,7 @@ export const INTRO_FRAME: FrameData = {
   "ball_y": 42.0,
   "player_count": 11,
   "is_collapse_frame": true,
+  "collapse_kind": "shape",
   "score_delta": -0.1581,
   "players": [
     {
@@ -104,8 +105,11 @@ export const INTRO_FRAME: FrameData = {
     "cover_shadow_coverage": 0.5,
     "composite": 0.4359,
     "defenders_visible": 6,
-    "reliable": true
+    "reliable": true,
+    "attackers_in_box": 4,
+    "unmarked_in_box": 2
   },
   "cover_shadows": [],
-  "pressure_grid": []
+  "pressure_grid": [],
+  "action": null
 }

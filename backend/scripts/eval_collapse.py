@@ -48,9 +48,13 @@ class GoalRow:
     conceding_team: str
     penalty: bool
     status: str                     # "ok" | "no_360"
+    play_pattern: str | None = None
+    from_cross: bool = False        # the shot's key pass was a cross
+    header: bool = False            # the goal was headed
     frames: int = 0
     reliable_frames: int = 0
     collapse_index: int | None = None
+    collapse_kind: str | None = None           # "shape" | "marking"
     frames_after_collapse: int | None = None   # 0 = collapse on the last frame
     seconds_before_end: float | None = None    # last frame time - collapse frame time
     collapse_delta: float | None = None        # score_delta on the collapse frame
@@ -75,8 +79,11 @@ def _row(seq: GoalSequenceResponse, base: dict) -> GoalRow:
             row.seconds_before_end = round(last.timestamp_seconds - cf.timestamp_seconds, 2)
         row.collapse_delta = cf.score_delta
 
+    row.collapse_kind = seq.collapse_kind
     late_drop = row.end_delta is not None and row.end_delta <= -LATE_DROP
-    collapse_on_last_reliable = idx is not None and frames[idx].frame_index == reliable[-1].frame_index
+    collapse_on_last_reliable = (
+        idx is not None and bool(reliable) and frames[idx].frame_index == reliable[-1].frame_index
+    )
     row.late_drop_missed = late_drop and not collapse_on_last_reliable
     return row
 
@@ -90,9 +97,12 @@ async def _eval_match(client, match: dict, sem: asyncio.Semaphore) -> list[GoalR
         except Exception:
             frames360 = {}
 
+    by_id = {e["id"]: e for e in events}
     rows = []
     for goal in possession.find_goal_events(events):
         scoring, conceding = possession.goal_teams(events, goal)
+        shot = goal.get("shot") or {}
+        key_pass = (by_id.get(shot.get("key_pass_id")) or {}).get("pass") or {}
         base = dict(
             match_id=match_id,
             goal_event_id=goal["id"],
@@ -100,6 +110,9 @@ async def _eval_match(client, match: dict, sem: asyncio.Semaphore) -> list[GoalR
             scoring_team=scoring["name"],
             conceding_team=conceding["name"],
             penalty=possession.is_penalty_goal(goal),
+            play_pattern=(goal.get("play_pattern") or {}).get("name"),
+            from_cross=bool(key_pass.get("cross", False)),
+            header=(shot.get("body_part") or {}).get("name") == "Head",
         )
         try:
             seq = build_goal_sequence(match_id, events, frames360, goal)
@@ -144,6 +157,8 @@ def summarise(rows: list[GoalRow], title: str) -> str:
         f"| Penalties (with frames) | {len(ok) - len(open_play)} |",
         f"| **Open-play goals analysed** | **{len(open_play)}** |",
         f"| Collapse found | {pct(len(found), len(open_play))} |",
+        f"| … by the shape score | {pct(sum(r.collapse_kind == 'shape' for r in found), len(open_play))} |",
+        f"| … by box marking | {pct(sum(r.collapse_kind == 'marking' for r in found), len(open_play))} |",
         f"| No collapse (null) | {pct(len(open_play) - len(found), len(open_play))} |",
         f"| Late drop missed (last reliable step ≤ −{LATE_DROP:.2f}, collapse elsewhere) | "
         f"{pct(sum(r.late_drop_missed for r in open_play), len(open_play))} |",
@@ -173,7 +188,40 @@ def summarise(rows: list[GoalRow], title: str) -> str:
             f"max {max(frames)}; reliable frames median "
             f"{statistics.median(r.reliable_frames for r in open_play):.0f}."
         )
+
+    lines += ["", "## By how the goal was made", "", *_group_table(open_play, _goal_shape)]
+    lines += ["", "## By play pattern", "", *_group_table(open_play, lambda r: r.play_pattern or "Unknown")]
     return "\n".join(lines) + "\n"
+
+
+def _goal_shape(r: GoalRow) -> str:
+    if r.from_cross and r.header:
+        return "Cross, headed"
+    if r.from_cross:
+        return "Cross, other finish"
+    return "Not from a cross"
+
+
+def _group_table(rows: list[GoalRow], key) -> list[str]:
+    """Per group: size, null rate, collapses on the last 2 frames, missed late drops."""
+    groups: dict[str, list[GoalRow]] = {}
+    for r in rows:
+        groups.setdefault(key(r), []).append(r)
+    out = [
+        "| Group | Goals | No collapse | By marking | Collapse in last 2 frames | Late drop missed "
+        "| Median frames before end |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for name, rs in sorted(groups.items(), key=lambda kv: -len(kv[1])):
+        found = [r for r in rs if r.collapse_index is not None]
+        late = sum(r.frames_after_collapse <= 1 for r in found)
+        median = f"{statistics.median(r.frames_after_collapse for r in found):.0f}" if found else "–"
+        out.append(
+            f"| {name} | {len(rs)} | {len(rs) - len(found)} | "
+            f"{sum(r.collapse_kind == 'marking' for r in found)} | {late} | "
+            f"{sum(r.late_drop_missed for r in rs)} | {median} |"
+        )
+    return out
 
 
 async def main() -> None:

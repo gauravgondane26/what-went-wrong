@@ -5,8 +5,11 @@ from app.models.frame import PlayerPosition
 from app.services.scorer import (
     GRID_COLS,
     GRID_ROWS,
+    MARK_RADIUS,
     MAX_SHADOW_RANGE,
     _is_shadowed,
+    box_marking,
+    in_box,
     compute_composite,
     compute_pressure_grid,
     score_compactness,
@@ -233,3 +236,52 @@ def test_score_frame_reliable_composite():
     assert scores.composite == pytest.approx(
         compute_composite(scores.compactness, 1.0, 1.0)
     )
+
+
+# ---------------------------------------------------------------------------
+# Box marking
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize(
+    "x, y, inside",
+    [(0.0, 40.0, True), (18.0, 18.0, True), (18.0, 62.0, True),
+     (18.1, 40.0, False), (10.0, 17.9, False), (10.0, 62.1, False)],
+)
+def test_in_box_edges(x, y, inside):
+    assert in_box(x, y) is inside
+
+
+def test_box_marking_counts_only_free_attackers_in_box():
+    players = [
+        _p(6.0, 40.0, True),               # marked: defender 1.5 away
+        _p(6.0, 41.5, False),
+        _p(8.0, 30.0, True),               # unmarked: nearest defender 3 away
+        _p(8.0, 33.0, False),
+        _p(4.0, 50.0, True, actor=True),   # unmarked shooter counts
+        _p(30.0, 40.0, True),              # outside the box: ignored
+        _p(1.0, 40.0, True, keeper=True),  # attacking keeper never counts (sanity)
+    ]
+    assert box_marking(players) == (3, 2)
+
+
+def test_keeper_marks_too():
+    players = [_p(3.0, 40.0, True), _p(1.5, 40.5, False, keeper=True)]
+    assert box_marking(players) == (1, 0)
+
+
+def test_box_marking_exactly_at_radius_is_marked():
+    players = [_p(10.0, 40.0, True), _p(10.0 + MARK_RADIUS, 40.0, False)]
+    assert box_marking(players) == (1, 0)
+
+
+def test_score_frame_reports_box_marking_without_touching_composite():
+    defenders = [_p(5.0 + 2 * i, 20.0 + 6 * i, False) for i in range(6)]
+    free_runner = _p(6.0, 60.0, True)
+    base = score_frame(defenders, 25.0, 40.0)[0]
+    scores = score_frame(defenders + [free_runner], 25.0, 40.0)[0]
+    assert (scores.attackers_in_box, scores.unmarked_in_box) == (1, 1)
+    assert (base.attackers_in_box, base.unmarked_in_box) == (0, 0)
+    # The runner is a shadow target, so coverage may move, but compactness and
+    # goal-side are untouched: box marking is not part of the composite formula.
+    assert scores.compactness == base.compactness
+    assert scores.goal_side_share == base.goal_side_share

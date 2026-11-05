@@ -227,6 +227,7 @@
 .fact { display: flex; flex-direction: column; gap: 2px; padding: 10px var(--space-sm); background: var(--surface); }
 .fact dt { font: var(--text-caption); color: var(--text-muted); }
 .fact dd { font-weight: 500; }
+.fact--wide { grid-column: 1 / -1; }
 
 .pbp h2 { font: var(--text-body-sm-strong); }
 .pbp-list { display: flex; flex-direction: column; max-height: 280px; margin: -4px -8px -8px; padding-block: var(--space-xxs); overflow-y: auto; overscroll-behavior: contain; }

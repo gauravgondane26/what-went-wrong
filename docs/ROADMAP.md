@@ -24,18 +24,21 @@ The backend stays **one containerised FastAPI service** (Docker plus compose, de
 - [x] **P0.9** Staging environment: API URL per Netlify context, `CORS_ORIGIN_REGEX`, `staging` branch flow (see CLAUDE.md → Environments)
 
 ## Phase 1: Smarter detection and "what broke it" · `feat/p1-detection`
-- [ ] **P1.1** `FrameAction` model (kind, end location, cross / through ball / cut-back / switch, under pressure) and a helper that normalises the end location
-- [ ] **P1.2** Fill `FrameData.action` and `GoalSequenceResponse.play_pattern`
-- [ ] **P1.3** Mirror the new fields in the frontend types
-- [ ] **P1.4** Eval breakdown by play pattern and by whether the last pass was a cross; refresh the baseline
-- [ ] **P1.5** Late-collapse rule: a one-sided window at the end of the sequence
-- [ ] **P1.6** *Only if still needed:* use the shot's own freeze frame as the final frame
-- [ ] **P1.7** Update the golden snapshot; write `docs/eval/collapse-after.md`
-- [ ] **P1.8** `collapse.attribute()`: the action into the collapse, plus the metric that dropped most
-- [ ] **P1.9** Expose `collapse_cause` on the response, plus frontend types
-- [ ] **P1.10** The finding text names the cause
-- [ ] **P1.11** Arrow layer for the action, with a key chip and a how-to-read entry
-- [ ] **P1.12** Manual check on a cross-and-header goal, then the draft PR
+- [x] **P1.1** `FrameAction` model (kind, end location, cross / through ball / cut-back / switch, under pressure) and a helper that normalises the end location
+- [x] **P1.2** Fill `FrameData.action` and `GoalSequenceResponse.play_pattern`
+- [x] **P1.3** Mirror the new fields in the frontend types
+- [x] **P1.4** Eval breakdown by play pattern and by whether the last pass was a cross; refresh the baseline
+> **Changed after P1.4 (decided 2026-11-05).** The eval showed that crosses and corners aren't missed because of windowing. The shape score holds or rises when the ball goes into the box (a packed box looks "compact"), while attackers go unmarked: about 2.3 unmarked in the box at the final frame of crossed goals, versus about 0.6 earlier. The old P1.5 (end-of-sequence window) and P1.6 (shot freeze frame) are replaced by a separate **box marking** signal. The shape-score formula is unchanged.
+
+- [x] **P1.5** Box marking measure: `attackers_in_box` / `unmarked_in_box` per frame (scorer + types), not part of the composite
+- [x] **P1.6** Detection falls back to a marking breakdown when the shape score has no real drop, plus `collapse_kind` (`shape` / `marking`); thresholds chosen with the eval
+- [x] **P1.7** Update the golden snapshot; write `docs/eval/collapse-after.md`
+- [x] **P1.8** `collapse.attribute()`: the action into the collapse, plus the metric that dropped most (or the marking change)
+- [x] **P1.9** Expose `collapse_cause` on the response, plus frontend types
+- [x] **P1.10** The finding text names the cause
+- [x] **P1.11** Arrow layer for the action, with a key chip and a how-to-read entry
+- [x] **P1.12** Show box marking: a moment-panel line, plus rings on unmarked attackers (a toggle chip)
+- [ ] **P1.13** Manual check on a cross and a corner goal on staging, then the PR into `staging`
 
 ## Phase 2: Match and team reports · `feat/p2-reports`
 - [ ] **P2.1** Report models, plus a pure `aggregate()` function with tests
