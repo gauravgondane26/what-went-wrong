@@ -2,7 +2,12 @@
 import pytest
 
 from app.models.frame import DefensiveScores, FrameData
-from app.services.collapse import collapse_frame_index, detect_collapse
+from app.services.collapse import (
+    SHAPE_MIN_DROP,
+    collapse_frame_index,
+    collapse_kind,
+    detect_collapse,
+)
 
 
 def _make_frame(index: int, composite: float | None, defenders: int = 8) -> FrameData:
@@ -136,3 +141,91 @@ def test_collapse_frame_index_returns_marked():
     frames = _frames(0.8, 0.8, 0.5, 0.5)
     detect_collapse(frames)
     assert collapse_frame_index(frames) == 2
+
+
+# ---------------------------------------------------------------------------
+# Shape vs marking
+# ---------------------------------------------------------------------------
+
+def _with_marking(composites, unmarked, defenders=None):
+    frames = _frames(*composites)
+    for i, (f, u) in enumerate(zip(frames, unmarked)):
+        f.scores.unmarked_in_box = u
+        if defenders is not None:
+            f.scores.defenders_visible = defenders[i]
+    return frames
+
+
+def test_real_shape_drop_wins_and_is_labelled_shape():
+    frames = _with_marking([0.8, 0.8, 0.5, 0.5, 0.5], [0, 0, 0, 2, 2])
+    detect_collapse(frames)
+    assert _marked(frames) == [2]
+    assert frames[2].collapse_kind == "shape"
+    assert collapse_kind(frames) == "shape"
+
+
+def test_marking_used_when_shape_holds():
+    # Composite rises as the ball enters the box; two runners come free at frame 3.
+    frames = _with_marking([0.55, 0.6, 0.65, 0.7, 0.7], [0, 0, 0, 2, 2])
+    detect_collapse(frames)
+    assert _marked(frames) == [3]
+    assert collapse_kind(frames) == "marking"
+
+
+def test_marking_beats_a_small_shape_drop():
+    drop = SHAPE_MIN_DROP / 2
+    frames = _with_marking([0.6, 0.6, 0.6 - drop, 0.6 - drop, 0.6], [0, 0, 0, 0, 3])
+    detect_collapse(frames)
+    assert collapse_kind(frames) == "marking"
+    assert _marked(frames) == [4]
+
+
+def test_small_shape_drop_kept_when_marking_never_breaks():
+    drop = SHAPE_MIN_DROP / 2
+    frames = _with_marking([0.6, 0.6, 0.6 - drop, 0.6 - drop], [1, 1, 1, 1])
+    detect_collapse(frames)
+    assert _marked(frames) == [2]
+    assert collapse_kind(frames) == "shape"
+
+
+def test_marking_counts_unreliable_frames():
+    # Few defenders in view (composite None) but the box is visible: marking still counts.
+    frames = _with_marking([None, None, None, None], [0, 0, 2, 2])
+    detect_collapse(frames)
+    assert _marked(frames) == [2]
+    assert collapse_kind(frames) == "marking"
+
+
+def test_marking_rise_across_camera_cut_is_ignored():
+    # The jump in unmarked runners coincides with 4 more defenders coming into view.
+    frames = _with_marking([0.6, 0.6, 0.65, 0.65], [0, 0, 3, 3], defenders=[6, 6, 10, 10])
+    detect_collapse(frames)
+    assert _marked(frames) == []
+    assert collapse_kind(frames) is None
+
+
+def test_single_frame_marking_blip_is_too_small():
+    # Window 2: one free runner on one frame averages to a rise of 0.5 < MARKING_MIN_JUMP.
+    frames = _with_marking([0.6, 0.62, 0.64, 0.66, 0.68], [0, 0, 1, 0, 0])
+    detect_collapse(frames)
+    assert _marked(frames) == []
+
+
+def test_no_drop_and_no_marking_rise_means_no_collapse():
+    frames = _with_marking([0.5, 0.6, 0.7], [2, 1, 0])
+    detect_collapse(frames)
+    assert _marked(frames) == []
+    assert collapse_kind(frames) is None
+
+
+def test_collapse_kind_is_reset():
+    frames = _with_marking([0.55, 0.6, 0.65, 0.7, 0.7], [0, 0, 0, 2, 2])
+    frames[0].collapse_kind = "shape"
+    detect_collapse(frames)
+    assert frames[0].collapse_kind is None
+
+
+def test_score_delta_unchanged_by_marking():
+    frames = _with_marking([0.5, None, 0.7, 0.6], [0, 0, 3, 3])
+    detect_collapse(frames)
+    assert [f.score_delta for f in frames] == [None, None, 0.2, -0.1]

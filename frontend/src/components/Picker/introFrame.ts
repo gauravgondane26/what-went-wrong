@@ -17,6 +17,7 @@ export const INTRO_FRAME: FrameData = {
   "ball_y": 42.0,
   "player_count": 11,
   "is_collapse_frame": true,
+  "collapse_kind": "shape",
   "score_delta": -0.1581,
   "players": [
     {

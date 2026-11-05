@@ -122,6 +122,7 @@ def build_goal_sequence(
         attacking_team_id=scoring["id"],
         attacking_team_name=scoring["name"],
         collapse_frame_index=collapse.collapse_frame_index(frames),
+        collapse_kind=collapse.collapse_kind(frames),
         frames=frames,
         play_pattern=(goal_event.get("play_pattern") or {}).get("name"),
     )

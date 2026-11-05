@@ -30,7 +30,9 @@ export interface DefensiveScores {
   unmarked_in_box: number         // of those, with no defender within 2 units (not in composite)
 }
 
-export type ActionKind = 'Pass' | 'Carry' | 'Shot' | 'Dribble'
+export type CollapseKind = 'shape' | 'marking'
+
+export type ActionKind ='Pass' | 'Carry' | 'Shot' | 'Dribble'
 
 // What the event's actor did with the ball. End coordinates are normalized
 // like the ball; null when the event has no end location (Dribble).
@@ -67,6 +69,7 @@ export interface FrameData {
   pressure_grid: number[]   // 384 floats (24 cols × 16 rows), row-major, 0–1
 
   is_collapse_frame: boolean
+  collapse_kind: CollapseKind | null  // on the collapse frame: which signal found it
   score_delta: number | null  // composite minus previous reliable frame's; null if unreliable/first
 
   // Ball-moving action on this frame's event (or on a later event that repeated
@@ -81,7 +84,10 @@ export interface GoalSequenceResponse {
   defending_team_name: string
   attacking_team_id: number
   attacking_team_name: string
-  collapse_frame_index: number | null  // null when no reliable drop was found
+  collapse_frame_index: number | null  // null when neither the shape nor the marking broke down
+  // "shape": the shape score fell. "marking": attackers came free in the box
+  // while the shape score held (typical of crosses and set pieces).
+  collapse_kind: CollapseKind | null
   frames: FrameData[]
   play_pattern: string | null  // "Regular Play" | "From Corner" | "From Counter" | ...
 }
