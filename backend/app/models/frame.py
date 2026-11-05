@@ -116,6 +116,7 @@ class GoalSequenceResponse(BaseModel):
     attacking_team_name: str
     collapse_frame_index: int | None  # None when neither the shape nor the marking broke down
     collapse_kind: Literal["shape", "marking"] | None = None
+    collapse_cause: CollapseCause | None = None  # what broke it; None when there is no collapse
     frames: list[FrameData]
     # StatsBomb play pattern of the goal's possession: "Regular Play", "From Corner",
     # "From Free Kick", "From Throw In", "From Counter", "From Goal Kick", ...

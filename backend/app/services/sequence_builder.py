@@ -113,6 +113,7 @@ def build_goal_sequence(
         )
 
     collapse.detect_collapse(frames)
+    collapse_index = collapse.collapse_frame_index(frames)
 
     return GoalSequenceResponse(
         match_id=match_id,
@@ -121,8 +122,9 @@ def build_goal_sequence(
         defending_team_name=conceding["name"],
         attacking_team_id=scoring["id"],
         attacking_team_name=scoring["name"],
-        collapse_frame_index=collapse.collapse_frame_index(frames),
+        collapse_frame_index=collapse_index,
         collapse_kind=collapse.collapse_kind(frames),
+        collapse_cause=collapse.attribute(frames, collapse_index),
         frames=frames,
         play_pattern=(goal_event.get("play_pattern") or {}).get("name"),
     )

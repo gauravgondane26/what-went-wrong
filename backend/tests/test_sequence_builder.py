@@ -114,6 +114,20 @@ def test_collapse_snapshot(seq: GoalSequenceResponse):
 
 
 @pytest.mark.parametrize("seq", SEQUENCES, ids=_id)
+def test_collapse_cause_matches_collapse(seq: GoalSequenceResponse):
+    cause = seq.collapse_cause
+    if seq.collapse_frame_index is None:
+        assert cause is None
+        return
+    assert cause == collapse.attribute(seq.frames, seq.collapse_frame_index)
+    assert cause.frame_index == seq.collapse_frame_index
+    assert cause.kind == seq.collapse_kind
+    if cause.action_frame_index is not None:
+        assert cause.action_frame_index < cause.frame_index
+        assert seq.frames[cause.action_frame_index].action == cause.action
+
+
+@pytest.mark.parametrize("seq", SEQUENCES, ids=_id)
 def test_frames_are_indexed_and_ordered(seq: GoalSequenceResponse):
     assert [f.frame_index for f in seq.frames] == list(range(len(seq.frames)))
     keys = [(f.period, f.timestamp_seconds) for f in seq.frames]

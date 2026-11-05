@@ -32,7 +32,21 @@ export interface DefensiveScores {
 
 export type CollapseKind = 'shape' | 'marking'
 
-export type ActionKind ='Pass' | 'Carry' | 'Shot' | 'Dribble'
+export type CauseMetric = 'compactness' | 'goal_side_share' | 'cover_shadow_coverage' | 'unmarked_in_box'
+
+// What broke the defence at the collapse frame (backend collapse.attribute).
+export interface CollapseCause {
+  kind: CollapseKind
+  frame_index: number               // the collapse frame
+  compared_to_index: number | null  // previous reliable frame (shape) or previous frame (marking)
+  metric: CauseMetric | null        // the measure that moved most; null with nothing to compare
+  metric_from: number | null
+  metric_to: number | null
+  action: FrameAction | null        // latest ball-moving action leading into the collapse
+  action_frame_index: number | null
+}
+
+export type ActionKind = 'Pass' | 'Carry' | 'Shot' | 'Dribble'
 
 // What the event's actor did with the ball. End coordinates are normalized
 // like the ball; null when the event has no end location (Dribble).
@@ -88,6 +102,7 @@ export interface GoalSequenceResponse {
   // "shape": the shape score fell. "marking": attackers came free in the box
   // while the shape score held (typical of crosses and set pieces).
   collapse_kind: CollapseKind | null
+  collapse_cause: CollapseCause | null  // what broke it; null when there is no collapse
   frames: FrameData[]
   play_pattern: string | null  // "Regular Play" | "From Corner" | "From Counter" | ...
 }
