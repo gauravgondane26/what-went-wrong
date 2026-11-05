@@ -139,6 +139,21 @@ def normalize_frame(
     return ball_x, ball_y, players
 
 
+def normalize_point(
+    event: dict,
+    defending_team_id: int,
+    x: float,
+    y: float,
+) -> tuple[float, float]:
+    """Normalize a point stored in the event actor's frame (ball location, pass /
+    carry / shot end location) with the same flip `normalize_frame` applies to the
+    ball, then clamp it to the pitch."""
+    actor_is_defender = event.get("team", {}).get("id") == defending_team_id
+    if not actor_is_defender:
+        x, y = 120.0 - x, 80.0 - y
+    return max(0.0, min(120.0, x)), max(0.0, min(80.0, y))
+
+
 def same_snapshot(
     a: list[PlayerPosition],
     b: list[PlayerPosition],

@@ -24,7 +24,7 @@ The backend stays **one containerised FastAPI service** (Docker plus compose, de
 - [x] **P0.9** Staging environment: API URL per Netlify context, `CORS_ORIGIN_REGEX`, `staging` branch flow (see CLAUDE.md → Environments)
 
 ## Phase 1: Smarter detection and "what broke it" · `feat/p1-detection`
-- [ ] **P1.1** `FrameAction` model (kind, end location, cross / through ball / cut-back / switch, under pressure) and a helper that normalises the end location
+- [x] **P1.1** `FrameAction` model (kind, end location, cross / through ball / cut-back / switch, under pressure) and a helper that normalises the end location
 - [ ] **P1.2** Fill `FrameData.action` and `GoalSequenceResponse.play_pattern`
 - [ ] **P1.3** Mirror the new fields in the frontend types
 - [ ] **P1.4** Eval breakdown by play pattern and by whether the last pass was a cross; refresh the baseline

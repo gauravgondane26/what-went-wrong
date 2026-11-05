@@ -31,6 +31,25 @@ class DefensiveScores(BaseModel):
     reliable: bool  # defenders_visible >= MIN_RELIABLE_DEFENDERS
 
 
+class FrameAction(BaseModel):
+    """What the event's actor did with the ball (Pass, Carry, Shot, Dribble).
+
+    End coordinates are normalized like the ball (defending goal at x=0); None
+    when the event has no end location (Dribble).
+    """
+
+    kind: str  # StatsBomb event type name: "Pass", "Carry", "Shot", "Dribble"
+    end_x: float | None = None
+    end_y: float | None = None
+    cross: bool = False
+    through_ball: bool = False
+    cut_back: bool = False
+    switch: bool = False
+    height: str | None = None     # passes: "Ground Pass" | "Low Pass" | "High Pass"
+    set_piece: str | None = None  # passes: "Corner" | "Free Kick" | "Throw-in" | "Goal Kick" | "Kick Off"
+    under_pressure: bool = False
+
+
 class FrameData(BaseModel):
     frame_index: int
     event_id: str
