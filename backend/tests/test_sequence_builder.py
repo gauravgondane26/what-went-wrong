@@ -20,20 +20,24 @@ from app.services.sequence_builder import build_goal_sequence, parse_timestamp
 
 FIXTURE = Path(__file__).parent / "fixtures" / "golden_sequences.json"
 
-# goal_event_id prefix -> collapse_frame_index. Update deliberately when the rule changes.
-GOLDEN_COLLAPSE: dict[str, int | None] = {
-    "51e7dde0": 7,
-    "492b2a06": 1,
-    "6605af47": 7,
-    "a221a567": 4,
-    "9edcdce4": 3,
-    "9dd74d3f": None,
-    "61f2991a": None,
-    "3440b2d2": 9,
-    "35f6e898": None,
-    "3b50aa84": None,
-    "ccf0702d": 17,
-    "99f94455": 1,
+# goal_event_id prefix -> (collapse_frame_index, collapse_kind). Update deliberately
+# when the rule changes, and say why in the commit.
+#   P1.6 box-marking fallback: 35f6e898 None -> 3 "marking" (counter; the 0.47 -> 0.25
+#   shape drop crosses a 9 -> 6 defender camera cut, but 3 runners are free at the shot);
+#   99f94455 same frame, now credited to marking instead of a sub-0.05 shape drop.
+GOLDEN_COLLAPSE: dict[str, tuple[int | None, str | None]] = {
+    "51e7dde0": (7, "shape"),
+    "492b2a06": (1, "shape"),
+    "6605af47": (7, "shape"),
+    "a221a567": (4, "shape"),
+    "9edcdce4": (3, "shape"),
+    "9dd74d3f": (None, None),
+    "61f2991a": (None, None),
+    "3440b2d2": (9, "shape"),
+    "35f6e898": (3, "marking"),
+    "3b50aa84": (None, None),
+    "ccf0702d": (17, "shape"),
+    "99f94455": (1, "marking"),
 }
 
 
@@ -102,8 +106,9 @@ def test_collapse_snapshot(seq: GoalSequenceResponse):
 
     collapse.detect_collapse(seq.frames)
 
-    assert collapse.collapse_frame_index(seq.frames) == GOLDEN_COLLAPSE[_id(seq)]
-    assert seq.collapse_frame_index == GOLDEN_COLLAPSE[_id(seq)]
+    expected = GOLDEN_COLLAPSE[_id(seq)]
+    assert (collapse.collapse_frame_index(seq.frames), collapse.collapse_kind(seq.frames)) == expected
+    assert (seq.collapse_frame_index, seq.collapse_kind) == expected
     assert [f.is_collapse_frame for f in seq.frames] == stored_flags
     assert [f.score_delta for f in seq.frames] == stored_deltas
 
