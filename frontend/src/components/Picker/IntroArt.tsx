@@ -3,7 +3,7 @@ import { PitchContainer } from '../Pitch/PitchContainer'
 import { VIEW_RATIO, type ViewBox } from '../../lib/geometry'
 import { INTRO_FRAME } from './introFrame'
 
-const LAYERS = { unit: true, lanes: true, line: true, pressure: false }
+const LAYERS = { unit: true, lanes: true, line: true, pressure: false, path: false }
 
 /** A real collapse moment, cropped to the play: what the analysis will show you. */
 export function IntroArt() {
