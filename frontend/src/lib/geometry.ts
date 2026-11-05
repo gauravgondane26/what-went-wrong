@@ -3,7 +3,8 @@
  *
  * Coordinates are normalised by the backend: StatsBomb 120 × 80 yards, defending goal at x = 0.
  * The lane test mirrors backend/app/services/scorer.py (`_is_shadowed`, `shadow_targets`,
- * COMPACT_UNIT) so the pitch draws exactly what the shape score counts. Keep them in sync.
+ * COMPACT_UNIT) so the pitch draws exactly what the shape score counts, and `boxMarking`
+ * mirrors `box_marking` (BOX_*, MARK_RADIUS). Keep them in sync.
  */
 import type { FrameData, GoalSequenceResponse, PlayerPosition } from '../types/frame'
 
@@ -16,6 +17,25 @@ export const VIEW_RATIO = FULL_VIEW.w / FULL_VIEW.h
 const MAX_SHADOW_RANGE = 40
 const CARRIER_RADIUS = 2
 const COMPACT_UNIT = 6
+const BOX_DEPTH = 18
+const BOX_Y_MIN = 18
+const BOX_Y_MAX = 62
+const MARK_RADIUS = 2
+
+export const inBox = (p: { x: number; y: number }) => p.x <= BOX_DEPTH && p.y >= BOX_Y_MIN && p.y <= BOX_Y_MAX
+
+/**
+ * Outfield attackers in the defended box, and those with no defender (keeper included)
+ * within MARK_RADIUS. Mirrors scorer.box_marking: a defender exactly at the radius marks.
+ */
+export function boxMarking(players: PlayerPosition[]): { inBox: PlayerPosition[]; unmarked: PlayerPosition[] } {
+  const markers = players.filter((p) => !p.is_attacker)
+  const area = players.filter((p) => p.is_attacker && !p.keeper && inBox(p))
+  return {
+    inBox: area,
+    unmarked: area.filter((a) => markers.every((m) => Math.hypot(a.x - m.x, a.y - m.y) > MARK_RADIUS)),
+  }
+}
 
 type Pt = [number, number]
 
@@ -37,6 +57,8 @@ export interface FrameGeometry {
   /** One lane per attacker who could receive a pass (not the keeper, not the carrier). */
   lanes: Lane[]
   actor: PlayerPosition | undefined
+  /** Attackers in the defended box with no defender within 2 yards (box marking). */
+  unmarked: PlayerPosition[]
 }
 
 export interface ViewBox {
@@ -98,6 +120,7 @@ export function frameGeometry(frame: FrameData): FrameGeometry {
     unitHull: convexHull(unit.map((p) => [p.x, p.y] as Pt)),
     lanes,
     actor: frame.players.find((p) => p.actor),
+    unmarked: boxMarking(frame.players).unmarked,
   }
 }
 

@@ -12,6 +12,7 @@ const ITEMS: [keyof typeof SWATCH, string, string][] = [
   ['openLane', 'Open passing lane', 'A pass the player on the ball could make with no defender in the way.'],
   ['blockedLane', 'Blocked passing lane', 'A defender stands in the way of this pass.'],
   ['path', "Ball's path", 'Where the pass, run or shot on the ball goes next (a dotted line is a run with the ball). At the collapse it shows the move that broke the defence instead.'],
+  ['unmarked', 'Unmarked in the box', 'An attacker in the penalty area with no defender within 2 yards. Crosses and set pieces often beat a defence this way while its shape still looks tight.'],
   ['line', 'Last line', 'Average position of the 4 deepest defenders.'],
   ['pressure', 'Pressure', 'Ground the defence can reach quickly. Darker means more defenders close by.'],
 ]

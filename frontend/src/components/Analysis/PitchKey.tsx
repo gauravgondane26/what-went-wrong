@@ -26,6 +26,7 @@ export const SWATCH = {
   blockedLane: sw(<path d="M1 11 17 3" stroke={D} strokeOpacity=".45" strokeWidth="1.5" strokeLinecap="round" />),
   lanes: sw(<><path d="M1 9 17 1" stroke={INK} strokeWidth="1.5" strokeDasharray="3 2.5" strokeLinecap="round" /><path d="M1 13 17 5" stroke={D} strokeOpacity=".45" strokeWidth="1.5" strokeLinecap="round" /></>),
   line: sw(<path d="M9 0v14" stroke={D} strokeWidth="1.5" strokeDasharray="2.5 2" />),
+  unmarked: sw(<><circle cx="9" cy="7" r="2.5" fill={W} stroke={INK} strokeWidth="1.5" /><circle cx="9" cy="7" r="5.75" fill="none" stroke={INK} strokeWidth="1.25" strokeDasharray="2 1.6" /></>),
   path: sw(<><path d="M1 11 13 4" stroke={INK} strokeWidth="1.75" strokeLinecap="round" /><path d="M17 2 11.2 2.6 13.6 6.7Z" fill={INK} /></>),
   pressure: sw(<><rect x="0" y="1" width="6" height="12" fill={D} fillOpacity=".08" /><rect x="6" y="1" width="6" height="12" fill={D} fillOpacity=".2" /><rect x="12" y="1" width="6" height="12" fill={D} fillOpacity=".34" /></>),
   whole: sw(<><rect x="1" y="2" width="16" height="10" rx="1" fill="none" stroke={MUTE} strokeWidth="1.25" /><path d="M9 2v10" stroke={MUTE} strokeWidth="1.25" /></>),
@@ -57,6 +58,7 @@ export function PitchKey({ defending, attacking, layers, wholePitch, onLayer, on
       {chip('unit', 'Unit around the ball', SWATCH.unit)}
       {chip('lanes', 'Passing lanes', SWATCH.lanes)}
       {chip('path', "Ball's path", SWATCH.path)}
+      {chip('unmarked', 'Unmarked in the box', SWATCH.unmarked)}
       {chip('line', 'Last line', SWATCH.line)}
       {chip('pressure', 'Pressure', SWATCH.pressure)}
       <li>
