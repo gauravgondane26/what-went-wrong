@@ -26,3 +26,25 @@ Frames between the collapse frame and the last frame of the sequence (usually th
 
 Seconds from collapse to the last frame: median 5.6s, interquartile 1.2–12.7s.
 Frames per sequence: median 14, max 82; reliable frames median 11.
+
+## By how the goal was made
+
+| Group | Goals | No collapse | Collapse in last 2 frames | Late drop missed | Median frames before end |
+|---|---|---|---|---|---|
+| Not from a cross | 101 | 20 | 15 | 8 | 6 |
+| Cross, other finish | 17 | 2 | 3 | 1 | 6 |
+| Cross, headed | 15 | 0 | 5 | 0 | 3 |
+
+## By play pattern
+
+| Group | Goals | No collapse | Collapse in last 2 frames | Late drop missed | Median frames before end |
+|---|---|---|---|---|---|
+| Regular Play | 51 | 3 | 5 | 4 | 6 |
+| From Throw In | 26 | 1 | 3 | 3 | 8 |
+| From Free Kick | 22 | 5 | 8 | 0 | 3 |
+| From Corner | 17 | 9 | 3 | 0 | 2 |
+| From Counter | 6 | 3 | 0 | 1 | 4 |
+| From Keeper | 5 | 1 | 1 | 1 | 5 |
+| From Goal Kick | 2 | 0 | 1 | 0 | 5 |
+| From Kick Off | 2 | 0 | 1 | 0 | 2 |
+| Other | 2 | 0 | 1 | 0 | 2 |
