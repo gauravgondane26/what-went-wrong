@@ -33,7 +33,16 @@ pytest tests/test_normalizer.py -v   # run a single test file
 
 # Frontend type-check only
 cd frontend && npx tsc --noEmit
+
+# Whole stack in Docker (API on :8081, app on :5173)
+docker compose up --build
+docker build -t www-backend backend/   # backend image only, as Render builds it
+
+# Regenerate the golden test fixture from live data (after a deliberate pipeline change)
+cd backend && python scripts/make_golden.py
 ```
+
+The backend is deliberately **one containerised service**: the in-process cache is shared across pipeline steps, so splitting it into microservices would cost more than it gains. If reports get slow, the plan is a worker plus Redis in compose (`docs/ROADMAP.md`, P2.9). Progress on the roadmap is tracked in `docs/ROADMAP.md`.
 
 ## Architecture
 
@@ -121,7 +130,9 @@ The passing-lane test in `lib/geometry.ts` mirrors `scorer.py`'s `_is_shadowed` 
 
 ## Deployment
 
-- **Backend**: Render (`https://what-went-wrong.onrender.com`). No `render.yaml`; the service is configured in the Render dashboard (root `backend/`, `uvicorn main:app --host 0.0.0.0 --port $PORT`). `CORS_ORIGINS` on Render must include the Netlify URL.
+- **Backend**: Render (`https://what-went-wrong.onrender.com`). There's no `render.yaml`; the service is configured in the Render dashboard. `CORS_ORIGINS` on Render must include the Netlify URL.
+  - Until it is switched, it uses the Python runtime: root `backend/`, `uvicorn main:app --host 0.0.0.0 --port $PORT`.
+  - **To move it onto the Dockerfile** (a manual dashboard step): Settings → Runtime: Docker, Root Directory `backend`, Dockerfile Path `./Dockerfile`, health check path `/api/v1/health`, and clear the start command. The image reads `$PORT`.
 - **Frontend**: Netlify via `netlify.toml` (base `frontend`, SPA redirect to `index.html`).
 - In production builds, `api/client.ts` **hard-codes** the Render URL. `VITE_API_URL` in `frontend/.env.production` is currently unused. In dev, the client uses the relative `/api/v1` through the Vite proxy.
 - `.github/workflows/keep-alive.yml` pings `/api/v1/health` every 10 minutes so the Render free tier doesn't sleep.

@@ -104,6 +104,14 @@ npm install
 npm run dev   # Vite dev server on :5173, proxies /api → :8081
 ```
 
+### Or run everything in Docker
+
+```bash
+docker compose up --build   # API on :8081, app on :5173
+```
+
+The backend image (`backend/Dockerfile`) is the same one Render can deploy. To read from a local open-data clone inside Docker, see the comment at the top of `docker-compose.yml`.
+
 ### Run tests
 
 ```bash
@@ -157,7 +165,8 @@ Camera occlusion means only 9–20 of 22 players are typically visible per frame
 | `STATSBOMB_LOCAL_PATH` | _(none)_                | Path to a local open-data clone         |
 | `HTTP_TIMEOUT_SECONDS` | `30`                    | httpx request timeout                   |
 | `HTTP_MAX_RETRIES`     | `3`                     | Retry attempts with exponential backoff |
-| `CACHE_MAX_SIZE`       | `20`                    | Max entries in the TTL LRU cache        |
+| `CACHE_MAX_SIZE`       | `20`                    | Matches kept in the events / 360 caches |
+| `SEQUENCE_CACHE_MAX_SIZE` | `50`                 | Built goal sequences kept in memory     |
 | `CACHE_TTL_SECONDS`    | `3600`                  | Cache entry lifetime                    |
 | `CORS_ORIGINS`         | `http://localhost:5173` | Comma-separated allowed origins         |
 
