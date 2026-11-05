@@ -26,7 +26,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from app.models.frame import FrameData
+from app.models.frame import CollapseCause, FrameData
 
 WINDOW = 2
 MAX_COUNT_JUMP = 3
@@ -134,3 +134,52 @@ def collapse_frame_index(frames: list[FrameData]) -> int | None:
 def collapse_kind(frames: list[FrameData]) -> CollapseKind | None:
     i = collapse_frame_index(frames)
     return frames[i].collapse_kind if i is not None else None
+
+
+SHAPE_METRICS = ("compactness", "goal_side_share", "cover_shadow_coverage")
+
+
+def attribute(frames: list[FrameData], index: int | None) -> CollapseCause | None:
+    """Explain the collapse at `index`: the measure that moved most and the action into it.
+
+    - shape: compared with the previous reliable frame; the sub-score of the
+      composite that fell furthest (ties: compactness, goal-side, lanes, in that
+      order — the frontend's former biggestDrop).
+    - marking: compared with the previous frame; unmarked attackers in the box.
+    - action: the latest ball-moving action on a frame from the compared frame up
+      to the collapse (exclusive). A snapshot shows positions as its event
+      happens, so what moved the defence into frame k happened before k.
+    """
+    if index is None:
+        return None
+    f = frames[index]
+    kind = f.collapse_kind or "shape"
+
+    if kind == "marking":
+        prev = index - 1 if index > 0 else None
+    else:
+        prev = next((j for j in range(index - 1, -1, -1) if frames[j].scores.reliable), None)
+
+    metric = metric_from = metric_to = None
+    if prev is not None:
+        a, b = frames[prev].scores, f.scores
+        if kind == "marking":
+            metric, metric_from, metric_to = "unmarked_in_box", float(a.unmarked_in_box), float(b.unmarked_in_box)
+        else:
+            metric = min(SHAPE_METRICS, key=lambda m: getattr(b, m) - getattr(a, m))
+            metric_from, metric_to = getattr(a, metric), getattr(b, metric)
+
+    start = prev if prev is not None else max(0, index - 1)
+    action_index = next(
+        (j for j in range(index - 1, start - 1, -1) if frames[j].action is not None), None
+    )
+    return CollapseCause(
+        kind=kind,
+        frame_index=index,
+        compared_to_index=prev,
+        metric=metric,
+        metric_from=metric_from,
+        metric_to=metric_to,
+        action=frames[action_index].action if action_index is not None else None,
+        action_frame_index=action_index,
+    )

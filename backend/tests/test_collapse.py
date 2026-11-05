@@ -1,9 +1,10 @@
 """Tests for collapse frame detection."""
 import pytest
 
-from app.models.frame import DefensiveScores, FrameData
+from app.models.frame import DefensiveScores, FrameAction, FrameData
 from app.services.collapse import (
     SHAPE_MIN_DROP,
+    attribute,
     collapse_frame_index,
     collapse_kind,
     detect_collapse,
@@ -223,6 +224,75 @@ def test_collapse_kind_is_reset():
     frames[0].collapse_kind = "shape"
     detect_collapse(frames)
     assert frames[0].collapse_kind is None
+
+
+def _sub(f, compactness, goal_side, lanes):
+    f.scores.compactness, f.scores.goal_side_share, f.scores.cover_shadow_coverage = (
+        compactness, goal_side, lanes,
+    )
+
+
+def test_attribute_shape_picks_metric_that_fell_furthest():
+    frames = _frames(0.8, None, 0.5)
+    _sub(frames[0], 0.9, 0.8, 0.7)
+    _sub(frames[2], 0.8, 0.3, 0.6)  # goal-side fell most (-0.5)
+    frames[2].collapse_kind = "shape"
+    frames[1].action = FrameAction(kind="Pass", cross=True, end_x=6.0, end_y=40.0)
+
+    cause = attribute(frames, 2)
+
+    assert cause.kind == "shape"
+    assert cause.compared_to_index == 0  # skips the unreliable frame 1
+    assert (cause.metric, cause.metric_from, cause.metric_to) == ("goal_side_share", 0.8, 0.3)
+    assert cause.action.cross and cause.action_frame_index == 1
+
+
+def test_attribute_metric_ties_go_to_compactness_first():
+    frames = _frames(0.8, 0.5)
+    _sub(frames[0], 0.9, 0.9, 0.9)
+    _sub(frames[1], 0.5, 0.5, 0.5)
+    assert attribute(frames, 1).metric == "compactness"
+
+
+def test_attribute_marking_compares_previous_frame():
+    frames = _with_marking([0.6, 0.65, 0.7, 0.7], [0, 0, 2, 2])
+    frames[2].collapse_kind = "marking"
+    frames[1].action = FrameAction(kind="Pass", through_ball=True, end_x=10.0, end_y=35.0)
+
+    cause = attribute(frames, 2)
+
+    assert (cause.kind, cause.compared_to_index) == ("marking", 1)
+    assert (cause.metric, cause.metric_from, cause.metric_to) == ("unmarked_in_box", 0.0, 2.0)
+    assert cause.action.through_ball and cause.action_frame_index == 1
+
+
+def test_attribute_action_is_latest_before_collapse_not_on_it():
+    frames = _frames(0.8, 0.8, 0.8, 0.4)
+    frames[0].action = FrameAction(kind="Carry", end_x=50.0, end_y=40.0)
+    frames[1].action = FrameAction(kind="Pass", switch=True, end_x=30.0, end_y=10.0)
+    frames[3].action = FrameAction(kind="Shot", end_x=0.0, end_y=40.0)  # on the collapse: ignored
+    cause = attribute(frames, 3)
+    assert cause.compared_to_index == 2
+    assert cause.action is None  # frame 2 (the compared frame) has no action and nothing after it does
+
+
+def test_attribute_action_can_sit_on_compared_frame():
+    frames = _frames(0.8, 0.4)
+    frames[0].action = FrameAction(kind="Pass", cut_back=True, end_x=12.0, end_y=40.0)
+    cause = attribute(frames, 1)
+    assert cause.action.cut_back and cause.action_frame_index == 0
+
+
+def test_attribute_without_previous_frame():
+    frames = _with_marking([None, 0.6], [3, 3])
+    frames[0].collapse_kind = "marking"
+    cause = attribute(frames, 0)
+    assert cause.compared_to_index is None
+    assert cause.metric is None and cause.action is None
+
+
+def test_attribute_none_when_no_collapse():
+    assert attribute(_frames(0.5, 0.6), None) is None
 
 
 def test_score_delta_unchanged_by_marking():

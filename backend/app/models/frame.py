@@ -56,6 +56,25 @@ class FrameAction(BaseModel):
     under_pressure: bool = False
 
 
+class CollapseCause(BaseModel):
+    """What broke the defence at the collapse frame (see collapse.attribute)."""
+
+    kind: Literal["shape", "marking"]
+    frame_index: int  # the collapse frame
+    # Frame the collapse is measured against: the previous reliable frame (shape)
+    # or the previous frame (marking). None if there is none.
+    compared_to_index: int | None
+    # The measure that moved most: for "shape" the sub-score that fell furthest,
+    # for "marking" unmarked_in_box. None when there is nothing to compare against.
+    metric: Literal["compactness", "goal_side_share", "cover_shadow_coverage", "unmarked_in_box"] | None
+    metric_from: float | None
+    metric_to: float | None
+    # The latest ball-moving action leading into the collapse frame (a frame from
+    # compared_to_index up to, not including, the collapse), e.g. the cross.
+    action: FrameAction | None
+    action_frame_index: int | None
+
+
 class FrameData(BaseModel):
     frame_index: int
     event_id: str

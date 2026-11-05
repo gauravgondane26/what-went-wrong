@@ -33,7 +33,7 @@ The backend stays **one containerised FastAPI service** (Docker plus compose, de
 - [x] **P1.5** Box marking measure: `attackers_in_box` / `unmarked_in_box` per frame (scorer + types), not part of the composite
 - [x] **P1.6** Detection falls back to a marking breakdown when the shape score has no real drop, plus `collapse_kind` (`shape` / `marking`); thresholds chosen with the eval
 - [x] **P1.7** Update the golden snapshot; write `docs/eval/collapse-after.md`
-- [ ] **P1.8** `collapse.attribute()`: the action into the collapse, plus the metric that dropped most (or the marking change)
+- [x] **P1.8** `collapse.attribute()`: the action into the collapse, plus the metric that dropped most (or the marking change)
 - [ ] **P1.9** Expose `collapse_cause` on the response, plus frontend types
 - [ ] **P1.10** The finding text names the cause
 - [ ] **P1.11** Arrow layer for the action, with a key chip and a how-to-read entry
