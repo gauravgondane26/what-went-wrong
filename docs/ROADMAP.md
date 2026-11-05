@@ -14,7 +14,7 @@ The backend stays **one containerised FastAPI service** (Docker plus compose, de
 
 ## Phase 0: Foundations · `feat/p0-foundations`
 - [x] **P0.1** Add this roadmap
-- [ ] **P0.2** Move the pipeline out of the route into `services/sequence_builder.py` (no behaviour change)
+- [x] **P0.2** Move the pipeline out of the route into `services/sequence_builder.py` (no behaviour change)
 - [ ] **P0.3** Golden fixture of 12 real sequences, plus invariant and collapse snapshot tests
 - [ ] **P0.4** Wire `CACHE_MAX_SIZE` / `CACHE_TTL_SECONDS` into the caches
 - [ ] **P0.5** Backend `Dockerfile` + `.dockerignore`
