@@ -162,7 +162,6 @@ Rules:
 One-time dashboard setup:
 - **Render:** a second web service named `what-went-wrong-staging`. Branch `staging`, Docker runtime, root `backend`, health check `/api/v1/health`, and the CORS variables above.
 - **Netlify:** Site configuration → Build & deploy → Branches and deploy contexts → Branch deploys: add `staging`. The production branch stays `main`.
-- `.github/workflows/keep-alive.yml` pings `/api/v1/health` every 10 minutes so the Render free tier doesn't sleep.
 
 ## Environment notes
 
